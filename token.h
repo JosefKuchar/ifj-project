@@ -72,4 +72,12 @@ typedef struct {
  */
 void print_token(token_t* token);
 
+/**
+ * @brief Create new token
+ *
+ * @param type Token type
+ * @return New token
+ */
+token_t token_new(token_type_t type);
+
 #endif  // __TOKEN_H__

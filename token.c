@@ -54,3 +54,8 @@ void print_token(token_t* token) {
     fprintf(stderr, "{ %s }\n", token_names[token->type]);
   }
 }
+
+token_t token_new(token_type_t type) {
+  token_t token = {.type = type};
+  return token;
+}

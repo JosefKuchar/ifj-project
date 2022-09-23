@@ -23,6 +23,37 @@ token_t scanner_get_next(scanner_t* scanner) {
       break;
     }
     case SC_START: {
+      // Skip whitespaces
+      if (isspace(c)) {
+        break;
+      }
+
+      // Single char tokens (that are for sure end states)
+      switch (c) {
+        case '+':
+          return token_new(TOK_PLUS);
+        case '-':
+          return token_new(TOK_MINUS);
+        case '*':
+          return token_new(TOK_MULTIPLY);
+        case '(':
+          return token_new(TOK_LPAREN);
+        case ')':
+          return token_new(TOK_RPAREN);
+        case '{':
+          return token_new(TOK_LBRACE);
+        case '}':
+          return token_new(TOK_RBRACE);
+        case '.':
+          return token_new(TOK_DOT);
+        case ',':
+          return token_new(TOK_COMMA);
+        case ';':
+          return token_new(TOK_SEMICOLON);
+        case ':':
+          return token_new(TOK_COLON);
+      }
+
       fprintf(stderr, "Not implemented!\n");
       error_exit(ERR_INTERNAL);
     }
