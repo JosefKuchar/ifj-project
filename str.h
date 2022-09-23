@@ -23,6 +23,13 @@ str_t str_new();
  *
  * @param str String to be freed
  */
-void str_free(str_t str);
+void str_free(str_t* str);
+
+/**
+ * @brief Add character to string
+ *
+ * @param str String to which the character will be added
+ */
+void str_add_char(str_t* str, char c);
 
 #endif  // __STR_H__

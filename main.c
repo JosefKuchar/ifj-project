@@ -1,12 +1,13 @@
 #include <stdio.h>
-#include "error.h"
-#include "str.h"
-#include "token.h"
+#include "scanner.h"
 
 int main() {
-  token_t tok = {.type = TOK_EQUALS};
+  scanner_t scanner = scanner_new();
 
-  print_token(&tok);
+  while (true) {
+    token_t token = scanner_get_next(&scanner);
+    print_token(&token);
+  }
 
-  return RET_OK;
+  return 0;
 }
