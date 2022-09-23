@@ -54,8 +54,7 @@ token_t scanner_get_next(scanner_t* scanner) {
           return token_new(TOK_COLON);
       }
 
-      fprintf(stderr, "Not implemented!\n");
-      error_exit(ERR_INTERNAL);
+      error_not_implemented();
     }
   }
 

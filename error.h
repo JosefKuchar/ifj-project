@@ -15,6 +15,16 @@ enum return_code {
   ERR_INTERNAL = 99  // Internal error (e.g. memory allocation error)
 };
 
+/**
+ * @brief Used when we want to exit due to some error
+ *
+ * @param code Error code
+ */
 void error_exit(enum return_code code);
+
+/**
+ * @brief Used when something is not implemented yet
+ */
+void error_not_implemented();
 
 #endif  // __ERROR_H__

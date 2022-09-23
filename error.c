@@ -19,3 +19,8 @@ void error_exit(enum return_code code) {
   fprintf(stderr, "%s\n", error_msgs[code]);
   exit(code);
 }
+
+void error_not_implemented() {
+  fprintf(stderr, "Not implemented!\n");
+  exit(ERR_INTERNAL);
+}
