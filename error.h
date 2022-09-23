@@ -2,7 +2,7 @@
 #define __ERROR_H__
 
 // Compiler return codes
-enum ReturnCode {
+enum return_code {
   RET_OK = 0,        // No error
   ERR_LEX = 1,       // Lexical error
   ERR_SYN = 2,       // Syntax error
@@ -14,5 +14,7 @@ enum ReturnCode {
   ERR_SEM = 8,       // Other semantic error
   ERR_INTERNAL = 99  // Internal error (e.g. memory allocation error)
 };
+
+void error_exit(enum return_code code);
 
 #endif  // __ERROR_H__

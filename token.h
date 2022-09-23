@@ -1,6 +1,8 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
+#include "str.h"
+
 /**
  * @brief All token types
  */
@@ -49,9 +51,9 @@ typedef enum {
  * @brief Token attribute
  */
 typedef union {
-  int value;     // Integer value (for TOK_INT_LIT)
-  double value;  // Float value (for TOK_FLOAT_LIT)
-  // TODO: String
+  int val_i;       // Integer value (for TOK_INT_LIT)
+  double value_f;  // Float value (for TOK_FLOAT_LIT)
+  str_t value_s;   // String value (for TOK_STR_LIT, TOK_ID, TOK_FUN_NAME)
 } token_attribute_t;
 
 /**

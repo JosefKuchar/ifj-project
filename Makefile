@@ -1,29 +1,37 @@
+# Compiler settings
 CC = gcc
 CFLAGS = -std=c11 -g -O2 -Wall -Wextra -Werror -pedantic
+
+# Get all .c files
 SRCS = $(wildcard *.c)
+# Get corresponding .o files
+OBJS := $(SRCS:%.c=%.o)
+# Get corresponding .d files
+DEPS := $(SRCS:%.c=.deps/%.d)
 
-.PHONY: all run clean zip
+# These will run every time (not just when the files are newer)
+.PHONY: run clean zip
 
-all: main
+# Main target
+main: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
+# Dependecies
+%.o: %.c .deps/%.d | .deps
+	$(CC) -MT $@ -MMD -MP -MF .deps/$*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
+.deps:
+	@mkdir -p $@
+$(DEPS):
+include $(wildcard $(DEPS))
+
+# Run the program
 run: main
 	./main
 
+# Clean up
 clean:
-	rm -f *.o *.out xkucha28.zip
+	rm -rf .deps *.o *.out xkucha28.zip
 
+# Pack for submission
 zip:
 	zip xkucha28.zip *.c *.h Makefile rozdeleni
-
-COMPILE = $(CC) -MT $@ -MMD -MP -MF .deps/$*.d $(CFLAGS) -c
-
-%.o: %.c
-%.o: %.c .deps/%.d | .deps
-	$(COMPILE) $(OUTPUT_OPTION) $<
-
-.deps: ; @mkdir -p $@
-
-DEPS := $(SRCS:%.c=.deps/%.d)
-$(DEPS):
-
-include $(wildcard $(DEPS))
