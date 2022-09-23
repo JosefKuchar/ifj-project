@@ -1,8 +1,11 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
-// All tokens
-enum Token {
+/**
+ * @brief All token types
+ */
+typedef enum {
+  TOK_EOF,        // End of file
   TOK_ID,         // Identifier (eg. $foo)
   TOK_STR_LIT,    // String literal (eg. "foo")
   TOK_INT_LIT,    // Integer literal (eg. 0)
@@ -40,6 +43,23 @@ enum Token {
   TOK_STRING,    // string
   TOK_VOID,      // void
   TOK_WHILE,     // while
-};
+} token_type_t;
+
+/**
+ * @brief Token attribute
+ */
+typedef union {
+  int value;     // Integer value (for TOK_INT_LIT)
+  double value;  // Float value (for TOK_FLOAT_LIT)
+  // TODO: String
+} token_attribute_t;
+
+/**
+ * @brief Token struct
+ */
+typedef struct {
+  token_type_t type;
+  token_attribute_t attr;
+} token_t;
 
 #endif  // __TOKEN_H__
