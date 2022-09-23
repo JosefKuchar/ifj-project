@@ -1,3 +1,5 @@
+#include "error.h"
+
 int main() {
-    return 0;
+  return RET_OK;
 }
