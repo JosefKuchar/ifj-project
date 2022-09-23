@@ -17,7 +17,7 @@ typedef enum {
   TOK_DOT,        // .
   TOK_COMMA,      // ,
   TOK_COLON,      // :
-  TOK_SEMICOLON,  // ,
+  TOK_SEMICOLON,  // ;
   TOK_ASSIGN,     // =
   TOK_EQUALS,     // ===
   TOK_NEQUALS,    // !==
@@ -32,7 +32,7 @@ typedef enum {
   TOK_LPAREN,     // (
   TOK_RPAREN,     // )
   TOK_LBRACE,     // {
-  TOK_RBRACE,     // {
+  TOK_RBRACE,     // }
 
   /* KEYWORDS */
   TOK_ELSE,      // else
@@ -51,9 +51,10 @@ typedef enum {
  * @brief Token attribute
  */
 typedef union {
-  int val_i;       // Integer value (for TOK_INT_LIT)
-  double value_f;  // Float value (for TOK_FLOAT_LIT)
-  str_t value_s;   // String value (for TOK_STR_LIT, TOK_ID, TOK_FUN_NAME)
+  bool val_b;    // Bool value (for TOK_BOOL_LIT)
+  int val_i;     // Integer value (for TOK_INT_LIT)
+  double val_f;  // Float value (for TOK_FLOAT_LIT)
+  str_t val_s;   // String value (for TOK_STR_LIT, TOK_ID, TOK_FUN_NAME)
 } token_attribute_t;
 
 /**
@@ -63,5 +64,12 @@ typedef struct {
   token_type_t type;
   token_attribute_t attr;
 } token_t;
+
+/**
+ * @brief Print token in pretty format
+ *
+ * @param token Token to be printed
+ */
+void print_token(token_t* token);
 
 #endif  // __TOKEN_H__

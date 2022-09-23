@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "error.h"
 #include "str.h"
+#include "token.h"
 
 int main() {
-  str_t test = str_new();
-  printf("%s\n", test.val);
+  token_t tok = {.type = TOK_EQUALS};
+
+  print_token(&tok);
 
   return RET_OK;
 }

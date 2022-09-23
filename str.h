@@ -4,10 +4,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// String
 typedef struct {
-  char* val;
-  uint32_t len;
-  uint32_t size;
+  char* val;      // Actual string
+  uint32_t len;   // Length
+  uint32_t size;  // Buffer size
 } str_t;
 
 /**
