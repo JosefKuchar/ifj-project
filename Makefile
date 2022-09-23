@@ -30,7 +30,7 @@ run: main
 
 # Clean up
 clean:
-	rm -rf .deps *.o *.out xkucha28.zip
+	rm -rf .deps *.o *.out main xkucha28.zip
 
 # Pack for submission
 zip:
