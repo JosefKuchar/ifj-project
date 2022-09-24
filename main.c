@@ -3,16 +3,16 @@
 #include "scanner.h"
 
 int main() {
-  scanner_t scanner = scanner_new();
-  token_t token = scanner_get_next(&scanner);
-  print_token(&token);
-
-  while (token.type != TOK_EOF) {
-    token = scanner_get_next(&scanner);
+    scanner_t scanner = scanner_new();
+    token_t token = scanner_get_next(&scanner);
     print_token(&token);
-  }
 
-  scanner_free(&scanner);
+    while (token.type != TOK_EOF) {
+        token = scanner_get_next(&scanner);
+        print_token(&token);
+    }
 
-  return RET_OK;
+    scanner_free(&scanner);
+
+    return RET_OK;
 }

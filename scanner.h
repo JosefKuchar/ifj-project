@@ -4,32 +4,32 @@
 #include "token.h"
 
 enum scanner_state {
-  SC_CODE_START,       // Start of code - should start with <?php
-  SC_PROLOG_SPACE,     // Space between php and declare
-  SC_PROLOG_MCOMMENT,  // Multiline comment (between php and declare)
-  SC_PROLOG_LCOMMENT,  // Oneline comment (between php and declare)
-  SC_DECLARE,          // Should be declare(strict_types=1);
-  SC_ASSIGN,           // Tokens that start with =
-  SC_EQUALS,           // Tokens that start with ==
-  SC_EXCLAMATION,      // Tokens that start with !
-  SC_NEQUALS,          // Tokens that start with !=
-  SC_LESS,             // Tokens that start with <
-  SC_GREATER,          // Tokens that start with >
-  SC_VARIABLE_START,   // Tokens that start with $
-  SC_VARIABLE,         // Correct variables
-  SC_FUNCTION,         // Tokens that start with alpha or _
-  SC_STRING_LIT,       // Tokens that start with "
-  SC_DIVIDE,           // Tokens that start with /
-  SC_MCOMMENT,         // Multiline comments
-  SC_LCOMMENT,         // Oneline comments
-  SC_QUESTION_MARK,    // Tokens that start with ?
-  SC_END,              // Everything after ?>
-  SC_START
+    SC_CODE_START,       // Start of code - should start with <?php
+    SC_PROLOG_SPACE,     // Space between php and declare
+    SC_PROLOG_MCOMMENT,  // Multiline comment (between php and declare)
+    SC_PROLOG_LCOMMENT,  // Oneline comment (between php and declare)
+    SC_DECLARE,          // Should be declare(strict_types=1);
+    SC_ASSIGN,           // Tokens that start with =
+    SC_EQUALS,           // Tokens that start with ==
+    SC_EXCLAMATION,      // Tokens that start with !
+    SC_NEQUALS,          // Tokens that start with !=
+    SC_LESS,             // Tokens that start with <
+    SC_GREATER,          // Tokens that start with >
+    SC_VARIABLE_START,   // Tokens that start with $
+    SC_VARIABLE,         // Correct variables
+    SC_FUNCTION,         // Tokens that start with alpha or _
+    SC_STRING_LIT,       // Tokens that start with "
+    SC_DIVIDE,           // Tokens that start with /
+    SC_MCOMMENT,         // Multiline comments
+    SC_LCOMMENT,         // Oneline comments
+    SC_QUESTION_MARK,    // Tokens that start with ?
+    SC_END,              // Everything after ?>
+    SC_START
 };
 
 typedef struct {
-  enum scanner_state state;  // Current state
-  str_t buffer;              // Buffer for previous characters
+    enum scanner_state state;  // Current state
+    str_t buffer;              // Buffer for previous characters
 } scanner_t;
 
 /**

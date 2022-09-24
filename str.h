@@ -6,9 +6,9 @@
 
 // String
 typedef struct {
-  char* val;      // Actual string
-  uint32_t len;   // Length
-  uint32_t size;  // Buffer size
+    char* val;      // Actual string
+    uint32_t len;   // Length
+    uint32_t size;  // Buffer size
 } str_t;
 
 /**

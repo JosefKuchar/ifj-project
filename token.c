@@ -40,28 +40,28 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
                              [TOK_WHILE] = "while"};
 
 void print_token(token_t* token) {
-  const char* name = token_names[token->type];
+    const char* name = token_names[token->type];
 
-  if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
-    fprintf(stderr, "{ %s, \"%s\" }\n", name, token->attr.val_s.val);
-  } else if (token->type == TOK_INT_LIT) {
-    fprintf(stderr, "{ %s, %d }\n", name, token->attr.val_i);
-  } else if (token->type == TOK_FLOAT_LIT) {
-    fprintf(stderr, "{ %s, %f }\n", name, token->attr.val_f);
-  } else if (token->type == TOK_BOOL_LIT) {
-    fprintf(stderr, "{ %s, %s }\n", name, token->attr.val_b ? "true" : "false");
-  } else {
-    fprintf(stderr, "{ %s }\n", token_names[token->type]);
-  }
+    if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
+        fprintf(stderr, "{ %s, \"%s\" }\n", name, token->attr.val_s.val);
+    } else if (token->type == TOK_INT_LIT) {
+        fprintf(stderr, "{ %s, %d }\n", name, token->attr.val_i);
+    } else if (token->type == TOK_FLOAT_LIT) {
+        fprintf(stderr, "{ %s, %f }\n", name, token->attr.val_f);
+    } else if (token->type == TOK_BOOL_LIT) {
+        fprintf(stderr, "{ %s, %s }\n", name, token->attr.val_b ? "true" : "false");
+    } else {
+        fprintf(stderr, "{ %s }\n", token_names[token->type]);
+    }
 }
 
 token_t token_new(token_type_t type) {
-  token_t token = {.type = type};
-  return token;
+    token_t token = {.type = type};
+    return token;
 }
 
 token_t token_new_with_string(token_type_t type, str_t* str) {
-  token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
-  str_clear(str);
-  return token;
+    token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
+    str_clear(str);
+    return token;
 }
