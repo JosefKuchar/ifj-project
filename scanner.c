@@ -181,6 +181,9 @@ token_t scanner_get_next(scanner_t* scanner) {
           case '"':
             scanner->state = SC_STRING_LIT;
             continue;
+          case '/':
+            scanner->state = SC_DIVIDE;
+            continue;
         }
 
         // Function names and keywords
@@ -300,6 +303,38 @@ token_t scanner_get_next(scanner_t* scanner) {
         } else {
           str_add_char(&scanner->buffer, c);
         }
+        break;
+      }
+      case SC_DIVIDE: {
+        if (c == '*') {
+          scanner->state = SC_MCOMMENT;
+        } else if (c == '/') {
+          scanner->state = SC_LCOMMENT;
+        } else {
+          ungetc(c, stdin);
+          scanner->state = SC_START;
+          return token_new(TOK_DIVIDE);
+        }
+        break;
+      }
+      case SC_LCOMMENT: {
+        if (c == '\n' || c == EOF) {
+          scanner->state = SC_START;
+        }
+        break;
+      }
+      case SC_MCOMMENT: {
+        if (c == EOF) {
+          scanner->state = SC_START;
+        } else if (c == '*') {
+          const int c2 = fgetc(stdin);
+          if (c2 == '/') {
+            scanner->state = SC_START;
+          } else {
+            ungetc(c2, stdin);
+          }
+        }
+        break;
       }
     }
   }

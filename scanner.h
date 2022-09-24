@@ -19,6 +19,9 @@ enum scanner_state {
   SC_VARIABLE,         // Correct variables
   SC_FUNCTION,         // Tokens that start with alpha or _
   SC_STRING_LIT,       // Tokens that start with "
+  SC_DIVIDE,           // Tokens that start with /
+  SC_MCOMMENT,         // Multiline comments
+  SC_LCOMMENT,         // Oneline comments
   SC_START
 };
 
