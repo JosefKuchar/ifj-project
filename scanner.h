@@ -4,7 +4,11 @@
 #include "token.h"
 
 enum scanner_state {
-  SC_CODE_START,  // Start of code - should start with <?php
+  SC_CODE_START,       // Start of code - should start with <?php
+  SC_PROLOG_SPACE,     // Space between php and declare
+  SC_PROLOG_MCOMMENT,  // Multiline comment (between php and declare)
+  SC_PROLOG_LCOMMENT,  // Oneline comment (between php and declare)
+  SC_DECLARE,          // Should be declare(strict_types=1);
   SC_START
 };
 
