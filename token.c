@@ -59,3 +59,9 @@ token_t token_new(token_type_t type) {
   token_t token = {.type = type};
   return token;
 }
+
+token_t token_new_with_string(token_type_t type, str_t* str) {
+  token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
+  str_clear(str);
+  return token;
+}

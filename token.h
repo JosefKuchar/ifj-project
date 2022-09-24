@@ -80,4 +80,13 @@ void print_token(token_t* token);
  */
 token_t token_new(token_type_t type);
 
+/**
+ * @brief Create new token with supplied string AND CONSUME THE STRING
+ *
+ * @param type Token type
+ * @param str String
+ * @return New token with string
+ */
+token_t token_new_with_string(token_type_t type, str_t* str);
+
 #endif  // __TOKEN_H__

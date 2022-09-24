@@ -19,6 +19,14 @@ typedef struct {
 str_t str_new();
 
 /**
+ * @brief Initialize string from existing string
+ *
+ * @param str Existing string (source)
+ * @return Copied string
+ */
+str_t str_new_from_str(str_t* str);
+
+/**
  * @brief Free existing string
  *
  * @param str String to be freed

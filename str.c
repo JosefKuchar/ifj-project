@@ -1,6 +1,7 @@
 #include "str.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "error.h"
 
 // Default string size (including \0)
@@ -23,6 +24,23 @@ str_t str_new() {
   str.val[0] = '\0';
 
   return str;
+}
+
+str_t str_new_from_str(str_t* str) {
+  // Create new struct
+  str_t new_str = {.val = malloc(str->len + 1),  // Just enough to fit
+                   .size = str->len + 1,
+                   .len = str->len};
+
+  // Check if malloc failed
+  if (new_str.val == NULL) {
+    error_exit(ERR_INTERNAL);
+  }
+
+  // Copy data to new string
+  strcpy(new_str.val, str->val);
+
+  return new_str;
 }
 
 void str_free(str_t* str) {

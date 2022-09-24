@@ -87,6 +87,7 @@ token_t scanner_get_next(scanner_t* scanner) {
         // 24 is length of declare(strict_types=1);
         if (scanner->buffer.len == 24) {
           if (strcmp(scanner->buffer.val, "declare(strict_types=1);") == 0) {
+            str_clear(&scanner->buffer);
             scanner->state = SC_START;
           } else {
             error_exit(ERR_LEX);
@@ -141,6 +142,10 @@ token_t scanner_get_next(scanner_t* scanner) {
             continue;
           case '>':
             scanner->state = SC_GREATER;
+            continue;
+          case '$':
+            scanner->state = SC_VARIABLE_START;
+            str_add_char(&scanner->buffer, c);
             continue;
         }
 
@@ -204,6 +209,27 @@ token_t scanner_get_next(scanner_t* scanner) {
           ungetc(c, stdin);
           return token_new(TOK_GREATER);
         }
+        break;
+      }
+      case SC_VARIABLE_START: {
+        if (isalpha(c) || c == '_') {
+          str_add_char(&scanner->buffer, c);
+          scanner->state = SC_VARIABLE;
+        } else {
+          // There has to be valid character after $
+          error_exit(ERR_LEX);
+        }
+        break;
+      }
+      case SC_VARIABLE: {
+        if (isalnum(c) || c == '_') {
+          str_add_char(&scanner->buffer, c);
+        } else {
+          ungetc(c, stdin);
+          scanner->state = SC_START;
+          return token_new_with_string(TOK_VAR, &scanner->buffer);
+        }
+        break;
       }
     }
   }

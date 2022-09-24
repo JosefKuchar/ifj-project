@@ -15,6 +15,8 @@ enum scanner_state {
   SC_NEQUALS,          // Tokens that start with !=
   SC_LESS,             // Tokens that start with <
   SC_GREATER,          // Tokens that start with >
+  SC_VARIABLE_START,   // Tokens that start with $
+  SC_VARIABLE,         // Correct variables
   SC_START
 };
 
