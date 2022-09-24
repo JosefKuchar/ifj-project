@@ -47,6 +47,8 @@ void print_token(token_t* token) {
 
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         fprintf(stderr, "{ %s, \"%s\" }\n", name, token->attr.val_s.val);
+    } else if (token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING) {
+        fprintf(stderr, "{ %s, %s }\n", name, token->attr.val_b ? "optional" : "required");
     } else if (token->type == TOK_INT_LIT) {
         fprintf(stderr, "{ %s, %d }\n", name, token->attr.val_i);
     } else if (token->type == TOK_FLOAT_LIT) {
@@ -98,5 +100,11 @@ token_t token_new_with_exponent(token_type_t type, str_t* str) {
     double val = num * pow(10, exponent_num);
 
     token_t token = {.type = type, .attr.val_f = val};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_bool(token_type_t type, bool val) {
+    token_t token = {.type = type, .attr.val_b = val};
     return token;
 }
