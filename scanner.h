@@ -28,4 +28,11 @@ token_t scanner_get_next(scanner_t* state);
  */
 scanner_t scanner_new();
 
+/**
+ * @brief Free existing scanner
+ *
+ * @param scanner Scanner
+ */
+void scanner_free(scanner_t* scanner);
+
 #endif  // __SCANNER_H__

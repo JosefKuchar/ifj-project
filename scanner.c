@@ -15,6 +15,7 @@ token_t scanner_get_next(scanner_t* scanner) {
         if (strcmp(scanner->buffer.val, "<?php\ndeclare(strict_types=1)") != 0) {
           error_exit(ERR_LEX);  // TODO: Check if this error is right
         } else {
+          str_clear(&scanner->buffer);
           scanner->state = SC_START;
           break;
         }
@@ -52,6 +53,8 @@ token_t scanner_get_next(scanner_t* scanner) {
           return token_new(TOK_SEMICOLON);
         case ':':
           return token_new(TOK_COLON);
+        case EOF:
+          return token_new(TOK_EOF);
       }
 
       error_not_implemented();
@@ -64,4 +67,8 @@ token_t scanner_get_next(scanner_t* scanner) {
 scanner_t scanner_new() {
   scanner_t scanner = {.buffer = str_new(), .state = SC_CODE_START};
   return scanner;
+}
+
+void scanner_free(scanner_t* scanner) {
+  str_free(&scanner->buffer);
 }

@@ -32,4 +32,9 @@ void str_free(str_t* str);
  */
 void str_add_char(str_t* str, char c);
 
+/**
+ * @brief Clear string
+ */
+void str_clear(str_t* str);
+
 #endif  // __STR_H__

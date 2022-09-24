@@ -49,3 +49,8 @@ void str_add_char(str_t* str, char c) {
   str->len++;
   str->val[str->len] = '\0';
 }
+
+void str_clear(str_t* str) {
+  str->val[0] = '\0';
+  str->len = 0;
+}
