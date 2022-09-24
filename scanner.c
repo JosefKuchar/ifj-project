@@ -178,6 +178,9 @@ token_t scanner_get_next(scanner_t* scanner) {
             scanner->state = SC_VARIABLE_START;
             str_add_char(&scanner->buffer, c);
             continue;
+          case '"':
+            scanner->state = SC_STRING_LIT;
+            continue;
         }
 
         // Function names and keywords
@@ -285,6 +288,18 @@ token_t scanner_get_next(scanner_t* scanner) {
           }
         }
         break;
+      }
+      case SC_STRING_LIT: {
+        if (c == EOF) {
+          error_exit(ERR_LEX);
+        }
+
+        if (c == '"') {
+          scanner->state = SC_START;
+          return token_new_with_string(TOK_STR_LIT, &scanner->buffer);
+        } else {
+          str_add_char(&scanner->buffer, c);
+        }
       }
     }
   }
