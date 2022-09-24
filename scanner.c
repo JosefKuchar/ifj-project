@@ -128,7 +128,82 @@ token_t scanner_get_next(scanner_t* scanner) {
             return token_new(TOK_EOF);
         }
 
+        // Multi char tokens
+        switch (c) {
+          case '=':
+            scanner->state = SC_ASSIGN;
+            continue;
+          case '!':
+            scanner->state = SC_EXCLAMATION;
+            continue;
+          case '<':
+            scanner->state = SC_LESS;
+            continue;
+          case '>':
+            scanner->state = SC_GREATER;
+            continue;
+        }
+
         error_not_implemented();
+        break;
+      }
+      case SC_ASSIGN: {
+        if (c == '=') {
+          scanner->state = SC_EQUALS;
+        } else {
+          ungetc(c, stdin);
+          scanner->state = SC_START;
+          return token_new(TOK_ASSIGN);
+        }
+        break;
+      }
+      case SC_EQUALS: {
+        if (c == '=') {
+          scanner->state = SC_START;
+          return token_new(TOK_EQUALS);
+        } else {
+          // We don't have == token
+          error_exit(ERR_LEX);
+        }
+        break;
+      }
+      case SC_EXCLAMATION: {
+        if (c == '=') {
+          scanner->state = SC_NEQUALS;
+        } else {
+          // We don't have ! token
+          error_exit(ERR_LEX);
+        }
+        break;
+      }
+      case SC_NEQUALS: {
+        if (c == '=') {
+          scanner->state = SC_START;
+          return token_new(TOK_NEQUALS);
+        } else {
+          // We don't have != token
+          error_exit(ERR_LEX);
+        }
+        break;
+      }
+      case SC_LESS: {
+        scanner->state = SC_START;
+        if (c == '=') {
+          return token_new(TOK_LESS_E);
+        } else {
+          ungetc(c, stdin);
+          return token_new(TOK_LESS);
+        }
+        break;
+      }
+      case SC_GREATER: {
+        scanner->state = SC_START;
+        if (c == '=') {
+          return token_new(TOK_GREATER_E);
+        } else {
+          ungetc(c, stdin);
+          return token_new(TOK_GREATER);
+        }
       }
     }
   }

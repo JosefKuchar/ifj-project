@@ -7,4 +7,4 @@ Or multiline comments
 */
 
 declare(strict_types=1);
-{}*-,;
+{}*-,;><==

@@ -3,7 +3,7 @@
 
 // Names for all token types
 const char* token_names[] = {[TOK_EOF] = "EOF",
-                             [TOK_ID] = "identifier",
+                             [TOK_VAR] = "variable",
                              [TOK_STR_LIT] = "string literal",
                              [TOK_INT_LIT] = "integer literal",
                              [TOK_FLOAT_LIT] = "float literal",
@@ -42,7 +42,7 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
 void print_token(token_t* token) {
   const char* name = token_names[token->type];
 
-  if (token->type == TOK_ID || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
+  if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
     fprintf(stderr, "{ %s, %s }\n", name, token->attr.val_s.val);
   } else if (token->type == TOK_INT_LIT) {
     fprintf(stderr, "{ %s, %d }\n", name, token->attr.val_i);

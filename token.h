@@ -8,7 +8,7 @@
  */
 typedef enum {
   TOK_EOF,        // End of file
-  TOK_ID,         // Identifier (eg. $foo)
+  TOK_VAR,        // Identifier (eg. $foo)
   TOK_STR_LIT,    // String literal (eg. "foo")
   TOK_INT_LIT,    // Integer literal (eg. 0)
   TOK_FLOAT_LIT,  // Float literal (eg. 0.0)

@@ -9,6 +9,12 @@ enum scanner_state {
   SC_PROLOG_MCOMMENT,  // Multiline comment (between php and declare)
   SC_PROLOG_LCOMMENT,  // Oneline comment (between php and declare)
   SC_DECLARE,          // Should be declare(strict_types=1);
+  SC_ASSIGN,           // Tokens that start with =
+  SC_EQUALS,           // Tokens that start with ==
+  SC_EXCLAMATION,      // Tokens that start with !
+  SC_NEQUALS,          // Tokens that start with !=
+  SC_LESS,             // Tokens that start with <
+  SC_GREATER,          // Tokens that start with >
   SC_START
 };
 
