@@ -1,5 +1,8 @@
 #include "token.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 // Names for all token types
 const char* token_names[] = {[TOK_EOF] = "EOF",
@@ -63,5 +66,37 @@ token_t token_new(token_type_t type) {
 token_t token_new_with_string(token_type_t type, str_t* str) {
     token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
     str_clear(str);
+    return token;
+}
+
+token_t token_new_with_int(token_type_t type, str_t* str) {
+    // TODO: error checks
+    long num = strtoul(str->val, NULL, 10);
+
+    token_t token = {.type = type, .attr.val_i = (int)num};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_float(token_type_t type, str_t* str) {
+    // TODO: error checks
+    double num = strtod(str->val, NULL);
+
+    token_t token = {.type = type, .attr.val_f = num};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_exponent(token_type_t type, str_t* str) {
+    // TODO: error checks, find better solution
+    char *mantis = strtok(str->val, "e");
+    char *exponent = strtok(NULL, "e");
+
+    double num = strtod(mantis, NULL);
+    long exponent_num = strtol(exponent, NULL, 10);
+
+    double val = num * pow(10, exponent_num);
+
+    token_t token = {.type = type, .attr.val_f = val};
     return token;
 }

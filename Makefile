@@ -14,7 +14,7 @@ DEPS := $(SRCS:%.c=.deps/%.d)
 
 # Main target
 main: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # Dependecies
 %.o: %.c .deps/%.d | .deps

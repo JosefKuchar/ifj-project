@@ -24,7 +24,11 @@ enum scanner_state {
     SC_LCOMMENT,         // Oneline comments
     SC_QUESTION_MARK,    // Tokens that start with ?
     SC_END,              // Everything after ?>
-    SC_START
+    SC_START,
+    SC_NUMBER,
+    SC_FLOAT,
+    SC_EXPONENT_SIGN,
+    SC_EXPONENT,
 };
 
 typedef struct {
