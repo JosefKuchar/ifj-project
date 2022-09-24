@@ -24,6 +24,7 @@ enum scanner_state {
   SC_LCOMMENT,         // Oneline comments
   SC_QUESTION_MARK,    // Tokens that start with ?
   SC_END,              // Everything after ?>
+  SC_TYPE_OPTIONAL,    // For example ?int
   SC_START
 };
 

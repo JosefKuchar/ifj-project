@@ -288,7 +288,8 @@ token_t scanner_get_next(scanner_t* scanner) {
           int keyword = get_keyword_token_type(&scanner->buffer);
           if (keyword != -1) {
             str_clear(&scanner->buffer);
-            return token_new(keyword);
+            // False means it's not optional type
+            return token_new_with_bool(keyword, false);
           } else {
             return token_new_with_string(TOK_FUN_NAME, &scanner->buffer);
           }
@@ -342,8 +343,11 @@ token_t scanner_get_next(scanner_t* scanner) {
       case SC_QUESTION_MARK: {
         if (c == '>') {
           scanner->state = SC_END;
+        } else if (isalpha(c)) {
+          ungetc(c, stdin);
+          scanner->state = SC_TYPE_OPTIONAL;
         } else {
-          error_not_implemented();
+          error_exit(ERR_LEX);
         }
         break;
       }
@@ -358,6 +362,24 @@ token_t scanner_get_next(scanner_t* scanner) {
           // There can't be anything after ?>
           error_exit(ERR_LEX);
         }
+        break;
+      }
+      case SC_TYPE_OPTIONAL: {
+        if (isalpha(c)) {
+          str_add_char(&scanner->buffer, c);
+        } else {
+          ungetc(c, stdin);
+          int keyword = get_keyword_token_type(&scanner->buffer);
+          if (keyword != -1 &&
+              (keyword != TOK_FLOAT || keyword != TOK_INT || keyword != TOK_STRING)) {
+            scanner->state = SC_START;
+            str_clear(&scanner->buffer);
+            return token_new_with_bool(keyword, true);
+          } else {
+            error_exit(ERR_LEX);
+          }
+        }
+        break;
       }
     }
   }
