@@ -17,6 +17,7 @@ enum scanner_state {
   SC_GREATER,          // Tokens that start with >
   SC_VARIABLE_START,   // Tokens that start with $
   SC_VARIABLE,         // Correct variables
+  SC_FUNCTION,         // Tokens that start with alpha or _
   SC_START
 };
 

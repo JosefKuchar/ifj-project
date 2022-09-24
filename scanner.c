@@ -5,6 +5,37 @@
 #include "error.h"
 #include "str.h"
 
+/**
+ * @brief Get keyword token type
+ *
+ * @param str Keyword name
+ * @return Keyword token type or -1 if string is not keyword
+ */
+int get_keyword_token_type(str_t* str) {
+  if (strcmp("else", str->val) == 0)
+    return TOK_ELSE;
+  if (strcmp("float", str->val) == 0)
+    return TOK_FLOAT;
+  if (strcmp("function", str->val) == 0)
+    return TOK_FUNCTION;
+  if (strcmp("if", str->val) == 0)
+    return TOK_IF;
+  if (strcmp("int", str->val) == 0)
+    return TOK_INT;
+  if (strcmp("null", str->val) == 0)
+    return TOK_NULL;
+  if (strcmp("return", str->val) == 0)
+    return TOK_RETURN;
+  if (strcmp("string", str->val) == 0)
+    return TOK_STRING;
+  if (strcmp("void", str->val) == 0)
+    return TOK_VOID;
+  if (strcmp("while", str->val) == 0)
+    return TOK_WHILE;
+
+  return -1;
+}
+
 token_t scanner_get_next(scanner_t* scanner) {
   while (true) {
     const int c = fgetc(stdin);
@@ -149,6 +180,13 @@ token_t scanner_get_next(scanner_t* scanner) {
             continue;
         }
 
+        // Function names and keywords
+        if (isalpha(c) || c == '_') {
+          scanner->state = SC_FUNCTION;
+          str_add_char(&scanner->buffer, c);
+          break;
+        }
+
         error_not_implemented();
         break;
       }
@@ -228,6 +266,23 @@ token_t scanner_get_next(scanner_t* scanner) {
           ungetc(c, stdin);
           scanner->state = SC_START;
           return token_new_with_string(TOK_VAR, &scanner->buffer);
+        }
+        break;
+      }
+      case SC_FUNCTION: {
+        if (isalnum(c) || c == '_') {
+          str_add_char(&scanner->buffer, c);
+        } else {
+          ungetc(c, stdin);
+          scanner->state = SC_START;
+          // Check if string is keyword
+          int keyword = get_keyword_token_type(&scanner->buffer);
+          if (keyword != -1) {
+            str_clear(&scanner->buffer);
+            return token_new(keyword);
+          } else {
+            return token_new_with_string(TOK_FUN_NAME, &scanner->buffer);
+          }
         }
         break;
       }
