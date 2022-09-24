@@ -1,5 +1,13 @@
 #include "token.h"
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "error.h"
+
+bool is_valid_hex(char c) {
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
 
 // Names for all token types
 const char* token_names[] = {[TOK_EOF] = "EOF",
@@ -64,6 +72,94 @@ token_t token_new(token_type_t type) {
 
 token_t token_new_with_string(token_type_t type, str_t* str) {
     token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_string_literal(token_type_t type, str_t* str) {
+    str_t new_str = str_new();
+
+    // Loop through all characters in the string literal
+    for (size_t i = 0; i < str->len; i++) {
+        // Escape sequences
+        if (str->val[i] == '\\') {
+            // Characters in hex format (e.g. \x42)
+            if (str->val[i + 1] == 'x') {
+                // Check if the next two characters are valid hex
+                if (i + 3 < str->len && is_valid_hex(str->val[i + 2]) &&
+                    is_valid_hex(str->val[i + 3])) {
+                    // Convert the hex to a character
+                    char hex[3] = {str->val[i + 2], str->val[i + 3], '\0'};
+                    char c = (char)strtol(hex, NULL, 16);
+                    // Add the character to the new string
+                    str_add_char(&new_str, c);
+                    i += 3;
+                } else {
+                    str_add_char(&new_str, '\\');
+                }
+                // Characters in decimal format (e.g. \064)
+            } else if (isdigit(str->val[i + 1])) {
+                // Check if the next three characters are valid decimal
+                if (i + 3 < str->len && isdigit(str->val[i + 2]) && isdigit(str->val[i + 3])) {
+                    // Convert the decimal to a character
+                    char num[4] = {str->val[i + 1], str->val[i + 2], str->val[i + 3], '\0'};
+                    int number = (int)strtol(num, NULL, 10);
+                    // Check if the number is in the valid range
+                    if (number >= 1 && number <= 255) {
+                        char c = (char)number;
+                        str_add_char(&new_str, c);
+                        i += 3;
+                    } else {
+                        // If not in the valid range, add it as is
+                        str_add_char(&new_str, '\\');
+                    }
+                } else {
+                    str_add_char(&new_str, '\\');
+                }
+                // Other escape sequences
+            } else {
+                switch (str->val[i + 1]) {
+                    case 'n':
+                        str_add_char(&new_str, '\n');
+                        break;
+                    case 'r':
+                        str_add_char(&new_str, '\r');
+                        break;
+                    case 't':
+                        str_add_char(&new_str, '\t');
+                        break;
+                    case 'v':
+                        str_add_char(&new_str, '\v');
+                        break;
+                    case 'e':
+                        str_add_char(&new_str, 27);  // \e is not supported by C
+                        break;
+                    case 'f':
+                        str_add_char(&new_str, '\f');
+                        break;
+                    case '\\':
+                        str_add_char(&new_str, '\\');
+                        break;
+                    case '$':
+                        str_add_char(&new_str, '$');
+                        break;
+                    default:
+                        // If the escape sequence is not valid, just add it as is
+                        str_add_char(&new_str, '\\');
+                        str_add_char(&new_str, str->val[i + 1]);
+                }
+                i++;
+            }
+        } else if (str->val[i] == '$') {
+            // $ can't be used directly
+            error_exit(ERR_LEX);
+        } else {
+            // Normal characters are added as is
+            str_add_char(&new_str, str->val[i]);
+        }
+    }
+
+    token_t token = {.type = type, .attr.val_s = new_str};
     str_clear(str);
     return token;
 }

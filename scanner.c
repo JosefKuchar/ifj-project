@@ -301,11 +301,26 @@ token_t scanner_get_next(scanner_t* scanner) {
                     error_exit(ERR_LEX);
                 }
 
+                // Handle escape sequence
+                if (c == '\\') {
+                    const int c2 = getc(stdin);
+                    if (c2 == '"') {
+                        str_add_char(&scanner->buffer, '"');
+                        break;
+                    } else if (c2 == '\\')
+                        str_add_char(&scanner->buffer, '\\');
+                    else {
+                        ungetc(c2, stdin);
+                    }
+                }
+
                 if (c == '"') {
                     scanner->state = SC_START;
-                    return token_new_with_string(TOK_STR_LIT, &scanner->buffer);
-                } else {
+                    return token_new_with_string_literal(TOK_STR_LIT, &scanner->buffer);
+                } else if (c >= 32) {
                     str_add_char(&scanner->buffer, c);
+                } else {
+                    error_exit(ERR_LEX);
                 }
                 break;
             }

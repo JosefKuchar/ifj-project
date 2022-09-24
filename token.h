@@ -90,6 +90,15 @@ token_t token_new(token_type_t type);
 token_t token_new_with_string(token_type_t type, str_t* str);
 
 /**
+ * @brief Create new token with supplied string literal AND CONSUME THE STRING
+ *
+ * @param type Token type
+ * @param str String
+ * @return New token with string
+ */
+token_t token_new_with_string_literal(token_type_t type, str_t* str);
+
+/**
  * @brief Create new token with supplied bool
  *
  * @param type Token type
