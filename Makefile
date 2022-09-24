@@ -7,7 +7,7 @@ SRCS = $(wildcard *.c)
 # Get corresponding .o files
 OBJS := $(SRCS:%.c=%.o)
 # Get corresponding .d files
-DEPS := $(SRCS:%.c=.deps/%.d)
+DEPS := $(SRCS:%.c=%.d)
 
 # These will run every time (not just when the files are newer)
 .PHONY: run clean zip test pdf
@@ -17,10 +17,8 @@ main: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # Dependecies
-%.o: %.c .deps/%.d | .deps
-	$(CC) -MT $@ -MMD -MP -MF .deps/$*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
-.deps:
-	@mkdir -p $@
+%.o: %.c %.d
+	$(CC) -MT $@ -MMD -MP -MF $*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
 $(DEPS):
 include $(wildcard $(DEPS))
 
@@ -30,7 +28,7 @@ run: main
 
 # Clean up
 clean:
-	rm -rf .deps send_test *.o *.out *.aux *.log dokumentace.pdf main xkucha28.zip
+	rm -rf send_test *.d *.o *.out *.aux *.log dokumentace.pdf main xkucha28.zip
 
 # PDF documentation
 pdf:
