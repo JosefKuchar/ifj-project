@@ -184,6 +184,9 @@ token_t scanner_get_next(scanner_t* scanner) {
           case '/':
             scanner->state = SC_DIVIDE;
             continue;
+          case '?':
+            scanner->state = SC_QUESTION_MARK;
+            continue;
         }
 
         // Function names and keywords
@@ -335,6 +338,26 @@ token_t scanner_get_next(scanner_t* scanner) {
           }
         }
         break;
+      }
+      case SC_QUESTION_MARK: {
+        if (c == '>') {
+          scanner->state = SC_END;
+        } else {
+          error_not_implemented();
+        }
+        break;
+      }
+      case SC_END: {
+        if (c == EOF) {
+          return token_new(TOK_EOF);
+        }
+
+        if (isspace(c)) {
+          break;
+        } else {
+          // There can't be anything after ?>
+          error_exit(ERR_LEX);
+        }
       }
     }
   }

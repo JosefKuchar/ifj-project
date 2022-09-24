@@ -22,6 +22,8 @@ enum scanner_state {
   SC_DIVIDE,           // Tokens that start with /
   SC_MCOMMENT,         // Multiline comments
   SC_LCOMMENT,         // Oneline comments
+  SC_QUESTION_MARK,    // Tokens that start with ?
+  SC_END,              // Everything after ?>
   SC_START
 };
 
