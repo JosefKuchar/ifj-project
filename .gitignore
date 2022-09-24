@@ -58,3 +58,8 @@ main
 
 # Test unpack directory
 send_test
+
+# PDF files
+dokumentace.pdf
+*.aux
+*.log

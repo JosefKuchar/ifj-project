@@ -10,7 +10,7 @@ OBJS := $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=.deps/%.d)
 
 # These will run every time (not just when the files are newer)
-.PHONY: run clean zip test
+.PHONY: run clean zip test pdf
 
 # Main target
 main: $(OBJS)
@@ -30,12 +30,16 @@ run: main
 
 # Clean up
 clean:
-	rm -rf .deps send_test *.o *.out main xkucha28.zip
+	rm -rf .deps send_test *.o *.out *.aux *.log dokumentace.pdf main xkucha28.zip
+
+# PDF documentation
+pdf:
+	pdflatex -interaction nonstopmode doc/dokumentace.tex
 
 # Pack for submission
-zip:
-	zip xkucha28.zip *.c *.h Makefile rozdeleni
+zip: pdf
+	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni
 
 # Submission test
-test: zip
+test: pdf zip
 	./is_it_ok.sh xkucha28.zip send_test
