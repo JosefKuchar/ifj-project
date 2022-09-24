@@ -1,8 +1,8 @@
 #include "token.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 // Names for all token types
 const char* token_names[] = {[TOK_EOF] = "EOF",
@@ -91,8 +91,8 @@ token_t token_new_with_float(token_type_t type, str_t* str) {
 
 token_t token_new_with_exponent(token_type_t type, str_t* str) {
     // TODO: error checks, find better solution
-    char *mantis = strtok(str->val, "e");
-    char *exponent = strtok(NULL, "e");
+    char* mantis = strtok(str->val, "e");
+    char* exponent = strtok(NULL, "e");
 
     double num = strtod(mantis, NULL);
     long exponent_num = strtol(exponent, NULL, 10);
@@ -107,4 +107,10 @@ token_t token_new_with_exponent(token_type_t type, str_t* str) {
 token_t token_new_with_bool(token_type_t type, bool val) {
     token_t token = {.type = type, .attr.val_b = val};
     return token;
+}
+
+void token_free(token_t* token) {
+    if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
+        str_free(&token->attr.val_s);
+    }
 }
