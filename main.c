@@ -6,10 +6,12 @@ int main() {
     scanner_t scanner = scanner_new();
     token_t token = scanner_get_next(&scanner);
     print_token(&token);
+    token_free(&token);
 
     while (token.type != TOK_EOF) {
         token = scanner_get_next(&scanner);
         print_token(&token);
+        token_free(&token);
     }
 
     scanner_free(&scanner);

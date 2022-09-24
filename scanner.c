@@ -196,6 +196,13 @@ token_t scanner_get_next(scanner_t* scanner) {
                     break;
                 }
 
+                // Numbers
+                if (isdigit(c)) {
+                    scanner->state = SC_NUMBER;
+                    str_add_char(&scanner->buffer, c);
+                    break;
+                }
+
                 error_not_implemented();
                 break;
             }
@@ -376,6 +383,75 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else {
                     // There can't be anything after ?>
                     error_exit(ERR_LEX);
+                }
+                break;
+            }
+            case SC_NUMBER: {
+                if (isdigit(c)) {
+                    str_add_char(&scanner->buffer, c);
+                } else if (c == '.') {
+                    str_add_char(&scanner->buffer, c);
+                    const int c2 = fgetc(stdin);
+                    if (isdigit(c2)) {
+                        ungetc(c2, stdin);
+                        scanner->state = SC_FLOAT;
+                    } else {
+                        error_exit(ERR_LEX);
+                    }
+                } else if (c == 'e' || c == 'E') {
+                    scanner->state = SC_EXPONENT_SIGN;
+                } else if (isalpha(c)) { //TODO: other cases
+                    error_exit(ERR_LEX);
+                } else {
+                    ungetc(c, stdin);
+                    scanner->state = SC_START;
+                    return token_new_with_int(TOK_INT_LIT, &scanner->buffer);
+                }
+                break;
+            }
+            case SC_FLOAT: {
+                if (isdigit(c)) {
+                    str_add_char(&scanner->buffer, c);
+                } else if (c == 'e' || c == 'E') {
+                    str_add_char(&scanner->buffer, 'e');
+                    scanner->state = SC_EXPONENT_SIGN;
+                } else if (isalpha(c)) {
+                    error_exit(ERR_LEX);
+                } else {
+                    ungetc(c, stdin);
+                    scanner->state = SC_START;
+                    return token_new_with_float(TOK_FLOAT_LIT, &scanner->buffer);
+                }
+                break;
+            }
+
+            case SC_EXPONENT_SIGN: {
+                if (c == '+' || c == '-') {
+                    const int c2 = getc(stdin);
+                    if (isdigit(c2)) {
+                        ungetc(c2, stdin);
+                        str_add_char(&scanner->buffer, c);
+                        scanner->state = SC_EXPONENT;
+                    } else {
+                        error_exit(ERR_LEX);
+                    }
+                } else if (isdigit(c)) {
+                    ungetc(c, stdin);
+                    scanner->state = SC_EXPONENT;
+                } else {
+                    error_exit(ERR_LEX);
+                }
+                break;
+            }
+            case SC_EXPONENT: {
+                if (isdigit(c)) {
+                    str_add_char(&scanner->buffer, c);
+                } else if (isalpha(c)) {
+                    error_exit(ERR_LEX);
+                } else {
+                    ungetc(c, stdin);
+                    scanner->state = SC_START;
+                    return token_new_with_exponent(TOK_FLOAT_LIT, &scanner->buffer);
                 }
                 break;
             }

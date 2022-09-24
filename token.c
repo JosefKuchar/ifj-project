@@ -1,8 +1,10 @@
 #include "token.h"
 #include <ctype.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "error.h"
 
 bool is_valid_hex(char c) {
@@ -164,7 +166,46 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
     return token;
 }
 
+token_t token_new_with_int(token_type_t type, str_t* str) {
+    // TODO: error checks
+    long num = strtoul(str->val, NULL, 10);
+
+    token_t token = {.type = type, .attr.val_i = (int)num};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_float(token_type_t type, str_t* str) {
+    // TODO: error checks
+    double num = strtod(str->val, NULL);
+
+    token_t token = {.type = type, .attr.val_f = num};
+    str_clear(str);
+    return token;
+}
+
+token_t token_new_with_exponent(token_type_t type, str_t* str) {
+    // TODO: error checks, find better solution
+    char* mantis = strtok(str->val, "e");
+    char* exponent = strtok(NULL, "e");
+
+    double num = strtod(mantis, NULL);
+    long exponent_num = strtol(exponent, NULL, 10);
+
+    double val = num * pow(10, exponent_num);
+
+    token_t token = {.type = type, .attr.val_f = val};
+    str_clear(str);
+    return token;
+}
+
 token_t token_new_with_bool(token_type_t type, bool val) {
     token_t token = {.type = type, .attr.val_b = val};
     return token;
+}
+
+void token_free(token_t* token) {
+    if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
+        str_free(&token->attr.val_s);
+    }
 }

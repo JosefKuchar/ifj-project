@@ -99,6 +99,34 @@ token_t token_new_with_string(token_type_t type, str_t* str);
 token_t token_new_with_string_literal(token_type_t type, str_t* str);
 
 /**
+ * @brief Create new token with supplied string value of an int AND CONSUME THE STRING
+ *
+ * @param type Token type
+ * @param str String
+ * @return New token with int
+ */
+token_t token_new_with_int(token_type_t type, str_t* str);
+
+/**
+ * @brief Create new token with supplied string value of a float AND CONSUME THE STRING
+ *
+ * @param type Token type
+ * @param str String
+ * @return New token with float
+ */
+token_t token_new_with_float(token_type_t type, str_t* str);
+
+/**
+ * @brief Create new token with supplied string value of a float with exponent AND CONSUME THE
+ * STRING
+ *
+ * @param type Token type
+ * @param str String
+ * @return New token with float
+ */
+token_t token_new_with_exponent(token_type_t type, str_t* str);
+
+/**
  * @brief Create new token with supplied bool
  *
  * @param type Token type
@@ -106,5 +134,12 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str);
  * @return New token with bool
  */
 token_t token_new_with_bool(token_type_t type, bool val);
+
+/**
+ * @brief Free existing token
+ *
+ * @param token Token
+ */
+void token_free(token_t* token);
 
 #endif  // __TOKEN_H__

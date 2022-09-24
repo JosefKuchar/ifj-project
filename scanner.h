@@ -24,8 +24,12 @@ enum scanner_state {
     SC_LCOMMENT,         // Oneline comments
     SC_QUESTION_MARK,    // Tokens that start with ?
     SC_END,              // Everything after ?>
+    SC_START,            // Initial state
+    SC_NUMBER,           // Everything that begins with digit
+    SC_FLOAT,            // Everything after decimal point
+    SC_EXPONENT_SIGN,    // Exponent sign
+    SC_EXPONENT,         // Exponent
     SC_TYPE_OPTIONAL,    // For example ?int
-    SC_START
 };
 
 typedef struct {

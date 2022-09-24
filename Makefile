@@ -7,20 +7,18 @@ SRCS = $(wildcard *.c)
 # Get corresponding .o files
 OBJS := $(SRCS:%.c=%.o)
 # Get corresponding .d files
-DEPS := $(SRCS:%.c=.deps/%.d)
+DEPS := $(SRCS:%.c=%.d)
 
 # These will run every time (not just when the files are newer)
-.PHONY: run clean zip
+.PHONY: run clean zip test pdf
 
 # Main target
 main: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # Dependecies
-%.o: %.c .deps/%.d | .deps
-	$(CC) -MT $@ -MMD -MP -MF .deps/$*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
-.deps:
-	@mkdir -p $@
+%.o: %.c %.d
+	$(CC) -MT $@ -MMD -MP -MF $*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
 $(DEPS):
 include $(wildcard $(DEPS))
 
@@ -30,8 +28,16 @@ run: main
 
 # Clean up
 clean:
-	rm -rf .deps *.o *.out main xkucha28.zip
+	rm -rf send_test *.d *.o *.out *.aux *.log dokumentace.pdf main xkucha28.zip
+
+# PDF documentation
+pdf:
+	pdflatex -interaction nonstopmode doc/dokumentace.tex
 
 # Pack for submission
-zip:
-	zip xkucha28.zip *.c *.h Makefile rozdeleni
+zip: pdf
+	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni
+
+# Submission test
+test: pdf zip
+	./is_it_ok.sh xkucha28.zip send_test

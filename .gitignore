@@ -55,3 +55,11 @@ xkucha28.zip
 
 # Executable
 main
+
+# Test unpack directory
+send_test
+
+# PDF files
+dokumentace.pdf
+*.aux
+*.log
