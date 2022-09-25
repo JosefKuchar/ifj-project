@@ -117,16 +117,6 @@ token_t token_new_with_int(token_type_t type, str_t* str);
 token_t token_new_with_float(token_type_t type, str_t* str);
 
 /**
- * @brief Create new token with supplied string value of a float with exponent AND CONSUME THE
- * STRING
- *
- * @param type Token type
- * @param str String
- * @return New token with float
- */
-token_t token_new_with_exponent(token_type_t type, str_t* str);
-
-/**
  * @brief Create new token with supplied bool
  *
  * @param type Token type

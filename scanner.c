@@ -400,7 +400,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                     }
                 } else if (c == 'e' || c == 'E') {
                     scanner->state = SC_EXPONENT_SIGN;
-                } else if (isalpha(c)) { //TODO: other cases
+                } else if (isalpha(c)) {  // TODO: other cases
                     error_exit(ERR_LEX);
                 } else {
                     ungetc(c, stdin);
@@ -451,7 +451,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else {
                     ungetc(c, stdin);
                     scanner->state = SC_START;
-                    return token_new_with_exponent(TOK_FLOAT_LIT, &scanner->buffer);
+                    return token_new_with_float(TOK_FLOAT_LIT, &scanner->buffer);
                 }
                 break;
             }

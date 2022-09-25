@@ -184,21 +184,6 @@ token_t token_new_with_float(token_type_t type, str_t* str) {
     return token;
 }
 
-token_t token_new_with_exponent(token_type_t type, str_t* str) {
-    // TODO: error checks, find better solution
-    char* mantis = strtok(str->val, "e");
-    char* exponent = strtok(NULL, "e");
-
-    double num = strtod(mantis, NULL);
-    long exponent_num = strtol(exponent, NULL, 10);
-
-    double val = num * pow(10, exponent_num);
-
-    token_t token = {.type = type, .attr.val_f = val};
-    str_clear(str);
-    return token;
-}
-
 token_t token_new_with_bool(token_type_t type, bool val) {
     token_t token = {.type = type, .attr.val_b = val};
     return token;
