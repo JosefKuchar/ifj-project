@@ -1,0 +1,129 @@
+digraph G { //A..Z znaky fix me
+  splines=true
+  overlap=""
+
+  Q1 [shape=doublecircle]; // operator /
+  
+  Q2
+  Q3 [shape=doublecircle]; //comment
+  
+  Q4
+  Q5
+  Q6 [shape=doublecircle];//multiline comment
+  
+  Q7 [shape=doublecircle] 
+  Q8 [shape=doublecircle]
+  Q9 [shape=doublecircle]
+  Q10 [shape=doublecircle]
+  Q11 [shape=doublecircle]
+  Q12 [shape=doublecircle]
+  Q13 [shape=doublecircle]
+  Q14 [shape=doublecircle]
+  Q15 [shape=doublecircle]
+  Q16 [shape=doublecircle]
+  Q17 [shape=doublecircle]
+  Q18 [shape=doublecircle]
+  Q19 [shape=doublecircle] //<=
+  
+  Q20 [shape=doublecircle]
+  Q21 [shape=doublecircle] //>=
+  
+  Q22 [shape=doublecircle]
+  Q23
+  Q24 [shape=doublecircle] //===
+  
+  Q25 [shape=doublecircle]
+  Q26
+  Q27 [shape=doublecircle] //!==
+  Q28 [shape=doublecircle] //integer
+  Q29
+  
+  Q30 [shape=doublecircle] //float
+  Q31  //float s e
+  Q32a [shape=doublecircle]
+  Q32b
+  Q33 [shape=doublecircle] //float s e
+  
+  Q34
+  Q35 [shape=doublecircle] // string
+  
+  Q36
+  Q37 [shape=doublecircle] //identifikator promenne
+  
+  Q38 [shape=doublecircle] //identifikator typu
+  
+  
+ 
+  start -> Q1[label="/"]
+  Q1 -> Q2[label="/"]
+  Q2 -> Q2[label="A..Z, a..z"]
+  Q2 -> Q3[label="eol"]
+  Q1 -> Q4[label="*"]
+  Q4 -> Q4[label="A..Z, a..z"]
+  Q4 -> Q5[label="*"]
+  Q5 -> Q6[label="/"]
+  Q5 -> Q4[label="A..Z, a..z"]
+  
+  start -> Q7[label="("]
+  start -> Q8[label=")"]
+  start -> Q9[label="{"]
+  start -> Q10[label="}"]
+  
+  start -> Q11[label="+"]
+  start -> Q12[label="-"]
+  start -> Q13[label="*"]
+  
+  start -> Q14[label="."]
+  start -> Q15[label=","]
+  start -> Q16[label=":"]
+  start -> Q17[label=";"]
+  
+  start -> Q18[label="<"]
+  Q18 -> Q19[label="="]
+  
+  start -> Q20[label=">"]
+  Q20 -> Q21[label="="]
+  
+  start -> Q22[label="="]
+  Q22 -> Q23[label="="]
+  Q23 -> Q24[label="="]
+  
+  start -> Q25[label="!"]
+  Q25 -> Q26[label="="]
+  Q26 -> Q27[label="="]
+  
+  start -> Q28[label="0..9"] //todo
+  Q28 -> Q28[label="0..9"]
+  Q28 -> Q29[label="."]
+  Q29 -> Q30[label="0..9"] 
+  Q28 -> Q31[label="e/E"]
+ 
+  Q31 -> Q32a[label="0..9"]
+  Q32a -> Q32a[label="0..9"]
+  Q31 -> Q32b[label="+/-"]
+  Q32b -> Q33[label="0..9"]
+  Q33 -> Q33[label="0..9"]
+  Q30 -> Q31[label="e/E"]
+  Q30 -> Q30[label="0..9"]
+  
+  start -> Q34[label="\""]
+  Q34 -> Q34[label="A..Z, a..z"]
+  Q34 -> Q35[label="\""]
+  
+  start -> Q36[label="$"]
+  Q36 -> Q37[label="pismeno/_"]
+  Q37 -> Q37[label="pismeno/cislo/_"]
+  
+  start -> Q38[label="?/pismeno"]
+  Q38 -> Q38[label="A..Z, a..z"]
+  
+  
+  
+  
+  
+  
+
+  start [shape=Mdiamond];
+  
+  
+}
