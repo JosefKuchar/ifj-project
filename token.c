@@ -92,10 +92,16 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
                     is_valid_hex(str->val[i + 3])) {
                     // Convert the hex to a character
                     char hex[3] = {str->val[i + 2], str->val[i + 3], '\0'};
-                    char c = (char)strtol(hex, NULL, 16);
-                    // Add the character to the new string
-                    str_add_char(&new_str, c);
-                    i += 3;
+                    int number = (char)strtol(hex, NULL, 16);
+                    // Check if the number is in the valid range
+                    if (number >= 1 && number <= 255) {
+                        char c = (char)number;
+                        str_add_char(&new_str, c);
+                        i += 3;
+                    } else {
+                        // If not in the valid range, add it as is
+                        str_add_char(&new_str, '\\');
+                    }
                 } else {
                     str_add_char(&new_str, '\\');
                 }
