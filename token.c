@@ -68,8 +68,7 @@ void print_token(token_t* token) {
 }
 
 token_t token_new(token_type_t type) {
-    token_t token = {.type = type};
-    return token;
+    return (token_t){.type = type};
 }
 
 token_t token_new_with_string(token_type_t type, str_t* str) {
@@ -167,32 +166,28 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
         }
     }
 
-    token_t token = {.type = type, .attr.val_s = new_str};
     str_clear(str);
-    return token;
+    return (token_t){.type = type, .attr.val_s = new_str};
 }
 
 token_t token_new_with_int(token_type_t type, str_t* str) {
     // TODO: error checks
     long num = strtoul(str->val, NULL, 10);
 
-    token_t token = {.type = type, .attr.val_i = (int)num};
     str_clear(str);
-    return token;
+    return (token_t){.type = type, .attr.val_i = (int)num};
 }
 
 token_t token_new_with_float(token_type_t type, str_t* str) {
     // TODO: error checks
     double num = strtod(str->val, NULL);
 
-    token_t token = {.type = type, .attr.val_f = num};
     str_clear(str);
-    return token;
+    return (token_t){.type = type, .attr.val_f = num};
 }
 
 token_t token_new_with_bool(token_type_t type, bool val) {
-    token_t token = {.type = type, .attr.val_b = val};
-    return token;
+    return (token_t){.type = type, .attr.val_b = val};
 }
 
 void token_free(token_t* token) {

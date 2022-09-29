@@ -477,8 +477,7 @@ token_t scanner_get_next(scanner_t* scanner) {
 }
 
 scanner_t scanner_new() {
-    scanner_t scanner = {.buffer = str_new(), .state = SC_CODE_START};
-    return scanner;
+    return (scanner_t){.buffer = str_new(), .state = SC_CODE_START};
 }
 
 void scanner_free(scanner_t* scanner) {
