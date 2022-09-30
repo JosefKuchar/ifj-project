@@ -1,0 +1,27 @@
+<program> ->  function fun_id ( <params> ) : data_type { <statement>} <program>
+<program> -> <statement> <program>
+<program> -> eof
+
+<params> -> data_type $id <additional_params>
+<params> -> epsilon
+
+<additional_params> -> , data_type $id <additional_params>
+<additional_params> -> epsilon
+
+<call_params> -> <term> <additional_call_params>
+<call_params> -> epsilon
+
+<additional_call_params> -> , <term> <additional_call_params>
+<additional_call_params> -> epsilon
+
+<term> -> $id
+<term> -> <literal>
+
+<statement> -> $id = <expression>; <statement>
+<statement> -> $id = fun_id ( <call_params> ); <statement>
+<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+<statement> -> while (<expression> ) { <statement> } <statement>
+<statement> -> return <expression>; <statement>
+<statement> -> fun_id ( <call_params> ); <statement>
+<statement> -> <expression>; <statement>
+<statement> -> epsilon
