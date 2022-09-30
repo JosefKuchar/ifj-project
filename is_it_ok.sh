@@ -8,11 +8,11 @@
 #   - detaily prubehu jsou logovany do souboru is_it_ok.log v adresari testdir
 
 # Autor: Zbynek Krivka
-# Verze: 1.4.3 (2021-11-25)
+# Verze: 1.4.4 (2022-09-23)
 #  2014-12-06  Pridano kontrola binarek v archivu a formatu souboru rozdeleni
 #  2019-10-01  Zrusena kontrola malych pismen v nazvech souboru, pridana kontrola unikatnosti nazvu souboru (case-insensitive), barevne vypisy
 #  2019-12-11  Pridan identifikator studentskeho rozsireni TABUNARY
-#  2021-11-25  Upraveny identifikatory rozsireni pro IFJ21
+#  2022-09-23  Upraveny identifikatory rozsireni pro IFJ22
 
 LOG="is_it_ok.log"
 MAX_ARCHIVE_SIZE=1500000
@@ -301,7 +301,7 @@ if [[ -f rozsireni ]]; then
   diff rozsireni rozsireni.lf >> $LOG 2>&1
   RETCODE=$?
   if [[ $RETCODE = "0" ]]; then
-    UNKNOWN=`cat rozsireni | grep -v -E -e "^(BOOLTHEN|CYCLES|FUNEXP|OPERATORS)$" | wc -l`
+    UNKNOWN=`cat rozsireni | grep -v -E -e "^(STRNUM|BOOLTHEN|CYCLES|FUNEXP|GLOBAL)$" | wc -l`
     if [[ $UNKNOWN = "0" ]]; then
       echo_color green "OK" 
     else
