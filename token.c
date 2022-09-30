@@ -11,6 +11,10 @@ bool is_valid_hex(char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
+bool is_valid_octal(char c) {
+    return c >= '0' && c <= '7';
+}
+
 // Names for all token types
 const char* token_names[] = {[TOK_EOF] = "EOF",
                              [TOK_VAR] = "variable",
@@ -49,7 +53,7 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
                              [TOK_VOID] = "void",
                              [TOK_WHILE] = "while"};
 
-void print_token(token_t* token) {
+void token_print(token_t* token) {
     const char* name = token_names[token->type];
 
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
@@ -105,12 +109,13 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
                     str_add_char(&new_str, '\\');
                 }
                 // Characters in decimal format (e.g. \064)
-            } else if (isdigit(str->val[i + 1])) {
+            } else if (is_valid_octal(str->val[i + 1])) {
                 // Check if the next three characters are valid decimal
-                if (i + 3 < str->len && isdigit(str->val[i + 2]) && isdigit(str->val[i + 3])) {
+                if (i + 3 < str->len && is_valid_octal(str->val[i + 2]) &&
+                    is_valid_octal(str->val[i + 3])) {
                     // Convert the decimal to a character
                     char num[4] = {str->val[i + 1], str->val[i + 2], str->val[i + 3], '\0'};
-                    int number = (int)strtol(num, NULL, 10);
+                    int number = (int)strtol(num, NULL, 8);
                     // Check if the number is in the valid range
                     if (number >= 1 && number <= 255) {
                         char c = (char)number;

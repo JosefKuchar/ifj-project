@@ -70,7 +70,7 @@ typedef struct {
  *
  * @param token Token to be printed
  */
-void print_token(token_t* token);
+void token_print(token_t* token);
 
 /**
  * @brief Create new token
