@@ -8,7 +8,7 @@ Or multiline comments
 
 declare(strict_types=1);
 
-function foo(): string {
+function foo(string $test, ?int $haha): string {
 }
 
 // {}*-,;><==

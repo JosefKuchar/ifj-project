@@ -9,11 +9,24 @@ void next_token(parser_t* parser) {
 #endif  // DEBUG_TOK
 }
 
-void next_token_check_type(parser_t* parser, token_type_t type) {
+bool token_is_type(parser_t* parser, token_type_t type) {
+    return parser->token.type == type;
+}
+
+bool next_token_is_type(parser_t* parser, token_type_t type) {
     next_token(parser);
-    if (parser->token.type != type) {
+    return token_is_type(parser, type);
+}
+
+void token_check_type(parser_t* parser, token_type_t type) {
+    if (!token_is_type(parser, type)) {
         error_exit(ERR_SYN);
     }
+}
+
+void next_token_check_type(parser_t* parser, token_type_t type) {
+    next_token(parser);
+    token_check_type(parser, type);
 }
 
 void next_token_check_by_function(parser_t* parser, bool (*check_function)(token_t*)) {
@@ -32,11 +45,30 @@ void parser_free(parser_t* parser) {
     (void)parser;
 }
 
+void rule_additional_param(parser_t* parser, parser_state_t state) {
+    (void)state;
+    if (next_token_is_type(parser, TOK_COMMA)) {
+        next_token_check_by_function(parser, token_is_datatype);
+        next_token_check_type(parser, TOK_VAR);
+        rule_additional_param(parser, state);
+    }
+}
+
+void rule_param(parser_t* parser, parser_state_t state) {
+    (void)state;
+    next_token(parser);
+    if (token_is_datatype(&parser->token)) {
+        next_token_check_type(parser, TOK_VAR);
+        rule_additional_param(parser, state);
+    }
+}
+
 void rule_function(parser_t* parser, parser_state_t state) {
     (void)state;
     next_token_check_type(parser, TOK_FUN_NAME);
     next_token_check_type(parser, TOK_LPAREN);
-    next_token_check_type(parser, TOK_RPAREN);
+    rule_param(parser, state);
+    token_check_type(parser, TOK_RPAREN);
     next_token_check_type(parser, TOK_COLON);
     next_token_check_by_function(parser, token_is_datatype);
     next_token_check_type(parser, TOK_LBRACE);
