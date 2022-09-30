@@ -133,6 +133,8 @@ token_t token_new_with_bool(token_type_t type, bool val);
  */
 bool token_is_datatype(token_t* token);
 
+bool token_is_literal(token_t* token);
+
 /**
  * @brief Free existing token
  *

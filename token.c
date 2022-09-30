@@ -199,6 +199,10 @@ bool token_is_datatype(token_t* token) {
     return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING;
 }
 
+bool token_is_literal(token_t* token) {
+    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT || token->type == TOK_STR_LIT;
+}
+
 void token_free(token_t* token) {
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         str_free(&token->attr.val_s);

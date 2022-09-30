@@ -63,6 +63,24 @@ void rule_param(parser_t* parser, parser_state_t state) {
     }
 }
 
+void rule_additional_call_param(parser_t* parser, parser_state_t state) {
+    (void)state;
+    if (next_token_is_type(parser, TOK_COMMA)) {
+        next_token(parser);
+        if (!token_is_type(parser, TOK_VAR) && !token_is_literal(&parser->token)) {
+            error_exit(ERR_SYN);
+        }
+    }
+}
+
+void rule_call_param(parser_t* parser, parser_state_t state) {
+    (void)state;
+    next_token(parser);
+    if (token_is_type(parser, TOK_VAR) || token_is_literal(&parser->token)) {
+        rule_additional_call_param(parser, state);
+    }
+}
+
 void rule_function(parser_t* parser, parser_state_t state) {
     (void)state;
     next_token_check_type(parser, TOK_FUN_NAME);
