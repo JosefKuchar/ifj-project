@@ -8,8 +8,11 @@
 typedef struct {
     scanner_t* scanner;  // Scanner instance
     token_t token;       // Current token
-    bool in_loop;        // Whether we're in a loop (e.g. while)
 } parser_t;
+
+typedef struct {
+    bool in_loop;  // Whether we're in a loop (e.g. while)
+} parser_state_t;
 
 /**
  * @brief Initialize parser

@@ -126,6 +126,14 @@ token_t token_new_with_float(token_type_t type, str_t* str);
 token_t token_new_with_bool(token_type_t type, bool val);
 
 /**
+ * @brief Check if token is a data type (eg. int, float, string)
+ *
+ * @param token Token
+ * @return true if token is a data type
+ */
+bool token_is_datatype(token_t* token);
+
+/**
  * @brief Free existing token
  *
  * @param token Token

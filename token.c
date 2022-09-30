@@ -190,6 +190,10 @@ token_t token_new_with_bool(token_type_t type, bool val) {
     return (token_t){.type = type, .attr.val_b = val};
 }
 
+bool token_is_datatype(token_t* token) {
+    return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING;
+}
+
 void token_free(token_t* token) {
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         str_free(&token->attr.val_s);
