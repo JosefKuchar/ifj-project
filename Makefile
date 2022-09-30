@@ -14,11 +14,11 @@ DEPS := $(SRCS:%.c=%.d)
 
 # Main target
 main: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ -lm
 
 # Dependecies
 %.o: %.c %.d
-	$(CC) -MT $@ -MMD -MP -MF $*.d $(CFLAGS) -c $(OUTPUT_OPTION) $<
+	$(CC) -MT $@ -MMD -MP -MF $*.d $(CFLAGS) $(CPPFLAGS) -c $(OUTPUT_OPTION) $<
 $(DEPS):
 include $(wildcard $(DEPS))
 

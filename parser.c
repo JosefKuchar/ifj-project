@@ -4,6 +4,9 @@
 
 void next_token(parser_t* parser) {
     parser->token = scanner_get_next(parser->scanner);
+#ifdef DEBUG_TOK
+    token_print(&parser->token);
+#endif  // DEBUG_TOK
 }
 
 void next_token_check_type(parser_t* parser, token_type_t type) {
@@ -55,10 +58,18 @@ void rule_program(parser_t* parser, parser_state_t state) {
 }
 
 void parser_run(parser_t* parser) {
+#ifndef DEBUG_LEX
     parser_state_t state = {
         .in_loop = false,
     };
 
     gen_header(parser->gen);
     rule_program(parser, state);
+#endif
+#ifdef DEBUG_LEX
+    next_token(parser);
+    while (parser->token.type != TOK_EOF) {
+        next_token(parser);
+    }
+#endif
 }
