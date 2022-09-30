@@ -203,6 +203,10 @@ bool token_is_literal(token_t* token) {
     return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT || token->type == TOK_STR_LIT;
 }
 
+bool token_is_expression(token_t* token) {
+    return token->type == TOK_LPAREN || token->type == TOK_RPAREN || token_is_literal(token);
+}
+
 void token_free(token_t* token) {
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         str_free(&token->attr.val_s);
