@@ -68,7 +68,24 @@ void str_add_char(str_t* str, char c) {
     str->val[str->len] = '\0';
 }
 
+void str_add_cstr(str_t* str, char* cstr) {
+    size_t len = strlen(cstr);
+    if (str->len + len >= str->size) {
+        char* new_val = realloc(str->val, str->size + len);
+        if (new_val == NULL) {
+            error_exit(ERR_INTERNAL);
+        }
+        str->val = new_val;
+        str->size += len;
+    }
+    strcpy(str->val, cstr);
+}
+
 void str_clear(str_t* str) {
     str->val[0] = '\0';
     str->len = 0;
+}
+
+void str_print(str_t* str) {
+    printf("%s", str->val);
 }

@@ -2,13 +2,13 @@
 #define __STR_H__
 
 #include <stdbool.h>
-#include <stdint.h>
+#include <stdlib.h>
 
 // String
 typedef struct {
-    char* val;      // Actual string
-    uint32_t len;   // Length
-    uint32_t size;  // Buffer size
+    char* val;    // Actual string
+    size_t len;   // Length
+    size_t size;  // Buffer size
 } str_t;
 
 /**
@@ -41,8 +41,22 @@ void str_free(str_t* str);
 void str_add_char(str_t* str, char c);
 
 /**
+ * @brief Add c-string to existing string
+ *
+ * @param str String to which the other string will be added
+ * @param cstr C-String
+ */
+void str_add_cstr(str_t* str, char* cstr);
+
+/**
  * @brief Clear string
  */
 void str_clear(str_t* str);
+
+/**
+ * @brief Print string
+ *
+ */
+void str_print(str_t* str);
 
 #endif  // __STR_H__

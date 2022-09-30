@@ -2,11 +2,13 @@
 #define __PARSER_H__
 
 #include <stdbool.h>
+#include "gen.h"
 #include "scanner.h"
 #include "token.h"
 
 typedef struct {
     scanner_t* scanner;  // Scanner instance
+    gen_t* gen;          // Generator instance
     token_t token;       // Current token
 } parser_t;
 
@@ -20,7 +22,7 @@ typedef struct {
  * @param scanner Scanner instance
  * @return Initialized parser
  */
-parser_t parser_new(scanner_t* scanner);
+parser_t parser_new(scanner_t* scanner, gen_t* gen);
 
 /**
  * @brief Free exising parser

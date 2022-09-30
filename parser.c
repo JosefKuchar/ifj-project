@@ -20,10 +20,8 @@ void next_token_check_by_function(parser_t* parser, bool (*check_function)(token
     }
 }
 
-parser_t parser_new(scanner_t* scanner) {
-    return (parser_t){
-        .scanner = scanner,
-    };
+parser_t parser_new(scanner_t* scanner, gen_t* gen) {
+    return (parser_t){.scanner = scanner, .gen = gen};
 }
 
 void parser_free(parser_t* parser) {
@@ -61,5 +59,6 @@ void parser_run(parser_t* parser) {
         .in_loop = false,
     };
 
+    gen_header(parser->gen);
     rule_program(parser, state);
 }
