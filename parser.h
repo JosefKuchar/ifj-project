@@ -14,6 +14,7 @@ typedef struct {
 
 typedef struct {
     bool in_loop;  // Whether we're in a loop (e.g. while)
+    int exp;
 } parser_state_t;
 
 /**
@@ -36,5 +37,11 @@ void parser_free(parser_t* state);
  *
  */
 void parser_run(parser_t* state);
+
+bool token_is_type(parser_t *parser, token_type_t type);
+
+void next_token(parser_t *parser);
+
+bool token_check_by_function(parser_t *parser, bool (*check_function)(token_t *));
 
 #endif  // __PARSER_H__

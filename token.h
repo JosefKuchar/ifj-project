@@ -135,6 +135,7 @@ bool token_is_datatype(token_t* token);
 
 bool token_is_literal(token_t* token);
 
+bool token_is_expression(token_t* token);
 /**
  * @brief Free existing token
  *

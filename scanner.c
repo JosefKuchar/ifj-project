@@ -399,6 +399,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                         error_exit(ERR_LEX);
                     }
                 } else if (c == 'e' || c == 'E') {
+                    str_add_char(&scanner->buffer, c);
                     scanner->state = SC_EXPONENT_SIGN;
                 } else if (isalpha(c)) {  // TODO: other cases
                     error_exit(ERR_LEX);

@@ -185,6 +185,7 @@ token_t token_new_with_int(token_type_t type, str_t* str) {
 
 token_t token_new_with_float(token_type_t type, str_t* str) {
     // TODO: error checks
+    // TODO: fix exponent parsing
     double num = strtod(str->val, NULL);
 
     str_clear(str);
@@ -204,7 +205,7 @@ bool token_is_literal(token_t* token) {
 }
 
 bool token_is_expression(token_t* token) {
-    return token->type == TOK_LPAREN || token->type == TOK_RPAREN || token_is_literal(token);
+    return token->type == TOK_LPAREN || token->type == TOK_RPAREN || token_is_literal(token) || token->type == TOK_VAR;
 }
 
 void token_free(token_t* token) {
