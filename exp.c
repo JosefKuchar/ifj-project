@@ -18,6 +18,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                token_is_type(parser, TOK_GREATER) || token_is_type(parser, TOK_LESS_E) ||
                token_is_type(parser, TOK_GREATER_E) || token_is_type(parser, TOK_EQUALS) ||
                token_is_type(parser, TOK_NEQUALS) || token_is_type(parser, TOK_VAR) ||
+               token_is_type(parser, TOK_NULL) ||
                token_check_by_function(parser, token_is_literal)) {
         // do nothing
     } else {
