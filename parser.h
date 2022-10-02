@@ -10,6 +10,7 @@ typedef struct {
     scanner_t* scanner;  // Scanner instance
     gen_t* gen;          // Generator instance
     token_t token;       // Current token
+    bool skip_next;      // Whether to unget the current token
 } parser_t;
 
 typedef struct {

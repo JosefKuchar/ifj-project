@@ -143,4 +143,12 @@ bool token_is_expression(token_t* token);
  */
 void token_free(token_t* token);
 
+/**
+ * @brief Print enum value as a string
+ *
+ * @param token_type type
+ * @return String representation of the enum value
+ */
+char* token_to_string(token_type_t type);
+
 #endif  // __TOKEN_H__

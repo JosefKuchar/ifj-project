@@ -213,3 +213,8 @@ void token_free(token_t* token) {
         str_free(&token->attr.val_s);
     }
 }
+
+char* token_to_string(token_type_t type) {
+    char* name = (char*)token_names[type];
+    return name;
+}

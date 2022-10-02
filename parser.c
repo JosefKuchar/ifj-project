@@ -3,7 +3,16 @@
 #include "error.h"
 #include "exp.h"
 
+void skip_next(parser_t* parser) {
+    parser->skip_next = true;
+}
+
 void next_token(parser_t* parser) {
+    if (parser->skip_next) {
+        parser->skip_next = false;
+        return;
+    }
+
     parser->token = scanner_get_next(parser->scanner);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
@@ -26,7 +35,7 @@ bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*))
 void token_check_type(parser_t* parser, token_type_t type) {
     if (!token_is_type(parser, type)) {
 #ifdef DEBUG_TOK
-        printf("Expected token_type: %d, gotten:\n", type);
+        printf("Expected token_type: %s, gotten:\n", token_to_string(type));
         token_print(&parser->token);
 #endif  // DEBUG_TOK
         error_exit(ERR_SYN);
@@ -53,6 +62,8 @@ void parser_free(parser_t* parser) {
     // Empty for now
     (void)parser;
 }
+
+void rule_program(parser_t* parser, parser_state_t state);
 
 void rule_additional_param(parser_t* parser, parser_state_t state) {
     (void)state;
@@ -113,12 +124,12 @@ void rule_value(parser_t* parser, parser_state_t state) {
 
 void rule_statement(parser_t* parser, parser_state_t state) {
     (void)state;
-    next_token(parser);
     switch (parser->token.type) {
         case TOK_VAR:
             next_token_check_type(parser, TOK_ASSIGN);
             rule_value(parser, state);
             token_check_type(parser, TOK_SEMICOLON);
+
             break;
         case TOK_IF:
             next_token_check_type(parser, TOK_LPAREN);
@@ -126,10 +137,12 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             rule_exp(parser, state);
             token_check_type(parser, TOK_RPAREN);
             next_token_check_type(parser, TOK_LBRACE);
+            next_token(parser);
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
             next_token_check_type(parser, TOK_ELSE);
             next_token_check_type(parser, TOK_LBRACE);
+            next_token(parser);
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
             break;
@@ -139,6 +152,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             rule_exp(parser, state);
             token_check_type(parser, TOK_RPAREN);
             next_token_check_type(parser, TOK_LBRACE);
+            next_token(parser);
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
             break;
@@ -157,6 +171,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             }
             break;
     }
+    next_token(parser);
     rule_statement(parser, state);
 }
 
@@ -169,12 +184,12 @@ void rule_function(parser_t* parser, parser_state_t state) {
     next_token_check_type(parser, TOK_COLON);
     next_token_check_by_function(parser, token_is_datatype);
     next_token_check_type(parser, TOK_LBRACE);
+    next_token(parser);
     rule_statement(parser, state);
     token_check_type(parser, TOK_RBRACE);
 }
 
 void rule_program(parser_t* parser, parser_state_t state) {
-    next_token(parser);
     switch (parser->token.type) {
         case TOK_FUNCTION:
             rule_function(parser, state);
@@ -182,8 +197,11 @@ void rule_program(parser_t* parser, parser_state_t state) {
         case TOK_EOF:
             return;
         default:
-            error_exit(ERR_SYN);
+            rule_statement(parser, state);
+            skip_next(parser);
+            break;
     }
+    next_token(parser);
     rule_program(parser, state);
 }
 
@@ -195,6 +213,7 @@ void parser_run(parser_t* parser) {
     };
 
     gen_header(parser->gen);
+    next_token(parser);
     rule_program(parser, state);
 #endif
 #ifdef DEBUG_LEX
