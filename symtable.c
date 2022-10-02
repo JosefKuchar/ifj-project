@@ -1,7 +1,9 @@
 #include "symtable.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "token.h"
 
 #define AVG_LEN_MIN 0.5
 #define AVG_LEN_MAX 2.0
@@ -91,6 +93,12 @@ void htab_clear(htab_t* t) {
 
             // Free the item
             free((char*)item->pair.key);
+            if (item->pair.value.type == HTAB_FUNCTION) {
+                for (int j = 0; j < item->pair.value.function.param_count; j++) {
+                    str_free(&item->pair.value.function.params[j].name);
+                }
+                free(item->pair.value.function.params);
+            }
             free(item);
 
             // Update pointer
@@ -228,7 +236,7 @@ htab_t* htab_init(size_t n) {
     return t;
 }
 
-htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value) {
+htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value) {
     if (t == NULL || key == NULL) {
         return NULL;
     }
@@ -236,9 +244,10 @@ htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value) {
     // Look if pair already exists
     htab_pair_t* pair = htab_find(t, key);
 
-    // Return existing pair if found
+    // This shouldn't happen
     if (pair != NULL) {
-        return pair;
+        fprintf(stderr, "Error: Key already exists in the table\n");
+        error_exit(ERR_INTERNAL);
     }
 
     // Create new item
@@ -250,6 +259,11 @@ htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value) {
     // Initialize item
     item->next = NULL;
     item->pair.key = malloc(strlen(key) + 1);
+    if (item->pair.key == NULL) {
+        free(item);
+        error_exit(ERR_INTERNAL);
+    }
+    strcpy((char*)item->pair.key, key);
     item->pair.value = value;
 
     // Add to list
@@ -277,6 +291,45 @@ htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value) {
 
     // Return new item
     return &(item->pair);
+}
+
+htab_pair_t* htab_add_function(htab_t* t, token_t* token) {
+    token_print(token);
+    printf("%p\n", (void*)htab_find(t, token->attr.val_s.val));
+    printf("%s\n", token->attr.val_s.val);
+    // Check if function is already defined
+    if (htab_find(t, token->attr.val_s.val) != NULL) {
+        error_exit(ERR_SEM_FUN);
+    }
+    // Add function to symbol table
+    return htab_add(t, token->attr.val_s.val,
+                    (htab_value_t){.type = HTAB_FUNCTION,
+                                   .function = {
+                                       .param_count = 0,
+                                   }});
+}
+
+void htab_function_add_param(htab_pair_t* fun, token_t* token) {
+    fun->value.function.param_count++;
+    htab_param_t* params =
+        realloc(fun->value.function.params, fun->value.function.param_count * sizeof(htab_param_t));
+    if (params == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    fun->value.function.params = params;
+    fun->value.function.params[fun->value.function.param_count - 1].type = token->type;
+    fun->value.function.params[fun->value.function.param_count - 1].required = token->attr.val_b;
+}
+
+void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
+    for (int i = 0; i < fun->value.function.param_count - 1; i++) {
+        if (strcmp(fun->value.function.params[i].name.val, token->attr.val_s.val) == 0) {
+            error_exit(ERR_SEM_FUN);
+        }
+    }
+
+    fun->value.function.params[fun->value.function.param_count - 1].name =
+        str_new_from_str(&token->attr.val_s);
 }
 
 size_t htab_size(const htab_t* t) {

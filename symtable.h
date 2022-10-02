@@ -3,22 +3,21 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "str.h"
 #include "token.h"
 
 typedef struct htab htab_t;
 
 typedef enum { HTAB_VARIABLE, HTAB_FUNCTION } htab_value_type_t;
-typedef enum { VAR_INT, VAR_FLOAT, VAR_STRING, VAR_NULL } htab_var_type_t;
 
 typedef struct {
-    str_t name;
-    htab_var_type_t type;
+    token_type_t type;
     token_attribute_t value;
 } htab_var_t;
 
 typedef struct {
     str_t name;
-    htab_var_type_t type;
+    token_type_t type;
     bool required;
 } htab_param_t;
 
@@ -60,7 +59,10 @@ htab_t* htab_init(size_t n);
 size_t htab_size(const htab_t* t);
 
 htab_pair_t* htab_find(htab_t* t, htab_key_t key);
-htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value);
+htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value);
+htab_pair_t* htab_add_function(htab_t* t, token_t* token);
+void htab_function_add_param(htab_pair_t* fun, token_t* token);
+void htab_function_add_param_name(htab_pair_t* fun, token_t* token);
 
 bool htab_erase(htab_t* t, htab_key_t key);
 

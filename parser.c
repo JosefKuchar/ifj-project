@@ -74,7 +74,9 @@ void rule_additional_param(parser_t* parser, parser_state_t state) {
     (void)state;
     if (next_token_is_type(parser, TOK_COMMA)) {
         next_token_check_by_function(parser, token_is_datatype);
+        htab_function_add_param(parser->function, &parser->token);
         next_token_check_type(parser, TOK_VAR);
+        htab_function_add_param_name(parser->function, &parser->token);
         rule_additional_param(parser, state);
     }
 }
@@ -83,7 +85,9 @@ void rule_param(parser_t* parser, parser_state_t state) {
     (void)state;
     next_token(parser);
     if (token_is_datatype(&parser->token)) {
+        htab_function_add_param(parser->function, &parser->token);
         next_token_check_type(parser, TOK_VAR);
+        htab_function_add_param_name(parser->function, &parser->token);
         rule_additional_param(parser, state);
     }
 }
@@ -183,6 +187,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 void rule_function(parser_t* parser, parser_state_t state) {
     state.in_function = true;
     next_token_check_type(parser, TOK_FUN_NAME);
+    parser->function = htab_add_function(parser->global_symtable, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_param(parser, state);
     token_check_type(parser, TOK_RPAREN);

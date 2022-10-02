@@ -13,6 +13,7 @@ typedef struct {
     token_t token;            // Current token
     htab_t* local_symtable;   // Local symbol table
     htab_t* global_symtable;  // Global symbol table
+    htab_pair_t* function;    // Current function
     bool skip_next;           // Whether to unget the current token
 } parser_t;
 
