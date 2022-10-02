@@ -4,6 +4,39 @@
 #include "parser.h"
 #include "token.h"
 
+#define TABLE_SIZE 18
+
+enum {
+    L,  // <
+    R,  // >
+    E,  // =
+    X   // Invalid
+};
+
+const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
+    // only ==/!== for formatting reasons
+    /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST $  . */
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, R},   // +
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, R},   // -
+    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, R},   // *
+    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, R},   // /
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // <
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // <=
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // >
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // >=
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // ==
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, R, L},   // !=
+    {L, L, L, L, L, L, L, L, L, L, L, E, L, L, L, L, X, L},   // (
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},   // )
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},   // ID
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},   // IN
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},   // FL
+    {X, X, X, X, R, R, R, R, R, R, X, R, X, X, X, X, R, R},   // ST
+    {L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, X, L},   // $
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, L, R, R}};  // .
+
+void mock_exp(parser_t* parser, parser_state_t state);
+
 void rule_exp(parser_t* parser, parser_state_t state) {
     if (token_is_type(parser, TOK_LPAREN)) {
         state.exp++;
