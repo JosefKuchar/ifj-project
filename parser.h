@@ -4,17 +4,21 @@
 #include <stdbool.h>
 #include "gen.h"
 #include "scanner.h"
+#include "symtable.h"
 #include "token.h"
 
 typedef struct {
-    scanner_t* scanner;  // Scanner instance
-    gen_t* gen;          // Generator instance
-    token_t token;       // Current token
-    bool skip_next;      // Whether to unget the current token
+    scanner_t* scanner;       // Scanner instance
+    gen_t* gen;               // Generator instance
+    token_t token;            // Current token
+    htab_t* local_symtable;   // Local symbol table
+    htab_t* global_symtable;  // Global symbol table
+    bool skip_next;           // Whether to unget the current token
 } parser_t;
 
 typedef struct {
-    bool in_loop;  // Whether we're in a loop (e.g. while)
+    bool in_loop;      // Whether we're in a loop (e.g. while)
+    bool in_function;  // Whether we're in a function
     int exp;
 } parser_state_t;
 

@@ -13,6 +13,7 @@ void next_token(parser_t* parser) {
         return;
     }
 
+    token_free(&parser->token);
     parser->token = scanner_get_next(parser->scanner);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
@@ -55,12 +56,16 @@ void next_token_check_by_function(parser_t* parser, bool (*check_function)(token
 }
 
 parser_t parser_new(scanner_t* scanner, gen_t* gen) {
-    return (parser_t){.scanner = scanner, .gen = gen};
+    return (parser_t){.scanner = scanner,
+                      .gen = gen,
+                      // TODO: Remove hardcoded values
+                      .local_symtable = htab_init(8),
+                      .global_symtable = htab_init(8)};
 }
 
 void parser_free(parser_t* parser) {
-    // Empty for now
-    (void)parser;
+    htab_free(parser->local_symtable);
+    htab_free(parser->global_symtable);
 }
 
 void rule_program(parser_t* parser, parser_state_t state);
@@ -176,7 +181,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 }
 
 void rule_function(parser_t* parser, parser_state_t state) {
-    (void)state;
+    state.in_function = true;
     next_token_check_type(parser, TOK_FUN_NAME);
     next_token_check_type(parser, TOK_LPAREN);
     rule_param(parser, state);
@@ -187,6 +192,7 @@ void rule_function(parser_t* parser, parser_state_t state) {
     next_token(parser);
     rule_statement(parser, state);
     token_check_type(parser, TOK_RBRACE);
+    htab_clear(parser->local_symtable);
 }
 
 void rule_program(parser_t* parser, parser_state_t state) {
@@ -209,6 +215,7 @@ void parser_run(parser_t* parser) {
 #ifndef DEBUG_LEX
     parser_state_t state = {
         .in_loop = false,
+        .in_function = false,
         .exp = 0,
     };
 

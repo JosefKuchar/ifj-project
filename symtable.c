@@ -1,6 +1,7 @@
 #include "symtable.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include "error.h"
 
 #define AVG_LEN_MIN 0.5
 #define AVG_LEN_MAX 2.0
@@ -21,7 +22,7 @@ void htab_resize(htab_t* t, size_t newn) {
     // Allocate new array
     struct htab_item** new_arr = malloc(newn * sizeof(struct htab_item*));
     if (new_arr == NULL) {
-        return;  // Nothing happens
+        error_exit(ERR_INTERNAL);
     }
 
     // Initialize new array
@@ -207,14 +208,14 @@ htab_t* htab_init(size_t n) {
     // Allocate memory for the table
     htab_t* t = malloc(sizeof(htab_t));
     if (t == NULL) {
-        return NULL;
+        error_exit(ERR_INTERNAL);
     }
 
     // Allocate memory for the array
     t->arr_ptr = malloc(n * sizeof(struct htab_item*));
     if (t->arr_ptr == NULL) {
         free(t);
-        return NULL;
+        error_exit(ERR_INTERNAL);
     }
 
     // Initialize everything
@@ -227,7 +228,7 @@ htab_t* htab_init(size_t n) {
     return t;
 }
 
-htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key) {
+htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key, htab_value_t value) {
     if (t == NULL || key == NULL) {
         return NULL;
     }
@@ -243,18 +244,13 @@ htab_pair_t* htab_lookup_add(htab_t* t, htab_key_t key) {
     // Create new item
     struct htab_item* item = malloc(sizeof(struct htab_item));
     if (item == NULL) {
-        return NULL;
+        error_exit(ERR_INTERNAL);
     }
 
     // Initialize item
     item->next = NULL;
     item->pair.key = malloc(strlen(key) + 1);
-    if (item->pair.key == NULL) {
-        free(item);
-        return NULL;
-    }
-    strcpy((char*)item->pair.key, key);
-    item->pair.value = 0;
+    item->pair.value = value;
 
     // Add to list
     size_t index = htab_hash_function(key) % t->arr_size;
