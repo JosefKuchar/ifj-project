@@ -19,7 +19,7 @@ bool next_token_is_type(parser_t* parser, token_type_t type) {
     return token_is_type(parser, type);
 }
 
-bool token_check_by_function(parser_t *parser, bool (*check_function)(token_t *)) {
+bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*)) {
     return check_function(&parser->token);
 }
 
@@ -28,7 +28,7 @@ void token_check_type(parser_t* parser, token_type_t type) {
 #ifdef DEBUG_TOK
         printf("Expected token_type: %d, gotten:\n", type);
         token_print(&parser->token);
-#endif // DEBUG_TOK
+#endif  // DEBUG_TOK
         error_exit(ERR_SYN);
     }
 }
@@ -114,7 +114,7 @@ void rule_value(parser_t* parser, parser_state_t state) {
 void rule_statement(parser_t* parser, parser_state_t state) {
     (void)state;
     next_token(parser);
-    switch(parser->token.type) {
+    switch (parser->token.type) {
         case TOK_VAR:
             next_token_check_type(parser, TOK_ASSIGN);
             rule_value(parser, state);

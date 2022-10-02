@@ -38,10 +38,10 @@ void parser_free(parser_t* state);
  */
 void parser_run(parser_t* state);
 
-bool token_is_type(parser_t *parser, token_type_t type);
+bool token_is_type(parser_t* parser, token_type_t type);
 
-void next_token(parser_t *parser);
+void next_token(parser_t* parser);
 
-bool token_check_by_function(parser_t *parser, bool (*check_function)(token_t *));
+bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*));
 
 #endif  // __PARSER_H__
