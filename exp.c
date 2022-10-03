@@ -4,8 +4,9 @@
 #include "parser.h"
 #include "stack.h"
 #include "token.h"
+#include "token_term.h"
 
-#define TABLE_SIZE 18
+#define TABLE_SIZE 19
 
 enum {
     L,  // <
@@ -39,7 +40,7 @@ const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
 
 int get_precedence(token_t stack_top, token_t input) {
     if (input.type >= TABLE_SIZE || stack_top.type >= TABLE_SIZE) {
-        error_exit(ERR_INTERNAL);  // TODO: What error should this be?
+        error_exit(ERR_SEM);  // TODO: What error should this be?
     }
     return precedence_table[stack_top.type][input.type];
 }
@@ -70,10 +71,26 @@ void rule_exp2(parser_t* parser, parser_state_t state) {
     rule_exp(parser, state);
 }
 
+token_term_t parse_expression(stack_t* stack) {
+    if (stack->len == 1) {
+        return token_term_new(stack->tokens[0].token, false);
+    } else if (stack->len == 3) {
+        if (stack->tokens[0].token.type == TOK_LPAREN) {
+            return token_term_new(stack->tokens[1].token, false);
+        } else {
+            return token_term_new(stack->tokens[0].token, false);
+        }
+    } else {
+        error_exit(ERR_SEM);
+    }
+    return token_term_new(stack->tokens[0].token, false);
+}
+
 void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
-    stack_push(&stack, token_new(TOK_DOLLAR));
+    stack_t current_expression = stack_new();
+    stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
 
     while (token_is_type(parser, TOK_PLUS) || token_is_type(parser, TOK_MINUS) ||
            token_is_type(parser, TOK_DOT) || token_is_type(parser, TOK_MULTIPLY) ||
@@ -83,34 +100,35 @@ void rule_exp(parser_t* parser, parser_state_t state) {
            token_is_type(parser, TOK_NEQUALS) || token_is_type(parser, TOK_VAR) ||
            token_is_type(parser, TOK_NULL) || token_check_by_function(parser, token_is_literal) ||
            token_is_type(parser, TOK_LPAREN) || token_is_type(parser, TOK_RPAREN)) {
-        int precedence = get_precedence(stack_top(&stack), parser->token);
-        token_t token;
+        int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
+        token_term_t token;
         switch (precedence) {
             case L:
-                stack_push(&stack, token_new(TOK_HANDLE_START));
-                stack_push(&stack, parser->token);
+                stack_push(&stack, token_term_new(token_new(TOK_HANDLE_START), true));
+                stack_push(&stack, token_term_new(parser->token, true));
                 next_token_keep(parser);
                 break;
             case R:
-                while ((token = stack_pop(&stack)).type != TOK_HANDLE_START)
-                    ;
-                stack_push(&stack, token_new(TOK_EOF));
+                while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
+                    stack_push(&current_expression, token);
+                }
+                stack_push(&stack, parse_expression(&current_expression));
                 break;
             case E:
-                stack_push(&stack, parser->token);
+                stack_push(&stack, token_term_new(parser->token, true));
                 next_token_keep(parser);
                 break;
             case X:
                 error_exit(ERR_SYN);
                 break;
             default:
-                error_exit(ERR_INTERNAL);
                 break;
         }
     }
-    if (stack.len == 2 && stack.tokens[0].type == TOK_DOLLAR) {
+    if (stack.len == 2 && stack.tokens[0].token.type == TOK_DOLLAR) {
         return;
     } else {
+        stack_pprint(&stack);
         error_exit(ERR_SYN);
     }
 }
