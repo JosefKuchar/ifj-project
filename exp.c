@@ -41,8 +41,6 @@ int get_precedence(token_t stack_top, token_t input) {
     if (input.type >= TABLE_SIZE || stack_top.type >= TABLE_SIZE) {
         error_exit(ERR_INTERNAL);  // TODO: What error should this be?
     }
-    printf("Stack top is : %s\n", token_to_string(stack_top.type));
-    printf("parsed token is : %s\n", token_to_string(input.type));
     return precedence_table[stack_top.type][input.type];
 }
 
@@ -94,8 +92,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 next_token_keep(parser);
                 break;
             case R:
-                while ((token=stack_pop(&stack)).type != TOK_DOLLAR);
-                // ---------
+                while ((token = stack_pop(&stack)).type != TOK_HANDLE_START)
+                    ;
                 stack_push(&stack, token_new(TOK_EOF));
                 break;
             case E:
@@ -110,11 +108,9 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 break;
         }
     }
-    printf("The stack len is %d \n", stack.len);
     if (stack.len == 2 && stack.tokens[0].type == TOK_DOLLAR) {
         return;
     } else {
-        printf("erroring\n");
         error_exit(ERR_SYN);
     }
 }
