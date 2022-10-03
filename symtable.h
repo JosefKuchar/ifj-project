@@ -54,21 +54,79 @@ struct htab {
     struct htab_item** arr_ptr;
 };
 
-// TODO: Documentation
-htab_t* htab_init(size_t n);
+/**
+ * @brief Create new hash table
+ *
+ * @return htab_t*
+ */
+htab_t* htab_new();
+
+/**
+ * @brief Get number of items in hash table
+ *
+ * @param t Hash table
+ * @return Number of items
+ */
 size_t htab_size(const htab_t* t);
 
+/**
+ * @brief Find item in hash table
+ *
+ * @param t Hash table
+ * @param key  Key of searched item
+ * @return Pointer to item or NULL if not found
+ */
 htab_pair_t* htab_find(htab_t* t, htab_key_t key);
-htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value);
-htab_pair_t* htab_add_function(htab_t* t, token_t* token);
-void htab_function_add_param(htab_pair_t* fun, token_t* token);
-void htab_function_add_param_name(htab_pair_t* fun, token_t* token);
 
-bool htab_erase(htab_t* t, htab_key_t key);
+/**
+ * @brief Add new item to hash table
+ *
+ * @param t Hash table
+ * @param key Key (e.g. variable name)
+ * @param value Value (e.g. variable type)
+ * @return htab_pair_t*
+ */
+htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value);
+
+/**
+ * @brief Add new function item to hash table
+ *
+ * @param t Hash table
+ * @param token Current token (function name)
+ * @return Pointer to new function inside hash table
+ */
+htab_pair_t* htab_add_function(htab_t* t, token_t* token);
+
+/**
+ * @brief Add parameter to existing function
+ *
+ * @param fun Pointer to function inside hash table
+ * @param token Current token (type)
+ */
+void htab_function_add_param(htab_pair_t* fun, token_t* token);
+
+/**
+ * @brief Add parameter name to existing function parameter
+ *
+ * @param fun Pointer to function inside hash table
+ * @param token Curren token (variable name)
+ */
+void htab_function_add_param_name(htab_pair_t* fun, token_t* token);
 
 void htab_for_each(const htab_t* t, void (*f)(htab_pair_t* data));
 
+/**
+ * @brief Remove all items from hash table
+ *
+ * @param t Hash table
+ */
 void htab_clear(htab_t* t);
+
+/**
+ * @brief Free hash table
+ *
+ * @param t Hash table
+ */
 void htab_free(htab_t* t);
 
 #endif  // __SYMTABLE_H__

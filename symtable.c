@@ -5,8 +5,8 @@
 #include "error.h"
 #include "token.h"
 
-#define AVG_LEN_MIN 0.5
 #define AVG_LEN_MAX 2.0
+#define INIT_SIZE 8
 
 size_t htab_hash_function(const char* str) {
     uint32_t h = 0;  // musí mít 32 bitů
@@ -111,50 +111,6 @@ void htab_clear(htab_t* t) {
     t->size = 0;
 }
 
-bool htab_erase(htab_t* t, htab_key_t key) {
-    if (t == NULL || key == NULL) {
-        return false;
-    }
-
-    // Find item bucket
-    size_t index = htab_hash_function(key) % t->arr_size;
-    struct htab_item* item = t->arr_ptr[index];
-    struct htab_item* prev = NULL;
-
-    // Find item
-    while (item != NULL) {
-        // Found the item
-        if (strcmp(item->pair.key, key) == 0) {
-            // If item is first then update head
-            if (prev == NULL) {
-                t->arr_ptr[index] = item->next;
-            } else {
-                prev->next = item->next;
-            }
-
-            // Free item
-            free((char*)item->pair.key);
-            free(item);
-
-            // Update size
-            t->size--;
-
-            return true;
-        }
-        // Update pointers
-        prev = item;
-        item = item->next;
-    }
-
-    // Update hash table size
-    if (htab_size(t) / (double)htab_bucket_count(t) < AVG_LEN_MIN) {
-        htab_resize(t, htab_bucket_count(t) / 2);
-    }
-
-    // Item not found
-    return false;
-}
-
 htab_pair_t* htab_find(htab_t* t, htab_key_t key) {
     if (t == NULL || key == NULL) {
         return NULL;
@@ -212,7 +168,7 @@ void htab_free(htab_t* t) {
     free(t);
 }
 
-htab_t* htab_init(size_t n) {
+htab_t* htab_new() {
     // Allocate memory for the table
     htab_t* t = malloc(sizeof(htab_t));
     if (t == NULL) {
@@ -220,17 +176,17 @@ htab_t* htab_init(size_t n) {
     }
 
     // Allocate memory for the array
-    t->arr_ptr = malloc(n * sizeof(struct htab_item*));
+    t->arr_ptr = malloc(INIT_SIZE * sizeof(struct htab_item*));
     if (t->arr_ptr == NULL) {
         free(t);
         error_exit(ERR_INTERNAL);
     }
 
     // Initialize everything
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < INIT_SIZE; i++) {
         t->arr_ptr[i] = NULL;
     }
-    t->arr_size = n;
+    t->arr_size = INIT_SIZE;
     t->size = 0;
 
     return t;
@@ -294,9 +250,6 @@ htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value) {
 }
 
 htab_pair_t* htab_add_function(htab_t* t, token_t* token) {
-    token_print(token);
-    printf("%p\n", (void*)htab_find(t, token->attr.val_s.val));
-    printf("%s\n", token->attr.val_s.val);
     // Check if function is already defined
     if (htab_find(t, token->attr.val_s.val) != NULL) {
         error_exit(ERR_SEM_FUN);
@@ -310,24 +263,31 @@ htab_pair_t* htab_add_function(htab_t* t, token_t* token) {
 }
 
 void htab_function_add_param(htab_pair_t* fun, token_t* token) {
+    // Increase parameter count
     fun->value.function.param_count++;
+
+    // Resize parameter array
     htab_param_t* params =
         realloc(fun->value.function.params, fun->value.function.param_count * sizeof(htab_param_t));
     if (params == NULL) {
         error_exit(ERR_INTERNAL);
     }
+
+    // Copy attributes from token
     fun->value.function.params = params;
     fun->value.function.params[fun->value.function.param_count - 1].type = token->type;
     fun->value.function.params[fun->value.function.param_count - 1].required = token->attr.val_b;
 }
 
 void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
+    // Check if we are not redefining parameter
     for (int i = 0; i < fun->value.function.param_count - 1; i++) {
         if (strcmp(fun->value.function.params[i].name.val, token->attr.val_s.val) == 0) {
             error_exit(ERR_SEM_FUN);
         }
     }
 
+    // Copy parameter name
     fun->value.function.params[fun->value.function.param_count - 1].name =
         str_new_from_str(&token->attr.val_s);
 }

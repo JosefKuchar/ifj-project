@@ -59,8 +59,8 @@ parser_t parser_new(scanner_t* scanner, gen_t* gen) {
     return (parser_t){.scanner = scanner,
                       .gen = gen,
                       // TODO: Remove hardcoded values
-                      .local_symtable = htab_init(8),
-                      .global_symtable = htab_init(8)};
+                      .local_symtable = htab_new(),
+                      .global_symtable = htab_new()};
 }
 
 void parser_free(parser_t* parser) {
