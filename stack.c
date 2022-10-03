@@ -1,5 +1,7 @@
 #include "stack.h"
+#include <stdio.h>
 #include "error.h"
+#include "token.h"
 
 #define DEFAULT_SIZE 8
 
@@ -55,4 +57,26 @@ token_t stack_pop(stack_t* stack) {
     stack->len--;
 
     return token;
+}
+
+token_t stack_top(stack_t* stack) {
+    // Check if stack is empty
+    if (stack->len == 0) {
+        error_exit(ERR_INTERNAL);
+    }
+
+    // Get token from the stack
+    token_t token = stack->tokens[stack->len - 1];
+
+    return token;
+}
+
+void stack_pprint(stack_t* stack) {
+    if (stack->len == 0) {
+        printf("empty stackerino\n");
+        return;
+    }
+    for (int i = 0; i < stack->len; i++) {
+        printf("%d: %s\n", i, token_to_string(stack->tokens[i].type));
+    }
 }

@@ -37,4 +37,18 @@ void stack_push(stack_t* stack, token_t token);
  */
 token_t stack_pop(stack_t* stack);
 
+/**
+ * @brief Pops top of the stack
+ *
+ * @param stack to be popped from
+ */
+token_t stack_top(stack_t* stack);
+
+/**
+ * @brief Print stack
+ *
+ * @param stack to be printed
+ */
+void stack_pprint(stack_t* stack);
+
 #endif  // __STACK_H__
