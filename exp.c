@@ -36,6 +36,13 @@ const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     {L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, R},  // $
 };
 
+int get_precedence(token_type_t a, token_type_t b) {
+    if (a >= TABLE_SIZE || b >= TABLE_SIZE) {
+        error_exit(ERR_INTERNAL);
+    }
+    return precedence_table[a][b];
+}
+
 void mock_exp(parser_t* parser, parser_state_t state);
 
 void rule_exp(parser_t* parser, parser_state_t state) {
