@@ -85,8 +85,15 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
     stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
-
     while (true) {
+        if (token_is_type(parser, TOK_LPAREN)) {
+            state.exp++;
+        } else if (token_is_type(parser, TOK_RPAREN)) {
+            state.exp--;
+            if (state.exp < 0) {
+                return;
+            }
+        }
         stack_t current_expression = stack_new();
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
 
@@ -99,10 +106,10 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             return;
         }
 
-        // printf("Comparing tokens: %s and %s\n",
-        //        token_to_string(stack_top_terminal(&stack).token.type),
-        //        token_to_string(parser->token.type));
-        // printf("result is: %d\n", precedence);
+        printf("Comparing tokens: %s and %s\n",
+               token_to_string(stack_top_terminal(&stack).token.type),
+               token_to_string(parser->token.type));
+        printf("result is: %d\n", precedence);
 
         switch (precedence) {
             case L:
@@ -111,6 +118,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 next_token_keep(parser);
                 break;
             case R:
+                stack_pprint(&stack);
+                printf("-------------\n");
                 while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
                     if (token.token.type != TOK_HANDLE_START) {
                         stack_push(&current_expression, token);

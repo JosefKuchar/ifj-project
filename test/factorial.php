@@ -28,3 +28,5 @@ if ($a !== null) {
 } else {
     write("Chyba pri nacitani celeho cisla!\n");
 }
+
+$
