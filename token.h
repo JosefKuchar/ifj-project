@@ -27,6 +27,7 @@ typedef enum {
     TOK_DOLLAR, // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
     TOK_HANDLE_START, // HANDLE_START (INTERNAL TO EXPR PARSING)
     TOK_EXP_END, // Expression end (Internal to expr parsing)
+    TOK_E, // expression (Internal to expr parsing)
 
     TOK_EOF,        // End of file
     TOK_BOOL_LIT,   // Bool literal (eg. true)

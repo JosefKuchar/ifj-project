@@ -54,7 +54,8 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
                              [TOK_WHILE] = "while",
                              [TOK_DOLLAR] = "dollar(parser)",
                              [TOK_HANDLE_START] = "handle_start",
-                             [TOK_EXP_END] = "expression_end"};
+                             [TOK_EXP_END] = "expression_end",
+                             [TOK_E] = "expression(parser)"};
 
 void token_print(token_t* token) {
     const char* name = token_names[token->type];
