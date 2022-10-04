@@ -70,7 +70,7 @@ void str_add_char(str_t* str, char c) {
 
 void str_add_cstr(str_t* str, char* cstr) {
     size_t len = strlen(cstr);
-    if (str->len + len >= str->size) {
+    if (str->len + len + 1 >= str->size) {
         char* new_val = realloc(str->val, str->size + len);
         if (new_val == NULL) {
             error_exit(ERR_INTERNAL);
@@ -78,7 +78,8 @@ void str_add_cstr(str_t* str, char* cstr) {
         str->val = new_val;
         str->size += len;
     }
-    strcpy(str->val, cstr);
+    str->len += len;
+    strcat(str->val, cstr);
 }
 
 void str_clear(str_t* str) {

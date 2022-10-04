@@ -55,6 +55,11 @@ void next_token_check_by_function(parser_t* parser, bool (*check_function)(token
     }
 }
 
+void increment_construct_count(parser_t* parser, parser_state_t* state) {
+    state->construct_count = parser->construct_count;
+    parser->construct_count++;
+}
+
 parser_t parser_new(scanner_t* scanner, gen_t* gen) {
     return (parser_t){.scanner = scanner,
                       .gen = gen,
@@ -113,6 +118,7 @@ void rule_call_param(parser_t* parser, parser_state_t state) {
 
 void rule_function_call(parser_t* parser, parser_state_t state) {
     (void)state;
+    gen_function_call(parser->gen, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_call_param(parser, state);
     token_check_type(parser, TOK_RPAREN);
@@ -141,6 +147,8 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 
             break;
         case TOK_IF:
+            increment_construct_count(parser, &state);
+            gen_if(parser->gen, state.construct_count);
             next_token_check_type(parser, TOK_LPAREN);
             next_token(parser);
             rule_exp(parser, state);
@@ -150,12 +158,16 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
             next_token_check_type(parser, TOK_ELSE);
+            gen_else(parser->gen, state.construct_count);
             next_token_check_type(parser, TOK_LBRACE);
             next_token(parser);
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
+            gen_if_else_end(parser->gen, state.construct_count);
             break;
         case TOK_WHILE:
+            increment_construct_count(parser, &state);
+            gen_while(parser->gen, state.construct_count);
             next_token_check_type(parser, TOK_LPAREN);
             next_token(parser);
             rule_exp(parser, state);
@@ -164,6 +176,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             next_token(parser);
             rule_statement(parser, state);
             token_check_type(parser, TOK_RBRACE);
+            gen_while_end(parser->gen, state.construct_count);
             break;
         case TOK_FUN_NAME:
             rule_function_call(parser, state);
@@ -188,6 +201,7 @@ void rule_function(parser_t* parser, parser_state_t state) {
     state.in_function = true;
     next_token_check_type(parser, TOK_FUN_NAME);
     parser->function = htab_add_function(parser->global_symtable, &parser->token);
+    gen_function(parser->gen, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_param(parser, state);
     token_check_type(parser, TOK_RPAREN);
@@ -197,6 +211,7 @@ void rule_function(parser_t* parser, parser_state_t state) {
     next_token(parser);
     rule_statement(parser, state);
     token_check_type(parser, TOK_RBRACE);
+    gen_function_end(parser->gen);
     htab_clear(parser->local_symtable);
 }
 

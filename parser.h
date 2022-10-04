@@ -15,12 +15,14 @@ typedef struct {
     htab_t* global_symtable;  // Global symbol table
     htab_pair_t* function;    // Current function
     bool skip_next;           // Whether to unget the current token
+    int construct_count;
 } parser_t;
 
 typedef struct {
     bool in_loop;      // Whether we're in a loop (e.g. while)
     bool in_function;  // Whether we're in a function
     int exp;
+    int construct_count;
 } parser_state_t;
 
 /**

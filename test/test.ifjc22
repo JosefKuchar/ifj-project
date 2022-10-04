@@ -4,3 +4,13 @@ PUSHFRAME
 EXIT -1
 POPFRAME
 CLEARS
+
+## IF
+JUMPIFEQ !else@1
+
+JUMP !end@1
+## ELSE
+LABEL !else@1
+
+## END
+LABEL !end@1
