@@ -72,9 +72,9 @@ void rule_exp2(parser_t* parser, parser_state_t state) {
 }
 
 token_term_t parse_expression(stack_t* stack) {
-    if (stack->len == 5) {
-        if (stack->tokens[5].token.type == TOK_EOF && stack->tokens[4].token.type == TOK_PLUS &&
-            stack->tokens[3].token.type == TOK_EOF) {
+    if (stack->len == 3) {
+        if (stack->tokens[2].token.type == TOK_EOF && stack->tokens[1].token.type == TOK_PLUS &&
+            stack->tokens[0].token.type == TOK_EOF) {
             return token_term_new(token_new(TOK_EXP_END), false);
         }
     }
@@ -84,15 +84,20 @@ token_term_t parse_expression(stack_t* stack) {
 void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
-    stack_t current_expression = stack_new();
     stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
 
     while (true) {
+        stack_t current_expression = stack_new();
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
+
         if (precedence == -1) {
             precedence = R;
         }
         token_term_t token;
+
+        if (stack_top(&stack).token.type == TOK_EXP_END) {
+            return;
+        }
 
         // printf("Comparing tokens: %s and %s\n",
         //        token_to_string(stack_top_terminal(&stack).token.type),
@@ -123,8 +128,10 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             default:
                 break;
         }
-        stack_pprint(&stack);
-        printf("-----\n");
+        // stack_pprint(&stack);
+        // printf("-----\n");
+        // printf("%d\n", stack.len);
+        stack_free(&current_expression);
     }
     return;
 }
