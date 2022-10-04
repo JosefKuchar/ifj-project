@@ -20,6 +20,18 @@ void next_token(parser_t* parser) {
 #endif  // DEBUG_TOK
 }
 
+void next_token_keep(parser_t* parser) {
+    if (parser->skip_next) {
+        parser->skip_next = false;
+        return;
+    }
+
+    parser->token = scanner_get_next(parser->scanner);
+#ifdef DEBUG_TOK
+    token_print(&parser->token);
+#endif  // DEBUG_TOK
+}
+
 bool token_is_type(parser_t* parser, token_type_t type) {
     return parser->token.type == type;
 }

@@ -50,6 +50,8 @@ bool token_is_type(parser_t* parser, token_type_t type);
 
 void next_token(parser_t* parser);
 
+void next_token_keep(parser_t* parser);
+
 bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*));
 
 #endif  // __PARSER_H__

@@ -24,6 +24,9 @@ typedef enum {
     TOK_FLOAT_LIT,  // Float literal (eg. 0.0)
     TOK_STR_LIT,    // String literal (eg. "foo")
     TOK_DOT,        // .
+    TOK_DOLLAR, // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
+    TOK_HANDLE_START, // HANDLE_START (INTERNAL TO EXPR PARSING)
+
     TOK_EOF,        // End of file
     TOK_BOOL_LIT,   // Bool literal (eg. true)
     TOK_FUN_NAME,   // Function name (eg. write)
@@ -45,6 +48,7 @@ typedef enum {
     TOK_STRING,    // string
     TOK_VOID,      // void
     TOK_WHILE,     // while
+
 } token_type_t;
 
 /**
