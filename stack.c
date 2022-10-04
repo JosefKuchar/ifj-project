@@ -30,15 +30,19 @@ void stack_free(stack_t* stack) {
     stack->size = 0;
 }
 
+void resize_stack(stack_t* stack) {
+    token_term_t* new_tokens = realloc(stack->tokens, stack->size * 2 * sizeof(token_term_t));
+    if (new_tokens == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    stack->tokens = new_tokens;
+    stack->size *= 2;
+}
+
 void stack_push(stack_t* stack, token_term_t token) {
     // Enlarge buffer if needed
     if (stack->len + 1 >= stack->size) {
-        token_term_t* new_tokens = realloc(stack->tokens, stack->size * 2 * sizeof(token_term_t));
-        if (new_tokens == NULL) {
-            error_exit(ERR_INTERNAL);
-        }
-        stack->tokens = new_tokens;
-        stack->size *= 2;
+        resize_stack(stack);
     }
 
     // Add token to the stack
@@ -78,12 +82,14 @@ token_term_t stack_pop_terminal(stack_t* stack) {
     }
     token_term_t token;
 
-    for (int i = 1; token.terminal == false && i < stack->len; i++) {
+    for (int i = 1; i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
+        if (token.terminal) {
+            stack->len--;
+            return token;
+        }
     }
-
-    stack->len--;
-
+    error_exit(ERR_INTERNAL);
     return token;
 }
 
@@ -93,16 +99,40 @@ token_term_t stack_top_terminal(stack_t* stack) {
         error_exit(ERR_INTERNAL);
     }
     token_term_t token;
-    bool found = false;
 
-    for (int i = 1; token.terminal == false && i <= stack->len; i++) {
+    for (int i = 1; i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
-        found = true;
+        if (token.terminal) {
+            return token;
+        }
     }
-    if (!found) {
+    error_exit(ERR_INTERNAL);
+    return token;
+}
+
+void stack_push_after_terminal(stack_t* stack) {
+    // Check if stack is empty
+    if (stack->len == 0) {
         error_exit(ERR_INTERNAL);
     }
-    return token;
+    token_term_t token;
+
+    for (int i = 1; i <= stack->len; i++) {
+        token = stack->tokens[stack->len - i];
+        if (token.terminal) {
+            if (stack->len + 1 >= stack->size) {
+                resize_stack(stack);
+            }
+            for (int j = 1; j < i + 1; j++) {
+                stack->tokens[stack->len - j + 1] = stack->tokens[stack->len - j];
+            }
+            stack->tokens[stack->len - i + 1] = token_term_new(token_new(TOK_HANDLE_START), false);
+            stack->len++;
+
+            return;
+        }
+    }
+    error_exit(ERR_INTERNAL);
 }
 
 void stack_pprint(stack_t* stack) {

@@ -40,7 +40,7 @@ const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
 
 int get_precedence(token_t stack_top, token_t input) {
     if (input.type >= TABLE_SIZE || stack_top.type >= TABLE_SIZE) {
-        error_exit(ERR_SEM);  // TODO: What error should this be?
+        return -1;
     }
     return precedence_table[stack_top.type][input.type];
 }
@@ -72,7 +72,12 @@ void rule_exp2(parser_t* parser, parser_state_t state) {
 }
 
 token_term_t parse_expression(stack_t* stack) {
-    (void)stack;
+    if (stack->len == 5) {
+        if (stack->tokens[5].token.type == TOK_EOF && stack->tokens[4].token.type == TOK_PLUS &&
+            stack->tokens[3].token.type == TOK_EOF) {
+            return token_term_new(token_new(TOK_EXP_END), false);
+        }
+    }
     return token_term_new(token_new(TOK_EOF), false);
 }
 
@@ -82,33 +87,31 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     stack_t current_expression = stack_new();
     stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
 
-    while (token_is_type(parser, TOK_PLUS) || token_is_type(parser, TOK_MINUS) ||
-           token_is_type(parser, TOK_DOT) || token_is_type(parser, TOK_MULTIPLY) ||
-           token_is_type(parser, TOK_DIVIDE) || token_is_type(parser, TOK_LESS) ||
-           token_is_type(parser, TOK_GREATER) || token_is_type(parser, TOK_LESS_E) ||
-           token_is_type(parser, TOK_GREATER_E) || token_is_type(parser, TOK_EQUALS) ||
-           token_is_type(parser, TOK_NEQUALS) || token_is_type(parser, TOK_VAR) ||
-           token_is_type(parser, TOK_NULL) || token_check_by_function(parser, token_is_literal) ||
-           token_is_type(parser, TOK_LPAREN) || token_is_type(parser, TOK_RPAREN)) {
+    while (true) {
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
+        if (precedence == -1) {
+            precedence = R;
+        }
         token_term_t token;
 
-        printf("Comparing tokens: %s and %s\n",
-               token_to_string(stack_top_terminal(&stack).token.type),
-               token_to_string(parser->token.type));
-        printf("result is: %d\n", precedence);
+        // printf("Comparing tokens: %s and %s\n",
+        //        token_to_string(stack_top_terminal(&stack).token.type),
+        //        token_to_string(parser->token.type));
+        // printf("result is: %d\n", precedence);
 
         switch (precedence) {
             case L:
-                stack_push(&stack, token_term_new(token_new(TOK_HANDLE_START), true));
+                stack_push_after_terminal(&stack);
                 stack_push(&stack, token_term_new(parser->token, true));
                 next_token_keep(parser);
                 break;
             case R:
                 while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
-                    stack_push(&current_expression, token);
+                    if (token.token.type != TOK_HANDLE_START) {
+                        stack_push(&current_expression, token);
+                    }
                 }
-                stack_push(&stack, token_term_new(token_new(TOK_EOF), false));
+                stack_push(&stack, parse_expression(&current_expression));
                 break;
             case E:
                 stack_push(&stack, token_term_new(parser->token, true));
@@ -120,10 +123,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             default:
                 break;
         }
+        stack_pprint(&stack);
+        printf("-----\n");
     }
-    if (stack.len == 2 && stack.tokens[0].token.type == TOK_DOLLAR) {
-        return;
-    } else {
-        error_exit(ERR_SYN);
-    }
+    return;
 }

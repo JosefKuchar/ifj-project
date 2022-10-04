@@ -55,4 +55,7 @@ token_term_t stack_pop_terminal(stack_t* stack);
 
 token_term_t stack_top_terminal(stack_t* stack);
 
+void stack_push_after_terminal(stack_t* stack);
+
+void resize_stack(stack_t* stack);
 #endif  // __STACK_H__
