@@ -72,18 +72,8 @@ void rule_exp2(parser_t* parser, parser_state_t state) {
 }
 
 token_term_t parse_expression(stack_t* stack) {
-    if (stack->len == 1) {
-        return token_term_new(stack->tokens[0].token, false);
-    } else if (stack->len == 3) {
-        if (stack->tokens[0].token.type == TOK_LPAREN) {
-            return token_term_new(stack->tokens[1].token, false);
-        } else {
-            return token_term_new(stack->tokens[0].token, false);
-        }
-    } else {
-        error_exit(ERR_SEM);
-    }
-    return token_term_new(stack->tokens[0].token, false);
+    (void)stack;
+    return token_term_new(token_new(TOK_EOF), false);
 }
 
 void rule_exp(parser_t* parser, parser_state_t state) {
@@ -102,6 +92,12 @@ void rule_exp(parser_t* parser, parser_state_t state) {
            token_is_type(parser, TOK_LPAREN) || token_is_type(parser, TOK_RPAREN)) {
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
         token_term_t token;
+
+        printf("Comparing tokens: %s and %s\n",
+               token_to_string(stack_top_terminal(&stack).token.type),
+               token_to_string(parser->token.type));
+        printf("result is: %d\n", precedence);
+
         switch (precedence) {
             case L:
                 stack_push(&stack, token_term_new(token_new(TOK_HANDLE_START), true));
@@ -112,7 +108,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
                     stack_push(&current_expression, token);
                 }
-                stack_push(&stack, parse_expression(&current_expression));
+                stack_push(&stack, token_term_new(token_new(TOK_EOF), false));
                 break;
             case E:
                 stack_push(&stack, token_term_new(parser->token, true));
@@ -128,7 +124,6 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     if (stack.len == 2 && stack.tokens[0].token.type == TOK_DOLLAR) {
         return;
     } else {
-        stack_pprint(&stack);
         error_exit(ERR_SYN);
     }
 }

@@ -78,7 +78,7 @@ token_term_t stack_pop_terminal(stack_t* stack) {
     }
     token_term_t token;
 
-    for (int i = 1; token.terminal == false || i < stack->len; i++) {
+    for (int i = 1; token.terminal == false && i < stack->len; i++) {
         token = stack->tokens[stack->len - i];
     }
 
@@ -93,11 +93,15 @@ token_term_t stack_top_terminal(stack_t* stack) {
         error_exit(ERR_INTERNAL);
     }
     token_term_t token;
+    bool found = false;
 
-    for (int i = 1; token.terminal == false || i < stack->len; i++) {
+    for (int i = 1; token.terminal == false && i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
+        found = true;
     }
-
+    if (!found) {
+        error_exit(ERR_INTERNAL);
+    }
     return token;
 }
 

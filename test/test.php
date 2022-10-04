@@ -8,5 +8,5 @@ Or multiline comments
 
 declare(strict_types=1);
 
-$ha = 1 + 1;
+$ha = 1 + 1 * 1;
 ?>
