@@ -16,26 +16,52 @@ enum {
 };
 
 token_term_t parse_paren(stack_t* stack) {
-    error_not_implemented();
-    (void)stack;
-    return token_term_new(token_new(TOK_EOF), false);
+    if (!((token_is_literal(&stack->tokens[1].token) || stack->tokens[1].token.type == TOK_VAR) &&
+          stack->tokens[1].terminal)) {
+        error_exit(ERR_SYN);
+    }
+
+    if (stack->tokens[0].token.type != TOK_RPAREN || stack->tokens[2].token.type != TOK_LPAREN) {
+        error_exit(ERR_SYN);
+    }
+
+    token_type_t type = stack->tokens[1].token.type;
+    return token_term_new(token_new(type), false);
 }
 
 token_term_t parse_arithmetic(stack_t* stack) {
-    error_not_implemented();
-    (void)stack;
-    return token_term_new(token_new(TOK_EOF), false);
+    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+        error_exit(ERR_SYN);
+    }
+
+    return token_term_new(token_new(stack->tokens[0].token.type), false);
 }
 
 token_term_t parse_concat(stack_t* stack) {
-    error_not_implemented();
-    (void)stack;
-    return token_term_new(token_new(TOK_EOF), false);
+    token_type_t a = stack->tokens[0].token.type;
+    token_type_t b = stack->tokens[2].token.type;
+
+    if (a != TOK_STR_LIT || b != TOK_STR_LIT) {
+        error_exit(ERR_SYN);
+    }
+    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+        error_exit(ERR_SYN);
+    }
+
+    return token_term_new(token_new(TOK_STR_LIT), false);
 }
 
 token_term_t parse_comparison(stack_t* stack) {
-    error_not_implemented();
-    (void)stack;
+    if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
+        error_exit(ERR_LEX);
+    }
+    if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
+        error_exit(ERR_LEX);
+    }
+    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+        error_exit(ERR_SYN);
+    }
+
     return token_term_new(token_new(TOK_EOF), false);
 }
 
@@ -69,16 +95,6 @@ int get_precedence(token_t stack_top, token_t input) {
     return precedence_table[stack_top.type][input.type];
 }
 
-token_term_t _parse_expression(stack_t* stack) {
-    if (stack->len == 3) {
-        if (stack->tokens[2].token.type == TOK_EOF && stack->tokens[1].token.type == TOK_PLUS &&
-            stack->tokens[0].token.type == TOK_EOF) {
-            return token_term_new(token_new(TOK_EXP_END), false);
-        }
-    }
-    return token_term_new(token_new(TOK_EOF), false);
-}
-
 token_term_t parse_expression(stack_t* stack) {
     token_term_t tok = token_term_new(token_new(TOK_EOF), false);
     if (stack->len == 3) {
@@ -108,17 +124,24 @@ token_term_t parse_expression(stack_t* stack) {
                 break;
 
             default:
+
                 error_exit(ERR_SYN);
                 break;
         }
-        return tok;
-    } else if (stack->len == 1) {
-        if (token_is_literal(&stack->tokens[0].token)) {
-            return token_term_new(stack->tokens[0].token, false);
+    } else if (stack->len == 1) {  // Rules for single identifier/single non terminal
+        if (token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR) {
+            if (stack->tokens[0].terminal) {
+                return token_term_new(token_new(stack->tokens[0].token.type), false);
+            } else {
+                if (token_is_literal(&stack->tokens[0].token) ||
+                    stack->tokens[0].token.type == TOK_VAR) {
+                    return token_term_new(token_new(TOK_EXP_END), false);
+                }
+            }
         }
-    } else {
-        error_exit(ERR_SYN);
     }
+
+    error_exit(ERR_SYN);
     return tok;
 }
 
@@ -131,7 +154,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             state.exp++;
         } else if (token_is_type(parser, TOK_RPAREN)) {
             state.exp--;
-            if (state.exp < 0) {
+            if (state.exp < 0) {  // TODO: Fix this
                 return;
             }
         }
@@ -143,9 +166,14 @@ void rule_exp(parser_t* parser, parser_state_t state) {
         }
         token_term_t token;
 
-        if (stack_top(&stack).token.type == TOK_EXP_END) {
+        if (!stack_top(&stack).terminal && stack.len == 2 && precedence == R) {
+            printf("Finishing analysis\n");
+            printf("Stack is: \n");
+            stack_pprint(&stack);
             return;
         }
+        stack_pprint(&stack);
+        printf("-----\n");
 
         // printf("Comparing tokens: %s and %s\n",
         //        token_to_string(stack_top_terminal(&stack).token.type),
@@ -164,7 +192,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                         stack_push(&current_expression, token);
                     }
                 }
-                stack_push(&stack, _parse_expression(&current_expression));
+                stack_push(&stack, parse_expression(&current_expression));
                 break;
             case E:
                 stack_push(&stack, token_term_new(parser->token, true));
@@ -176,9 +204,6 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             default:
                 break;
         }
-        // stack_pprint(&stack);
-        // printf("-----\n");
-        // printf("%d\n", stack.len);
         stack_free(&current_expression);
     }
     return;
