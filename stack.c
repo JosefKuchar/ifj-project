@@ -23,11 +23,22 @@ stack_t stack_new() {
 
 void stack_free(stack_t* stack) {
     // Free the stack
+    for (int i = 0; i < stack->len; i++) {
+        token_free(&stack->tokens[i].token);
+    }
     free(stack->tokens);
     // Reset values just to be sure
     stack->tokens = NULL;
     stack->len = 0;
     stack->size = 0;
+}
+
+void stack_empty(stack_t* stack) {
+    // Free the stack
+    for (int i = 0; i < stack->len; i++) {
+        token_free(&stack->tokens[i].token);
+    }
+    stack->len = 0;
 }
 
 void resize_stack(stack_t* stack) {

@@ -23,6 +23,8 @@ stack_t stack_new();
  */
 void stack_free(stack_t* stack);
 
+void stack_empty(stack_t* stack);
+
 /**
  * @brief Pushes value on the stack
  *

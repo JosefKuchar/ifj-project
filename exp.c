@@ -62,7 +62,7 @@ token_term_t parse_comparison(stack_t* stack) {
         error_exit(ERR_SYN);
     }
 
-    return token_term_new(token_new(TOK_EOF), false);
+    return token_term_new(token_new(TOK_BOOL_LIT), false);
 }
 
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
@@ -149,16 +149,17 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
     stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
+    stack_t current_expression = stack_new();
+
     while (true) {
         if (token_is_type(parser, TOK_LPAREN)) {
             state.exp++;
         } else if (token_is_type(parser, TOK_RPAREN)) {
             state.exp--;
             if (state.exp < 0) {  // TODO: Fix this
-                return;
+                break;
             }
         }
-        stack_t current_expression = stack_new();
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
 
         if (precedence == -1) {
@@ -170,15 +171,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             printf("Finishing analysis\n");
             printf("Stack is: \n");
             stack_pprint(&stack);
-            return;
+            break;
         }
-        stack_pprint(&stack);
-        printf("-----\n");
-
-        // printf("Comparing tokens: %s and %s\n",
-        //        token_to_string(stack_top_terminal(&stack).token.type),
-        //        token_to_string(parser->token.type));
-        // printf("result is: %d\n", precedence);
 
         switch (precedence) {
             case L:
@@ -190,6 +184,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
                     if (token.token.type != TOK_HANDLE_START) {
                         stack_push(&current_expression, token);
+                    } else {
+                        token_free(&token.token);
                     }
                 }
                 stack_push(&stack, parse_expression(&current_expression));
@@ -204,7 +200,9 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             default:
                 break;
         }
-        stack_free(&current_expression);
+        stack_empty(&current_expression);
     }
+    stack_free(&current_expression);
+    stack_free(&stack);
     return;
 }
