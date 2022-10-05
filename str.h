@@ -48,6 +48,8 @@ void str_add_char(str_t* str, char c);
  */
 void str_add_cstr(str_t* str, char* cstr);
 
+void str_add_str(str_t* str, str_t* str2);
+
 /**
  * @brief Clear string
  */

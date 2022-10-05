@@ -82,6 +82,10 @@ void str_add_cstr(str_t* str, char* cstr) {
     strcat(str->val, cstr);
 }
 
+void str_add_str(str_t* str, str_t* str2) {
+    str_add_cstr(str, str2->val);
+}
+
 void str_clear(str_t* str) {
     str->val[0] = '\0';
     str->len = 0;

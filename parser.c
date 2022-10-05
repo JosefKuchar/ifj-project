@@ -254,6 +254,7 @@ void parser_run(parser_t* parser) {
     gen_header(parser->gen);
     next_token(parser);
     rule_program(parser, state);
+    gen_footer(parser->gen);
 #endif
 #ifdef DEBUG_LEX
     next_token(parser);

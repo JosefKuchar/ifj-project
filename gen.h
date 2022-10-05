@@ -5,7 +5,13 @@
 #include "token.h"
 
 typedef struct {
-    str_t start;
+    str_t header;           // Global header (init, definition of global variables)
+    str_t global;           // Global code
+    str_t functions;        // Functions
+    str_t function_header;  // Current function header (definition of local variables)
+    str_t function;         // Current function code
+    str_t* current;         // Pointer to current string
+    str_t* current_header;  // Pointer to current header
 } gen_t;
 
 gen_t gen_new();
@@ -13,6 +19,8 @@ gen_t gen_new();
 void gen_emit(gen_t* gen);
 
 void gen_header(gen_t* gen);
+
+void gen_footer(gen_t* gen);
 
 void gen_free();
 
