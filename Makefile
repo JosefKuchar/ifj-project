@@ -24,7 +24,7 @@ include $(wildcard $(DEPS))
 
 # Run the program
 run: main
-	./main
+	./main < test/factorial.php
 
 # Clean up
 clean:

@@ -44,7 +44,7 @@ int get_precedence(token_t stack_top, token_t input) {
     return precedence_table[stack_top.type][input.type];
 }
 
-void rule_exp2(parser_t* parser, parser_state_t state) {
+void rule_exp(parser_t* parser, parser_state_t state) {
     if (token_is_type(parser, TOK_LPAREN)) {
         state.exp++;
     } else if (token_is_type(parser, TOK_RPAREN)) {
@@ -70,7 +70,7 @@ void rule_exp2(parser_t* parser, parser_state_t state) {
     rule_exp(parser, state);
 }
 
-void rule_exp(parser_t* parser, parser_state_t state) {
+void rule_exp2(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
     stack_push(&stack, token_new(TOK_DOLLAR));
