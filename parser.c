@@ -116,6 +116,7 @@ void rule_additional_call_param(parser_t* parser, parser_state_t state) {
         if (!token_is_type(parser, TOK_VAR) && !token_is_literal(&parser->token)) {
             error_exit(ERR_SYN);
         }
+        gen_function_call_param(parser->gen, &parser->token);
         rule_additional_call_param(parser, state);
     }
 }
@@ -124,17 +125,19 @@ void rule_call_param(parser_t* parser, parser_state_t state) {
     (void)state;
     next_token(parser);
     if (token_is_type(parser, TOK_VAR) || token_is_literal(&parser->token)) {
+        gen_function_call_param(parser->gen, &parser->token);
         rule_additional_call_param(parser, state);
     }
 }
 
 void rule_function_call(parser_t* parser, parser_state_t state) {
     (void)state;
-    gen_function_call(parser->gen, &parser->token);
+    gen_function_call_frame(parser->gen, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_call_param(parser, state);
     token_check_type(parser, TOK_RPAREN);
     next_token_check_type(parser, TOK_SEMICOLON);
+    gen_function_call(parser->gen);
 }
 
 void rule_value(parser_t* parser, parser_state_t state) {

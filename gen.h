@@ -10,8 +10,10 @@ typedef struct {
     str_t functions;        // Functions
     str_t function_header;  // Current function header (definition of local variables)
     str_t function;         // Current function code
+    str_t function_name;    // Current function name
     str_t* current;         // Pointer to current string
     str_t* current_header;  // Pointer to current header
+    int param_count;
 } gen_t;
 
 gen_t gen_new();
@@ -63,6 +65,10 @@ void gen_function(gen_t* gen, token_t* token);
 
 void gen_function_end(gen_t* gen);
 
-void gen_function_call(gen_t* gen, token_t* token);
+void gen_function_call(gen_t* gen);
+
+void gen_function_call_frame(gen_t* gen, token_t* token);
+
+void gen_function_call_param(gen_t* gen, token_t* token);
 
 #endif  // __GEN_H__
