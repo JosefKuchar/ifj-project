@@ -16,8 +16,12 @@ enum {
 };
 
 token_term_t parse_paren(stack_t* stack) {
-    if (!((token_is_literal(&stack->tokens[1].token) || stack->tokens[1].token.type == TOK_VAR) &&
-          stack->tokens[1].terminal)) {
+    // stack_pprint(stack);
+    if (!(token_is_literal(&stack->tokens[1].token) || stack->tokens[1].token.type == TOK_VAR)) {
+        error_exit(ERR_SYN);
+    }
+
+    if (stack->tokens[1].terminal) {
         error_exit(ERR_SYN);
     }
 
@@ -171,14 +175,14 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     stack_t current_expression = stack_new();
 
     while (true) {
-        if (token_is_type(parser, TOK_LPAREN)) {
-            state.exp++;
-        } else if (token_is_type(parser, TOK_RPAREN)) {
-            state.exp--;
-            if (state.exp < 0) {  // TODO: Fix this
-                break;
-            }
-        }
+        // if (token_is_type(parser, TOK_LPAREN)) {
+        //     state.exp++;
+        // } else if (token_is_type(parser, TOK_RPAREN)) {
+        //     state.exp--;
+        //     if (state.exp < 0) {  // TODO: Fix this
+        //         break;
+        //     }
+        // }
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
 
         if (precedence == -1) {
