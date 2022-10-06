@@ -205,11 +205,27 @@ bool token_is_datatype(token_t* token) {
 }
 
 bool token_is_literal(token_t* token) {
-    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT || token->type == TOK_STR_LIT;
+    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT ||
+           token->type == TOK_STR_LIT || token->type == TOK_NULL;
 }
 
 bool token_is_expression(token_t* token) {
     return token->type == TOK_LPAREN || token_is_literal(token) || token->type == TOK_VAR;
+}
+
+bool token_is_ar_operator(token_t* token) {
+    return token->type == TOK_PLUS || token->type == TOK_MINUS || token->type == TOK_DIVIDE ||
+           token->type == TOK_MULTIPLY || token->type == TOK_DOT;
+}
+
+bool token_is_comparator(token_t* token) {
+    return token->type == TOK_LESS || token->type == TOK_LESS_E || token->type == TOK_GREATER ||
+           token->type == TOK_GREATER_E || token->type == TOK_EQUALS || token->type == TOK_NEQUALS;
+}
+
+bool token_isin_expression(token_t* token) {
+    return token_is_literal(token) || token->type == TOK_VAR || token_is_ar_operator(token) ||
+           token_is_ar_operator(token) || token->type == TOK_LPAREN || token->type == TOK_RPAREN;
 }
 
 void token_free(token_t* token) {

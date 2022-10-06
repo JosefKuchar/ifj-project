@@ -18,7 +18,7 @@ function factorial(int $n) : int {
     return $result;
 }
 
-if ($a !== null) {
+if ($a !== 0) {
     if ($a < 0) { // Pokracovani hlavniho tela programu
         write("Faktorial nelze spocitat\n");
     } else {
@@ -28,5 +28,3 @@ if ($a !== null) {
 } else {
     write("Chyba pri nacitani celeho cisla!\n");
 }
-
-$

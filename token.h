@@ -7,27 +7,28 @@
  * @brief All token types
  */
 typedef enum {
-    TOK_PLUS,       // +
-    TOK_MINUS,      // -
-    TOK_MULTIPLY,   // *
-    TOK_DIVIDE,     // /
-    TOK_LESS,       // <
-    TOK_LESS_E,     // <=
-    TOK_GREATER,    // >
-    TOK_GREATER_E,  // >=
-    TOK_EQUALS,     // ===
-    TOK_NEQUALS,    // !==
-    TOK_LPAREN,     // (
-    TOK_RPAREN,     // )
-    TOK_VAR,        // Identifier (eg. $foo)
-    TOK_INT_LIT,    // Integer literal (eg. 0)
-    TOK_FLOAT_LIT,  // Float literal (eg. 0.0)
-    TOK_STR_LIT,    // String literal (eg. "foo")
-    TOK_DOT,        // .
-    TOK_DOLLAR, // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
-    TOK_HANDLE_START, // HANDLE_START (INTERNAL TO EXPR PARSING)
-    TOK_EXP_END, // Expression end (Internal to expr parsing)
-    TOK_E, // expression (Internal to expr parsing)
+    TOK_PLUS,          // +
+    TOK_MINUS,         // -
+    TOK_MULTIPLY,      // *
+    TOK_DIVIDE,        // /
+    TOK_LESS,          // <
+    TOK_LESS_E,        // <=
+    TOK_GREATER,       // >
+    TOK_GREATER_E,     // >=
+    TOK_EQUALS,        // ===
+    TOK_NEQUALS,       // !==
+    TOK_LPAREN,        // (
+    TOK_RPAREN,        // )
+    TOK_VAR,           // Identifier (eg. $foo)
+    TOK_INT_LIT,       // Integer literal (eg. 0)
+    TOK_FLOAT_LIT,     // Float literal (eg. 0.0)
+    TOK_STR_LIT,       // String literal (eg. "foo")
+    TOK_DOT,           // .
+    TOK_NULL,          // Null
+    TOK_DOLLAR,        // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
+    TOK_HANDLE_START,  // HANDLE_START (INTERNAL TO EXPR PARSING)
+    TOK_EXP_END,       // Expression end (Internal to expr parsing)
+    TOK_E,             // expression (Internal to expr parsing)
 
     TOK_EOF,        // End of file
     TOK_BOOL_LIT,   // Bool literal (eg. true)
@@ -45,7 +46,6 @@ typedef enum {
     TOK_FUNCTION,  // function
     TOK_IF,        // if
     TOK_INT,       // int
-    TOK_NULL,      // null
     TOK_RETURN,    // return
     TOK_STRING,    // string
     TOK_VOID,      // void
@@ -158,5 +158,11 @@ void token_free(token_t* token);
 char* token_to_string(token_type_t type);
 
 bool type_is_number(token_type_t type);
+
+bool token_is_ar_operator(token_t* token);
+
+bool token_is_comparator(token_t* token);
+
+bool token_isin_expression(token_t* token);
 
 #endif  // __TOKEN_H__

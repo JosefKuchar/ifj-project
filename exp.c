@@ -12,11 +12,10 @@ enum {
     L,  // <
     R,  // >
     E,  // =
-    X   // Invalid
+    X,  // Invalid
 };
 
 token_term_t parse_paren(stack_t* stack) {
-    // stack_pprint(stack);
     if (!(token_is_literal(&stack->tokens[1].token) || stack->tokens[1].token.type == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
@@ -35,10 +34,10 @@ token_term_t parse_paren(stack_t* stack) {
 
 token_term_t parse_arithmetic(stack_t* stack) {
     if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
-        error_exit(ERR_LEX);
+        error_exit(ERR_SYN);
     }
     if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
-        error_exit(ERR_LEX);
+        error_exit(ERR_SYN);
     }
     if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
         error_exit(ERR_SYN);
@@ -56,17 +55,14 @@ token_term_t parse_arithmetic(stack_t* stack) {
     if (a == TOK_INT_LIT && b == TOK_INT_LIT) {
         return token_term_new(token_new(TOK_INT_LIT), false);
     }
+    if (a == TOK_VAR || b == TOK_VAR) {  // TODO: fix type checks on vars
+        return token_term_new(token_new(TOK_FLOAT_LIT), false);
+    }
     error_exit(ERR_SYN);
     return token_term_new(token_new(stack->tokens[0].token.type), false);
 }
 
 token_term_t parse_concat(stack_t* stack) {
-    token_type_t a = stack->tokens[0].token.type;
-    token_type_t b = stack->tokens[2].token.type;
-
-    if (a != TOK_STR_LIT || b != TOK_STR_LIT) {
-        error_exit(ERR_SYN);
-    }
     if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
         error_exit(ERR_SYN);
     }
@@ -76,10 +72,10 @@ token_term_t parse_concat(stack_t* stack) {
 
 token_term_t parse_comparison(stack_t* stack) {
     if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
-        error_exit(ERR_LEX);
+        error_exit(ERR_SYN);
     }
     if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
-        error_exit(ERR_LEX);
+        error_exit(ERR_SYN);
     }
     if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
         error_exit(ERR_SYN);
@@ -88,33 +84,36 @@ token_term_t parse_comparison(stack_t* stack) {
     return token_term_new(token_new(TOK_BOOL_LIT), false);
 }
 
+// TODO: Add null to precendece table
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     // only ==/!== for formatting reasons
-    /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST .  $ */
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, R},  // +
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, R},  // -
-    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, R},  // *
-    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, R},  // /
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <=
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // >
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // >=
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // ==
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // !=
-    {L, L, L, L, L, L, L, L, L, L, L, E, L, L, L, L, L, R},  // (
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},  // )
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},  // ID
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},  // IN
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, R},  // FL
-    {X, X, X, X, R, R, R, R, R, R, X, R, X, X, X, X, R, R},  // ST
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, L, R, R},  // .
-    {L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, R},  // $
+    /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST .  NI $ */
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // +
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // -
+    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // *
+    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // /
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // <
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // <=
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // >
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // >=
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // ==
+    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // !=
+    {L, L, L, L, L, L, L, L, L, L, L, E, L, L, L, L, L, L, R},  // (
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // )
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // ID
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // IN
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // FL
+    {X, X, X, X, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // ST
+    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, L, R, L, R},  // .
+    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // NI
+    {L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, L, R},  // $
 };
 
 int get_precedence(token_t stack_top, token_t input) {
     if (input.type >= TABLE_SIZE || stack_top.type >= TABLE_SIZE) {
         return -1;
     }
+
     return precedence_table[stack_top.type][input.type];
 }
 
@@ -175,14 +174,8 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     stack_t current_expression = stack_new();
 
     while (true) {
-        // if (token_is_type(parser, TOK_LPAREN)) {
-        //     state.exp++;
-        // } else if (token_is_type(parser, TOK_RPAREN)) {
-        //     state.exp--;
-        //     if (state.exp < 0) {  // TODO: Fix this
-        //         break;
-        //     }
-        // }
+        // printf("Comparing tokens: %s and %s\n", token_to_string(parser->token.type),
+        // token_to_string(stack_top_terminal(&stack).token.type));
         int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
 
         if (precedence == -1) {
@@ -190,10 +183,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
         }
         token_term_t token;
 
-        if (!stack_top(&stack).terminal && stack.len == 2 && precedence == R) {
-            printf("Finishing analysis\n");
-            printf("Stack is: \n");
-            stack_pprint(&stack);
+        if (!stack_top(&stack).terminal && stack.len == 2 && (precedence == R || precedence == X)) {
             break;
         }
 
