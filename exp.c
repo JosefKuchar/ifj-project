@@ -30,10 +30,29 @@ token_term_t parse_paren(stack_t* stack) {
 }
 
 token_term_t parse_arithmetic(stack_t* stack) {
+    if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
+        error_exit(ERR_LEX);
+    }
+    if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
+        error_exit(ERR_LEX);
+    }
     if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
         error_exit(ERR_SYN);
     }
 
+    token_type_t a = stack->tokens[0].token.type;
+    token_type_t b = stack->tokens[2].token.type;
+    if (a == TOK_FLOAT_LIT || b == TOK_FLOAT_LIT) {
+        if (!type_is_number(a) || !type_is_number(b)) {
+            error_exit(ERR_SYN);
+        }
+        return token_term_new(token_new(TOK_FLOAT_LIT), false);
+    }
+
+    if (a == TOK_INT_LIT && b == TOK_INT_LIT) {
+        return token_term_new(token_new(TOK_INT_LIT), false);
+    }
+    error_exit(ERR_SYN);
     return token_term_new(token_new(stack->tokens[0].token.type), false);
 }
 

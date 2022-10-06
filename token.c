@@ -222,3 +222,7 @@ char* token_to_string(token_type_t type) {
     char* name = (char*)token_names[type];
     return name;
 }
+
+bool type_is_number(token_type_t type) {
+    return type == TOK_FLOAT_LIT || type == TOK_INT_LIT;
+}

@@ -157,4 +157,6 @@ void token_free(token_t* token);
  */
 char* token_to_string(token_type_t type);
 
+bool type_is_number(token_type_t type);
+
 #endif  // __TOKEN_H__
