@@ -46,10 +46,29 @@ void parser_free(parser_t* state);
  */
 void parser_run(parser_t* state);
 
+/**
+ * @brief Checks whether current token is of type
+ * 
+ * @param parser Instance of parser
+ * @param type Type to be compared against
+ * 
+ * @return Result of the comparison
+ */
 bool token_is_type(parser_t* parser, token_type_t type);
+
+/**
+ * @brief Asks scanner for next token and frees the previous one
+ * 
+ * @param parser Instance of parser
+ */
 
 void next_token(parser_t* parser);
 
+/**
+ * @brief Asks scanner for next token and keeps the previous one
+ * 
+ * @param parser Instance of parser
+ */
 void next_token_keep(parser_t* parser);
 
 bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*));

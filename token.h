@@ -139,9 +139,22 @@ token_t token_new_with_bool(token_type_t type, bool val);
  */
 bool token_is_datatype(token_t* token);
 
+/**
+ * @brief Check if token is a literal (eg. int literal etc.)
+ *
+ * @param token Token
+ * @return true if token is a literal
+ */
 bool token_is_literal(token_t* token);
 
+/**
+ * @brief Check if token is a valid expression start
+ *
+ * @param token Token
+ * @return true if token can be an expression start
+ */
 bool token_is_expression(token_t* token);
+
 /**
  * @brief Free existing token
  *
@@ -157,12 +170,28 @@ void token_free(token_t* token);
  */
 char* token_to_string(token_type_t type);
 
+/**
+ * @brief Checks if type is a number type (eg. float, int etc.)
+ *
+ * @param token_type Type
+ * @return true if token is a number type
+ */
 bool type_is_number(token_type_t type);
 
+/**
+ * @brief Checks if type is an arithmetic operator (eg. plus, minus etc.)
+ *
+ * @param token Token
+ * @return true if token is a number type
+ */
 bool token_is_ar_operator(token_t* token);
 
+/**
+ * @brief Checks if type is a logical operator (eg. less than, not equals etc.)
+ *
+ * @param token Token
+ * @return true if token is a number type
+ */
 bool token_is_comparator(token_t* token);
-
-bool token_isin_expression(token_t* token);
 
 #endif  // __TOKEN_H__
