@@ -1,0 +1,18 @@
+{
+  "env": {
+    "myDefaultIncludePath": [
+      "${workspaceFolder}",
+      "${workspaceFolder}/test/lib/googletest/include"
+    ]
+  },
+  "configurations": [
+    {
+      "name": "Default",
+      "includePath": [
+        "${myDefaultIncludePath}",
+        "${workspaceFolder}/test/lib/googletest/include"
+      ]
+    }
+  ],
+  "version": 4
+}

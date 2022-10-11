@@ -63,3 +63,6 @@ send_test
 dokumentace.pdf
 *.aux
 *.log
+
+# Google test
+test/build

@@ -39,5 +39,14 @@ zip: pdf
 	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni
 
 # Submission test
-test: pdf zip
+submission_test: pdf zip
 	./is_it_ok.sh xkucha28.zip send_test
+
+# Test
+test: main
+	cd test && \
+	mkdir -p build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	./Google_Tests_run
