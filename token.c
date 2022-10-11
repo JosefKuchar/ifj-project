@@ -53,7 +53,9 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
                              [TOK_VOID] = "void",
                              [TOK_WHILE] = "while",
                              [TOK_DOLLAR] = "dollar(parser)",
-                             [TOK_HANDLE_START] = "handle_start"};
+                             [TOK_HANDLE_START] = "handle_start",
+                             [TOK_EXP_END] = "expression_end",
+                             [TOK_E] = "expression(parser)"};
 
 void token_print(token_t* token) {
     const char* name = token_names[token->type];
@@ -203,11 +205,22 @@ bool token_is_datatype(token_t* token) {
 }
 
 bool token_is_literal(token_t* token) {
-    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT || token->type == TOK_STR_LIT;
+    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT ||
+           token->type == TOK_STR_LIT || token->type == TOK_NULL;
 }
 
 bool token_is_expression(token_t* token) {
     return token->type == TOK_LPAREN || token_is_literal(token) || token->type == TOK_VAR;
+}
+
+bool token_is_ar_operator(token_t* token) {
+    return token->type == TOK_PLUS || token->type == TOK_MINUS || token->type == TOK_DIVIDE ||
+           token->type == TOK_MULTIPLY || token->type == TOK_DOT;
+}
+
+bool token_is_comparator(token_t* token) {
+    return token->type == TOK_LESS || token->type == TOK_LESS_E || token->type == TOK_GREATER ||
+           token->type == TOK_GREATER_E || token->type == TOK_EQUALS || token->type == TOK_NEQUALS;
 }
 
 void token_free(token_t* token) {
@@ -219,4 +232,8 @@ void token_free(token_t* token) {
 char* token_to_string(token_type_t type) {
     char* name = (char*)token_names[type];
     return name;
+}
+
+bool type_is_number(token_type_t type) {
+    return type == TOK_FLOAT_LIT || type == TOK_INT_LIT;
 }

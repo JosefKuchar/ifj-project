@@ -7,25 +7,28 @@
  * @brief All token types
  */
 typedef enum {
-    TOK_PLUS,       // +
-    TOK_MINUS,      // -
-    TOK_MULTIPLY,   // *
-    TOK_DIVIDE,     // /
-    TOK_LESS,       // <
-    TOK_LESS_E,     // <=
-    TOK_GREATER,    // >
-    TOK_GREATER_E,  // >=
-    TOK_EQUALS,     // ===
-    TOK_NEQUALS,    // !==
-    TOK_LPAREN,     // (
-    TOK_RPAREN,     // )
-    TOK_VAR,        // Identifier (eg. $foo)
-    TOK_INT_LIT,    // Integer literal (eg. 0)
-    TOK_FLOAT_LIT,  // Float literal (eg. 0.0)
-    TOK_STR_LIT,    // String literal (eg. "foo")
-    TOK_DOT,        // .
-    TOK_DOLLAR, // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
-    TOK_HANDLE_START, // HANDLE_START (INTERNAL TO EXPR PARSING)
+    TOK_PLUS,          // +
+    TOK_MINUS,         // -
+    TOK_MULTIPLY,      // *
+    TOK_DIVIDE,        // /
+    TOK_LESS,          // <
+    TOK_LESS_E,        // <=
+    TOK_GREATER,       // >
+    TOK_GREATER_E,     // >=
+    TOK_EQUALS,        // ===
+    TOK_NEQUALS,       // !==
+    TOK_LPAREN,        // (
+    TOK_RPAREN,        // )
+    TOK_VAR,           // Identifier (eg. $foo)
+    TOK_INT_LIT,       // Integer literal (eg. 0)
+    TOK_FLOAT_LIT,     // Float literal (eg. 0.0)
+    TOK_STR_LIT,       // String literal (eg. "foo")
+    TOK_DOT,           // .
+    TOK_NULL,          // Null
+    TOK_DOLLAR,        // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
+    TOK_HANDLE_START,  // HANDLE_START (INTERNAL TO EXPR PARSING)
+    TOK_EXP_END,       // Expression end (Internal to expr parsing)
+    TOK_E,             // expression (Internal to expr parsing)
 
     TOK_EOF,        // End of file
     TOK_BOOL_LIT,   // Bool literal (eg. true)
@@ -43,7 +46,6 @@ typedef enum {
     TOK_FUNCTION,  // function
     TOK_IF,        // if
     TOK_INT,       // int
-    TOK_NULL,      // null
     TOK_RETURN,    // return
     TOK_STRING,    // string
     TOK_VOID,      // void
@@ -137,9 +139,22 @@ token_t token_new_with_bool(token_type_t type, bool val);
  */
 bool token_is_datatype(token_t* token);
 
+/**
+ * @brief Check if token is a literal (eg. int literal etc.)
+ *
+ * @param token Token
+ * @return true if token is a literal
+ */
 bool token_is_literal(token_t* token);
 
+/**
+ * @brief Check if token is a valid expression start
+ *
+ * @param token Token
+ * @return true if token can be an expression start
+ */
 bool token_is_expression(token_t* token);
+
 /**
  * @brief Free existing token
  *
@@ -154,5 +169,29 @@ void token_free(token_t* token);
  * @return String representation of the enum value
  */
 char* token_to_string(token_type_t type);
+
+/**
+ * @brief Checks if type is a number type (eg. float, int etc.)
+ *
+ * @param token_type Type
+ * @return true if token is a number type
+ */
+bool type_is_number(token_type_t type);
+
+/**
+ * @brief Checks if type is an arithmetic operator (eg. plus, minus etc.)
+ *
+ * @param token Token
+ * @return true if token is a number type
+ */
+bool token_is_ar_operator(token_t* token);
+
+/**
+ * @brief Checks if type is a logical operator (eg. less than, not equals etc.)
+ *
+ * @param token Token
+ * @return true if token is a number type
+ */
+bool token_is_comparator(token_t* token);
 
 #endif  // __TOKEN_H__
