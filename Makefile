@@ -28,7 +28,7 @@ run: main
 
 # Clean up
 clean:
-	rm -rf send_test *.d *.o *.out *.aux *.log dokumentace.pdf main xkucha28.zip
+	rm -rf send_test *.d *.o *.a *.out *.aux *.log dokumentace.pdf main run_tests xkucha28.zip
 
 # PDF documentation
 pdf:
@@ -42,11 +42,32 @@ zip: pdf
 submission_test: pdf zip
 	./is_it_ok.sh xkucha28.zip send_test
 
-# Test
-test: main
-	cd test && \
-	mkdir -p build && \
-	cd build && \
-	cmake .. && \
-	make && \
-	./Google_Tests_run
+# Tests
+GTEST_DIR=test/lib/googletest
+GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
+                $(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
+CPPFLAGS_T += -isystem $(GTEST_DIR)/include
+CXXFLAGS_T += -g -Wall -Wextra -pthread
+
+TEST_OBJS := $(filter-out main.o, $(OBJS))
+
+gtest-all.o : $(GTEST_SRCS_)
+	$(CXX) $(CPPFLAGS_T) -I$(GTEST_DIR) $(CXXFLAGS_T) -c \
+            $(GTEST_DIR)/src/gtest-all.cc
+
+gtest_main.o : $(GTEST_SRCS_)
+	$(CXX) $(CPPFLAGS_T) -I$(GTEST_DIR) $(CXXFLAGS_T) -c \
+            $(GTEST_DIR)/src/gtest_main.cc
+
+gtest.a : gtest-all.o
+	$(AR) $(ARFLAGS) $@ $^
+
+gtest_main.a : gtest-all.o gtest_main.o
+	$(AR) $(ARFLAGS) $@ $^
+
+tests.o: $(GTEST_HEADERS) test/tests.cpp
+	$(CXX) $(CPPFLAGS_T) $(CXXFLAGS_T) -c test/tests.cpp
+
+test: tests.o gtest_main.a $(TEST_OBJS)
+	$(CXX) $(CPPFLAGS_T) $(CXXFLAGS_T) -lm -lpthread $^ -o run_tests && ./run_tests

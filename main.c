@@ -5,7 +5,7 @@
 #include "scanner.h"
 
 int main() {
-    scanner_t scanner = scanner_new();
+    scanner_t scanner = scanner_new(stdin);
     gen_t gen = gen_new();
     parser_t parser = parser_new(&scanner, &gen);
     parser_run(&parser);

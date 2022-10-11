@@ -1,6 +1,7 @@
 #ifndef __SCANNER_H__
 #define __SCANNER_H__
 
+#include <stdio.h>
 #include "token.h"
 
 enum scanner_state {
@@ -35,6 +36,7 @@ enum scanner_state {
 typedef struct {
     enum scanner_state state;  // Current state
     str_t buffer;              // Buffer for previous characters
+    FILE* input;               // Input stream
 } scanner_t;
 
 /**
@@ -50,7 +52,7 @@ token_t scanner_get_next(scanner_t* state);
  *
  * @return Initialized scanner
  */
-scanner_t scanner_new();
+scanner_t scanner_new(FILE* input);
 
 /**
  * @brief Free existing scanner

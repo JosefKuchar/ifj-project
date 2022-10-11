@@ -38,7 +38,7 @@ int get_keyword_token_type(str_t* str) {
 
 token_t scanner_get_next(scanner_t* scanner) {
     while (true) {
-        const int c = fgetc(stdin);
+        const int c = fgetc(scanner->input);
 
         switch (scanner->state) {
             case SC_CODE_START: {
@@ -71,7 +71,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 }
 
                 if (c == '/') {
-                    const int c2 = fgetc(stdin);
+                    const int c2 = fgetc(scanner->input);
                     if (c2 == '*') {
                         scanner->state = SC_PROLOG_MCOMMENT;
                     } else if (c2 == '/') {
@@ -81,7 +81,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                         error_exit(ERR_LEX);
                     }
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_DECLARE;
                 }
 
@@ -99,11 +99,11 @@ token_t scanner_get_next(scanner_t* scanner) {
                 }
 
                 if (c == '*') {
-                    const int c2 = fgetc(stdin);
+                    const int c2 = fgetc(scanner->input);
                     if (c2 == '/') {
                         scanner->state = SC_PROLOG_SPACE;
                     } else {
-                        ungetc(c2, stdin);
+                        ungetc(c2, scanner->input);
                     }
                 }
                 break;
@@ -210,7 +210,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == '=') {
                     scanner->state = SC_EQUALS;
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new(TOK_ASSIGN);
                 }
@@ -250,7 +250,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == '=') {
                     return token_new(TOK_LESS_E);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     return token_new(TOK_LESS);
                 }
                 break;
@@ -260,7 +260,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == '=') {
                     return token_new(TOK_GREATER_E);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     return token_new(TOK_GREATER);
                 }
                 break;
@@ -279,7 +279,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (isalnum(c) || c == '_') {
                     str_add_char(&scanner->buffer, c);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new_with_string(TOK_VAR, &scanner->buffer);
                 }
@@ -289,7 +289,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (isalnum(c) || c == '_') {
                     str_add_char(&scanner->buffer, c);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     // Check if string is keyword
                     int keyword = get_keyword_token_type(&scanner->buffer);
@@ -310,14 +310,14 @@ token_t scanner_get_next(scanner_t* scanner) {
 
                 // Handle escape sequence
                 if (c == '\\') {
-                    const int c2 = getc(stdin);
+                    const int c2 = getc(scanner->input);
                     if (c2 == '"') {
                         str_add_char(&scanner->buffer, '"');
                         break;
                     } else if (c2 == '\\')
                         str_add_char(&scanner->buffer, '\\');
                     else {
-                        ungetc(c2, stdin);
+                        ungetc(c2, scanner->input);
                     }
                 }
 
@@ -337,7 +337,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else if (c == '/') {
                     scanner->state = SC_LCOMMENT;
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new(TOK_DIVIDE);
                 }
@@ -353,11 +353,11 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == EOF) {
                     scanner->state = SC_START;
                 } else if (c == '*') {
-                    const int c2 = fgetc(stdin);
+                    const int c2 = fgetc(scanner->input);
                     if (c2 == '/') {
                         scanner->state = SC_START;
                     } else {
-                        ungetc(c2, stdin);
+                        ungetc(c2, scanner->input);
                     }
                 }
                 break;
@@ -366,7 +366,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == '>') {
                     scanner->state = SC_END;
                 } else if (isalpha(c)) {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_TYPE_OPTIONAL;
                 } else {
                     error_exit(ERR_LEX);
@@ -391,9 +391,9 @@ token_t scanner_get_next(scanner_t* scanner) {
                     str_add_char(&scanner->buffer, c);
                 } else if (c == '.') {
                     str_add_char(&scanner->buffer, c);
-                    const int c2 = fgetc(stdin);
+                    const int c2 = fgetc(scanner->input);
                     if (isdigit(c2)) {
-                        ungetc(c2, stdin);
+                        ungetc(c2, scanner->input);
                         scanner->state = SC_FLOAT;
                     } else {
                         error_exit(ERR_LEX);
@@ -404,7 +404,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else if (isalpha(c)) {  // TODO: other cases
                     error_exit(ERR_LEX);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new_with_int(TOK_INT_LIT, &scanner->buffer);
                 }
@@ -419,7 +419,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else if (isalpha(c)) {
                     error_exit(ERR_LEX);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new_with_float(TOK_FLOAT_LIT, &scanner->buffer);
                 }
@@ -428,16 +428,16 @@ token_t scanner_get_next(scanner_t* scanner) {
 
             case SC_EXPONENT_SIGN: {
                 if (c == '+' || c == '-') {
-                    const int c2 = getc(stdin);
+                    const int c2 = getc(scanner->input);
                     if (isdigit(c2)) {
-                        ungetc(c2, stdin);
+                        ungetc(c2, scanner->input);
                         str_add_char(&scanner->buffer, c);
                         scanner->state = SC_EXPONENT;
                     } else {
                         error_exit(ERR_LEX);
                     }
                 } else if (isdigit(c)) {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_EXPONENT;
                 } else {
                     error_exit(ERR_LEX);
@@ -450,7 +450,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else if (isalpha(c)) {
                     error_exit(ERR_LEX);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     scanner->state = SC_START;
                     return token_new_with_float(TOK_FLOAT_LIT, &scanner->buffer);
                 }
@@ -460,7 +460,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (isalpha(c)) {
                     str_add_char(&scanner->buffer, c);
                 } else {
-                    ungetc(c, stdin);
+                    ungetc(c, scanner->input);
                     int keyword = get_keyword_token_type(&scanner->buffer);
                     if (keyword != -1 &&
                         (keyword != TOK_FLOAT || keyword != TOK_INT || keyword != TOK_STRING)) {
@@ -477,8 +477,8 @@ token_t scanner_get_next(scanner_t* scanner) {
     }
 }
 
-scanner_t scanner_new() {
-    return (scanner_t){.buffer = str_new(), .state = SC_CODE_START};
+scanner_t scanner_new(FILE* input) {
+    return (scanner_t){.buffer = str_new(), .state = SC_CODE_START, .input = input};
 }
 
 void scanner_free(scanner_t* scanner) {

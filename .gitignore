@@ -66,3 +66,6 @@ dokumentace.pdf
 
 # Google test
 test/build
+
+# Test
+run_tests
