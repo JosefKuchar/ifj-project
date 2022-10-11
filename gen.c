@@ -23,7 +23,7 @@ void gen_int(gen_t* gen, int val) {
 
 void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, ".IFJcode22\n");
-    gen->current = &gen->header;
+    gen->current = &gen->global;
     gen->current_header = &gen->header;
 }
 
@@ -65,9 +65,9 @@ void gen_while_end(gen_t* gen, int construct_count) {
 }
 
 void gen_function(gen_t* gen, token_t* token) {
-    str_add_cstr(&gen->function, "LABEL ");
-    str_add_cstr(&gen->function, token->attr.val_s.val);
-    str_add_cstr(&gen->function, "\n");
+    str_add_cstr(&gen->function_header, "LABEL ");
+    str_add_cstr(&gen->function_header, token->attr.val_s.val);
+    str_add_cstr(&gen->function_header, "\n");
     gen->current = &gen->function;
     gen->current_header = &gen->function_header;
 }
@@ -141,6 +141,17 @@ void gen_function_call_param(gen_t* gen, token_t* token) {
     }
     str_add_char(gen->current, '\n');
     gen->param_count++;
+}
+
+void gen_variable_def(gen_t* gen, token_t* token, bool in_function) {
+    str_add_cstr(gen->current_header, "DEFVAR ");
+    if (in_function) {
+        str_add_cstr(gen->current_header, "LF@");
+    } else {
+        str_add_cstr(gen->current_header, "GF@");
+    }
+    str_add_str(gen->current_header, &token->attr.val_s);
+    str_add_char(gen->current_header, '\n');
 }
 
 void gen_free(gen_t* gen) {

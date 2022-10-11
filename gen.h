@@ -71,4 +71,6 @@ void gen_function_call_frame(gen_t* gen, token_t* token);
 
 void gen_function_call_param(gen_t* gen, token_t* token);
 
+void gen_variable_def(gen_t* gen, token_t* token, bool in_function);
+
 #endif  // __GEN_H__

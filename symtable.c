@@ -292,6 +292,20 @@ void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
         str_new_from_str(&token->attr.val_s);
 }
 
+bool htab_add_variable(htab_t* t, token_t* token) {
+    // Check if variable is already defined
+    if (htab_find(t, token->attr.val_s.val) != NULL) {
+        // We can redefine variables
+        return false;
+    }
+    // Add variable to symbol table
+    htab_add(t, token->attr.val_s.val,
+             (htab_value_t){
+                 .type = HTAB_VARIABLE,
+             });
+    return true;
+}
+
 size_t htab_size(const htab_t* t) {
     if (t == NULL) {
         return 0;

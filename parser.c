@@ -156,6 +156,11 @@ void rule_statement(parser_t* parser, parser_state_t state) {
     (void)state;
     switch (parser->token.type) {
         case TOK_VAR:
+            if (htab_add_variable(
+                    state.in_function ? parser->local_symtable : parser->global_symtable,
+                    &parser->token)) {
+                gen_variable_def(parser->gen, &parser->token, state.in_function);
+            }
             next_token_check_type(parser, TOK_ASSIGN);
             rule_value(parser, state);
             token_check_type(parser, TOK_SEMICOLON);
