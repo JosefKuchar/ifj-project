@@ -28,7 +28,9 @@ void gen_header(gen_t* gen) {
 }
 
 void gen_footer(gen_t* gen) {
-    str_add_cstr(&gen->global, "STOP\n");
+    str_add_cstr(&gen->global, "EXIT int@0\n");
+    str_add_cstr(&gen->global, "LABEL !ERR_CALL\n");
+    str_add_cstr(&gen->global, "EXIT int@3\n");  // TODO: Check error code
 }
 
 void gen_if(gen_t* gen, int construct_count) {
@@ -65,6 +67,18 @@ void gen_while_end(gen_t* gen, int construct_count) {
 }
 
 void gen_function(gen_t* gen, token_t* token) {
+    // Define variable for declaration check
+    str_add_cstr(&gen->header, "DEFVAR GF@?");
+    str_add_cstr(&gen->header, token->attr.val_s.val);
+    str_add_cstr(&gen->header, "$declared\n");
+    str_add_cstr(&gen->header, "MOVE GF@?");
+    str_add_cstr(&gen->header, token->attr.val_s.val);
+    str_add_cstr(&gen->header, "$declared bool@false\n");
+    // Mark function as declared
+    str_add_cstr(&gen->global, "MOVE GF@?");
+    str_add_cstr(&gen->global, token->attr.val_s.val);
+    str_add_cstr(&gen->global, "$declared bool@true\n");
+    // Generate label for our function
     str_add_cstr(&gen->function_header, "LABEL ");
     str_add_cstr(&gen->function_header, token->attr.val_s.val);
     str_add_cstr(&gen->function_header, "\n");
@@ -73,7 +87,7 @@ void gen_function(gen_t* gen, token_t* token) {
 }
 
 void gen_function_end(gen_t* gen) {
-    str_add_cstr(&gen->function, "FUNCTION_END\n");
+    str_add_cstr(&gen->function, "RETURN\n");
     str_add_str(&gen->functions, &gen->function_header);
     str_add_str(&gen->functions, &gen->function);
     str_clear(&gen->function_header);
@@ -93,6 +107,11 @@ void gen_function_call(gen_t* gen) {
 
 void gen_function_call_frame(gen_t* gen, token_t* token) {
     str_add_cstr(gen->current, "# CALL START\n");
+    // Check if function is declared
+    str_add_cstr(gen->current, "JUMPIFEQ !ERR_CALL bool@false GF@?");
+    str_add_cstr(gen->current, token->attr.val_s.val);
+    str_add_cstr(gen->current, "$declared\n");
+    // Generate call frame
     str_add_cstr(gen->current, "CREATEFRAME\n");
     str_add_str(&gen->function_name, &token->attr.val_s);
 }
@@ -134,6 +153,7 @@ void gen_function_call_param(gen_t* gen, token_t* token) {
             }
             break;
         case TOK_VAR:
+            str_add_cstr(gen->current, "GF@");  // TODO: Get legit scope
             str_add_cstr(gen->current, token->attr.val_s.val);
             break;
         default:
