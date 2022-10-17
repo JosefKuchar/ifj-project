@@ -4,10 +4,23 @@ extern "C" {
 
 #include "gtest/gtest.h"
 
-TEST(TestSuiteName, TestName) {
-    FILE* input = tmpfile();
-    fprintf(input, "int main() { return 0; }");
-    scanner_t scanner = scanner_new(input);
-    EXPECT_DEATH(scanner_get_next(&scanner), "Lexical error");
+TEST(LexicalTest, Numbers) {
+    auto input = tmpfile();
+    fprintf(input, "<?php\n123 0 3e3");
+    rewind(input);
+    auto scanner = scanner_new(input);
+
+    auto token = scanner_get_next(&scanner);
+    EXPECT_EQ(token.type, TOK_INT_LIT);
+    EXPECT_EQ(token.attr.val_i, 123);
+
+    token = scanner_get_next(&scanner);
+    EXPECT_EQ(token.type, TOK_INT_LIT);
+    EXPECT_EQ(token.attr.val_i, 0);
+
+    token = scanner_get_next(&scanner);
+    EXPECT_EQ(token.type, TOK_FLOAT_LIT);
+    EXPECT_EQ(token.attr.val_f, 3000.0);
+
     fclose(input);
 }
