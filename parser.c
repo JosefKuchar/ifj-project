@@ -251,6 +251,26 @@ void rule_program(parser_t* parser, parser_state_t state) {
     rule_program(parser, state);
 }
 
+void check_prolog(parser_t* parser) {
+    // TODO Check error codes
+    next_token_check_type(parser, TOK_FUN_NAME);
+    if (strcmp(parser->token.attr.val_s.val, "declare") != 0) {
+        error_exit(ERR_SYN);
+    }
+    next_token_check_type(parser, TOK_LPAREN);
+    next_token_check_type(parser, TOK_FUN_NAME);
+    if (strcmp(parser->token.attr.val_s.val, "strict_types") != 0) {
+        error_exit(ERR_SYN);
+    }
+    next_token_check_type(parser, TOK_ASSIGN);
+    next_token_check_type(parser, TOK_INT_LIT);
+    if (parser->token.attr.val_i != 1) {
+        error_exit(ERR_SYN);
+    }
+    next_token_check_type(parser, TOK_RPAREN);
+    next_token_check_type(parser, TOK_SEMICOLON);
+}
+
 void parser_run(parser_t* parser) {
 #ifndef DEBUG_LEX
     parser_state_t state = {
@@ -260,6 +280,7 @@ void parser_run(parser_t* parser) {
     };
 
     gen_header(parser->gen);
+    check_prolog(parser);
     next_token(parser);
     rule_program(parser, state);
     gen_footer(parser->gen);
