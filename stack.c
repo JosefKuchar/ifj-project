@@ -8,7 +8,7 @@
 stack_t stack_new() {
     // Create new struct
     stack_t stack = {
-        .tokens = malloc(DEFAULT_SIZE * sizeof(token_term_t)),
+        .tokens = malloc(DEFAULT_SIZE * sizeof(token_term_t*)),
         .size = DEFAULT_SIZE,
         .len = 0,
     };
@@ -24,7 +24,8 @@ stack_t stack_new() {
 void stack_free(stack_t* stack) {
     // Free the stack
     for (int i = 0; i < stack->len; i++) {
-        token_free(&stack->tokens[i].token);
+        token_term_free(stack->tokens[i]);
+        stack->tokens[i] = NULL;
     }
     free(stack->tokens);
     // Reset values just to be sure
@@ -35,14 +36,15 @@ void stack_free(stack_t* stack) {
 
 void stack_empty(stack_t* stack) {
     // Free the stack
-    for (int i = 0; i < stack->len; i++) {
-        token_free(&stack->tokens[i].token);
-    }
+    // for (int i = 0; i < stack->len; i++) {
+    //     token_term_free(stack->tokens[i]);
+    //     stack->tokens[i] = NULL;
+    // }
     stack->len = 0;
 }
 
 void resize_stack(stack_t* stack) {
-    token_term_t* new_tokens = realloc(stack->tokens, stack->size * 2 * sizeof(token_term_t));
+    token_term_t** new_tokens = realloc(stack->tokens, stack->size * 2 * sizeof(token_term_t*));
     if (new_tokens == NULL) {
         error_exit(ERR_INTERNAL);
     }
@@ -50,7 +52,7 @@ void resize_stack(stack_t* stack) {
     stack->size *= 2;
 }
 
-void stack_push(stack_t* stack, token_term_t token) {
+void stack_push(stack_t* stack, token_term_t* token) {
     // Enlarge buffer if needed
     if (stack->len + 1 >= stack->size) {
         resize_stack(stack);
@@ -61,41 +63,41 @@ void stack_push(stack_t* stack, token_term_t token) {
     stack->len++;
 }
 
-token_term_t stack_pop(stack_t* stack) {
+token_term_t* stack_pop(stack_t* stack) {
     // Check if stack is empty
     if (stack->len == 0) {
         error_exit(ERR_SYN);  // TODO: Fix
     }
 
     // Get token from the stack
-    token_term_t token = stack->tokens[stack->len - 1];
+    token_term_t* token = stack->tokens[stack->len - 1];
     stack->len--;
 
     return token;
 }
 
-token_term_t stack_top(stack_t* stack) {
+token_term_t* stack_top(stack_t* stack) {
     // Check if stack is empty
     if (stack->len == 0) {
         error_exit(ERR_SYN);
     }
 
     // Get token from the stack
-    token_term_t token = stack->tokens[stack->len - 1];
+    token_term_t* token = stack->tokens[stack->len - 1];
 
     return token;
 }
 
-token_term_t stack_pop_terminal(stack_t* stack) {
+token_term_t* stack_pop_terminal(stack_t* stack) {
     // Check if stack is empty
     if (stack->len == 0) {
         error_exit(ERR_SYN);
     }
-    token_term_t token;
+    token_term_t* token = NULL;
 
     for (int i = 1; i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
-        if (token.terminal) {
+        if (token->terminal) {
             stack->len--;
             return token;
         }
@@ -104,16 +106,16 @@ token_term_t stack_pop_terminal(stack_t* stack) {
     return token;
 }
 
-token_term_t stack_top_terminal(stack_t* stack) {
+token_term_t* stack_top_terminal(stack_t* stack) {
     // Check if stack is empty
     if (stack->len == 0) {
         error_exit(ERR_SYN);
     }
-    token_term_t token;
+    token_term_t* token = NULL;
 
     for (int i = 1; i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
-        if (token.terminal) {
+        if (token->terminal) {
             return token;
         }
     }
@@ -126,11 +128,11 @@ void stack_push_after_terminal(stack_t* stack) {
     if (stack->len == 0) {
         error_exit(ERR_SYN);
     }
-    token_term_t token;
+    token_term_t* token;
 
     for (int i = 1; i <= stack->len; i++) {
         token = stack->tokens[stack->len - i];
-        if (token.terminal) {
+        if (token->terminal) {
             if (stack->len + 1 >= stack->size) {
                 resize_stack(stack);
             }
@@ -152,7 +154,7 @@ void stack_pprint(stack_t* stack) {
         return;
     }
     for (int i = 0; i < stack->len; i++) {
-        printf("%d[%d]: %s\n", i, stack->tokens[i].terminal,
-               token_to_string(stack->tokens[i].token.type));
+        printf("%d[%d]: %s\n", i, stack->tokens[i]->terminal,
+               token_to_string(stack->tokens[i]->value.type));
     }
 }

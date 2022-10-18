@@ -223,6 +223,29 @@ bool token_is_comparator(token_t* token) {
            token->type == TOK_GREATER_E || token->type == TOK_EQUALS || token->type == TOK_NEQUALS;
 }
 
+bool type_is_datatype(token_type_t type) {
+    return type == TOK_INT || type == TOK_FLOAT || type == TOK_STRING;
+}
+
+bool type_is_literal(token_type_t type) {
+    return type == TOK_INT_LIT || type == TOK_FLOAT_LIT ||
+           type == TOK_STR_LIT || type == TOK_NULL;
+}
+
+bool type_is_expression(token_type_t type) {
+    return type == TOK_LPAREN || type_is_literal(type) || type == TOK_VAR;
+}
+
+bool type_is_ar_operator(token_type_t type) {
+    return type == TOK_PLUS || type == TOK_MINUS || type == TOK_DIVIDE ||
+           type == TOK_MULTIPLY || type == TOK_DOT;
+}
+
+bool type_is_comparator(token_type_t type) {
+    return type == TOK_LESS || type == TOK_LESS_E || type == TOK_GREATER ||
+           type == TOK_GREATER_E || type == TOK_EQUALS || type == TOK_NEQUALS;
+}
+
 void token_free(token_t* token) {
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         str_free(&token->attr.val_s);

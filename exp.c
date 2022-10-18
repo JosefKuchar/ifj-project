@@ -15,73 +15,93 @@ enum {
     X,  // Invalid
 };
 
-token_term_t parse_paren(stack_t* stack) {
-    if (!(token_is_literal(&stack->tokens[1].token) || stack->tokens[1].token.type == TOK_VAR)) {
+token_term_t* parse_paren(stack_t* stack) {
+    if (!(type_is_literal(stack->tokens[1]->result) || stack->tokens[1]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
 
-    if (stack->tokens[1].terminal) {
+    if (stack->tokens[1]->terminal) {
         error_exit(ERR_SYN);
     }
 
-    if (stack->tokens[0].token.type != TOK_RPAREN || stack->tokens[2].token.type != TOK_LPAREN) {
+    if (stack->tokens[0]->value.type != TOK_RPAREN || stack->tokens[2]->result != TOK_LPAREN) {
         error_exit(ERR_SYN);
     }
 
-    token_type_t type = stack->tokens[1].token.type;
-    return token_term_new(token_new(type), false);
+    token_term_free(stack->tokens[0]);
+    token_term_free(stack->tokens[2]);
+    return stack->tokens[1];
 }
 
-token_term_t parse_arithmetic(stack_t* stack) {
-    if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
+token_term_t* parse_arithmetic(stack_t* stack) {
+    token_term_t* new = stack->tokens[1];
+    new->terminal = false;
+    new->right = stack->tokens[0];
+    new->left = stack->tokens[2];
+
+    if (!(type_is_literal(stack->tokens[0]->result) || stack->tokens[0]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
-    if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
+    if (!(type_is_literal(stack->tokens[2]->result) || stack->tokens[2]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
-    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+    if (stack->tokens[0]->terminal || stack->tokens[2]->terminal) {
         error_exit(ERR_SYN);
     }
 
-    token_type_t a = stack->tokens[0].token.type;
-    token_type_t b = stack->tokens[2].token.type;
+    token_type_t a = stack->tokens[0]->result;
+    token_type_t b = stack->tokens[2]->result;
     if (a == TOK_FLOAT_LIT || b == TOK_FLOAT_LIT) {
         if (!type_is_number(a) || !type_is_number(b)) {
             error_exit(ERR_SYN);
         }
-        return token_term_new(token_new(TOK_FLOAT_LIT), false);
+        new->result = TOK_FLOAT_LIT;
+        return new;
     }
 
     if (a == TOK_INT_LIT && b == TOK_INT_LIT) {
-        return token_term_new(token_new(TOK_INT_LIT), false);
+        new->result = TOK_INT_LIT;
+        return new;
     }
     if (a == TOK_VAR || b == TOK_VAR) {  // TODO: fix type checks on vars
-        return token_term_new(token_new(TOK_FLOAT_LIT), false);
+        new->result = TOK_VAR;
+        return new;
     }
     error_exit(ERR_SYN);
-    return token_term_new(token_new(stack->tokens[0].token.type), false);
+    return new;
 }
 
-token_term_t parse_concat(stack_t* stack) {
-    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+token_term_t* parse_concat(stack_t* stack) {
+    token_term_t* new = stack->tokens[1];
+    new->terminal = false;
+    new->right = stack->tokens[0];
+    new->left = stack->tokens[2];
+    new->result = TOK_STR_LIT;
+
+    if (stack->tokens[0]->terminal || stack->tokens[2]->terminal) {
         error_exit(ERR_SYN);
     }
-
-    return token_term_new(token_new(TOK_STR_LIT), false);
+    return new;
 }
 
-token_term_t parse_comparison(stack_t* stack) {
-    if (!(token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR)) {
+token_term_t* parse_comparison(stack_t* stack) {
+    token_term_t* new = stack->tokens[1];
+    new->terminal = false;
+    new->right = stack->tokens[0];
+    new->left = stack->tokens[2];
+    new->result = TOK_BOOL_LIT;
+
+    if (!(type_is_literal(stack->tokens[0]->result) || stack->tokens[0]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
-    if (!(token_is_literal(&stack->tokens[2].token) || stack->tokens[2].token.type == TOK_VAR)) {
+    if (!(type_is_literal(stack->tokens[2]->result) || stack->tokens[2]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
     }
-    if (stack->tokens[0].terminal || stack->tokens[2].terminal) {
+    if (stack->tokens[0]->terminal || stack->tokens[2]->terminal) {
         error_exit(ERR_SYN);
     }
 
-    return token_term_new(token_new(TOK_BOOL_LIT), false);
+    return new;
 }
 
 // TODO: Add null to precendece table
@@ -117,11 +137,11 @@ int get_precedence(token_t stack_top, token_t input) {
     return precedence_table[stack_top.type][input.type];
 }
 
-token_term_t parse_expression(stack_t* stack) {
-    token_term_t tok = token_term_new(token_new(TOK_EOF), false);
+token_term_t* parse_expression(stack_t* stack) {
+    // token_term_t* tok = token_term_new(token_new(TOK_EOF), false);
     if (stack->len == 3) {
-        int type = stack->tokens[1].token.type;
-        if (stack->tokens[2].token.type == TOK_LPAREN) {
+        int type = stack->tokens[1]->value.type;
+        if (stack->tokens[2]->value.type == TOK_LPAREN) {
             return parse_paren(stack);
         }
         switch (type) {
@@ -151,12 +171,14 @@ token_term_t parse_expression(stack_t* stack) {
                 break;
         }
     } else if (stack->len == 1) {  // Rules for single identifier/single non terminal
-        if (token_is_literal(&stack->tokens[0].token) || stack->tokens[0].token.type == TOK_VAR) {
-            if (stack->tokens[0].terminal) {
-                return token_term_new(token_new(stack->tokens[0].token.type), false);
+        if (token_is_literal(&stack->tokens[0]->value) || stack->tokens[0]->value.type == TOK_VAR) {
+            if (stack->tokens[0]->terminal) {
+                stack->tokens[0]->terminal = false;
+                return stack->tokens[0];
             } else {
-                if (token_is_literal(&stack->tokens[0].token) ||
-                    stack->tokens[0].token.type == TOK_VAR) {
+                error_not_implemented();
+                if (token_is_literal(&stack->tokens[0]->value) ||
+                    stack->tokens[0]->value.type == TOK_VAR) {
                     return token_term_new(token_new(TOK_EXP_END), false);
                 }
             }
@@ -164,7 +186,7 @@ token_term_t parse_expression(stack_t* stack) {
     }
 
     error_exit(ERR_SYN);
-    return tok;
+    return NULL;
 }
 
 void rule_exp(parser_t* parser, parser_state_t state) {
@@ -176,17 +198,19 @@ void rule_exp(parser_t* parser, parser_state_t state) {
     while (true) {
         // printf("Comparing tokens: %s and %s\n", token_to_string(parser->token.type),
         // token_to_string(stack_top_terminal(&stack).token.type));
-        int precedence = get_precedence(stack_top_terminal(&stack).token, parser->token);
+        int precedence = get_precedence(stack_top_terminal(&stack)->value, parser->token);
 
         if (precedence == -1) {
             precedence = R;
         }
-        token_term_t token;
+        token_term_t* token = NULL;
 
-        if (!stack_top(&stack).terminal && stack.len == 2 && (precedence == R || precedence == X)) {
+        if (!stack_top(&stack)->terminal && stack.len == 2 &&
+            (precedence == R || precedence == X)) {
+            token_graph_print(stack_top(&stack), 0, 0);
+            printf("----------\n");
             break;
         }
-
         switch (precedence) {
             case L:
                 stack_push_after_terminal(&stack);
@@ -194,13 +218,14 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 next_token_keep(parser);
                 break;
             case R:
-                while ((token = stack_pop(&stack)).token.type != TOK_HANDLE_START) {
-                    if (token.token.type != TOK_HANDLE_START) {
+                while ((token = stack_pop(&stack))->value.type != TOK_HANDLE_START) {
+                    if (token->value.type != TOK_HANDLE_START) {
                         stack_push(&current_expression, token);
                     } else {
-                        token_free(&token.token);
+                        token_term_free(token);
                     }
                 }
+                token_term_free(token);
                 stack_push(&stack, parse_expression(&current_expression));
                 break;
             case E:
