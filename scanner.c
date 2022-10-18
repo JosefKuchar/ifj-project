@@ -48,7 +48,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                 }
 
                 if (isspace(c)) {
-                    // TODO: there can be whitespaces between php and declare
                     if (strcmp(scanner->buffer.val, "<?php") != 0) {
                         error_exit(ERR_LEX);  // TODO: Check if this error is right
                     } else {

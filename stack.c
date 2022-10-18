@@ -66,7 +66,7 @@ void stack_push(stack_t* stack, token_term_t* token) {
 token_term_t* stack_pop(stack_t* stack) {
     // Check if stack is empty
     if (stack->len == 0) {
-        error_exit(ERR_SYN);  // TODO: Fix
+        error_exit(ERR_SYN);
     }
 
     // Get token from the stack

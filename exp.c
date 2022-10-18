@@ -104,7 +104,6 @@ token_term_t* parse_comparison(stack_t* stack) {
     return new;
 }
 
-// TODO: Add null to precendece table
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     // only ==/!== for formatting reasons
     /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST .  NI $ */

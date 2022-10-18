@@ -75,7 +75,6 @@ void increment_construct_count(parser_t* parser, parser_state_t* state) {
 parser_t parser_new(scanner_t* scanner, gen_t* gen) {
     return (parser_t){.scanner = scanner,
                       .gen = gen,
-                      // TODO: Remove hardcoded values
                       .local_symtable = htab_new(),
                       .global_symtable = htab_new()};
 }
