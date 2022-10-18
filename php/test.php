@@ -7,5 +7,5 @@ Or multiline comments
 */
 
 declare(strict_types=1);
-$ha = (1 + 1) * 2 > 3 / (3 - 2);
+$ha = (1 + 1).;
 ?>

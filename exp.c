@@ -130,7 +130,7 @@ const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
 
 int get_precedence(token_t stack_top, token_t input) {
     if (input.type >= TABLE_SIZE || stack_top.type >= TABLE_SIZE) {
-        return -1;
+        return R;
     }
 
     return precedence_table[stack_top.type][input.type];
@@ -199,9 +199,6 @@ void rule_exp(parser_t* parser, parser_state_t state) {
         // token_to_string(stack_top_terminal(&stack).token.type));
         int precedence = get_precedence(stack_top_terminal(&stack)->value, parser->token);
 
-        if (precedence == -1) {
-            precedence = R;
-        }
         token_term_t* token = NULL;
 
         if (!stack_top(&stack)->terminal && stack.len == 2 &&
