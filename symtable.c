@@ -252,7 +252,7 @@ htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value) {
 htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition) {
     // Check if function is already defined
     htab_pair_t* pair = htab_find(t, token->attr.val_s.val);
-    if (pair == NULL || pair->value.function.defined) {
+    if (definition && pair != NULL && pair->value.function.defined) {
         error_exit(ERR_SEM_FUN);
     }
 
