@@ -249,17 +249,22 @@ htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value) {
     return &(item->pair);
 }
 
-htab_pair_t* htab_add_function(htab_t* t, token_t* token) {
+htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition) {
     // Check if function is already defined
-    if (htab_find(t, token->attr.val_s.val) != NULL) {
+    htab_pair_t* pair = htab_find(t, token->attr.val_s.val);
+    if (pair == NULL || pair->value.function.defined) {
         error_exit(ERR_SEM_FUN);
     }
+
+    // If we have partial definition (from calling), return in
+    if (pair != NULL) {
+        return pair;
+    }
+
     // Add function to symbol table
     return htab_add(t, token->attr.val_s.val,
                     (htab_value_t){.type = HTAB_FUNCTION,
-                                   .function = {
-                                       .param_count = 0,
-                                   }});
+                                   .function = {.param_count = 0, .defined = definition}});
 }
 
 void htab_function_add_param(htab_pair_t* fun, token_t* token) {

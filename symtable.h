@@ -23,6 +23,7 @@ typedef struct {
 
 typedef struct {
     int param_count;
+    bool defined;
     htab_param_t* params;
 } htab_fun_t;
 
@@ -95,7 +96,7 @@ htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value);
  * @param token Current token (function name)
  * @return Pointer to new function inside hash table
  */
-htab_pair_t* htab_add_function(htab_t* t, token_t* token);
+htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition);
 
 /**
  * @brief Add parameter to existing function

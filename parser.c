@@ -132,6 +132,7 @@ void rule_call_param(parser_t* parser, parser_state_t state) {
 
 void rule_function_call(parser_t* parser, parser_state_t state) {
     (void)state;
+    parser->function = htab_add_function(parser->global_symtable, &parser->token, false);
     gen_function_call_frame(parser->gen, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_call_param(parser, state);
@@ -220,7 +221,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 void rule_function(parser_t* parser, parser_state_t state) {
     state.in_function = true;
     next_token_check_type(parser, TOK_FUN_NAME);
-    parser->function = htab_add_function(parser->global_symtable, &parser->token);
+    parser->function = htab_add_function(parser->global_symtable, &parser->token, true);
     gen_function(parser->gen, &parser->token);
     next_token_check_type(parser, TOK_LPAREN);
     rule_param(parser, state);

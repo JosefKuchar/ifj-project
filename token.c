@@ -99,7 +99,7 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
                     is_valid_hex(str->val[i + 3])) {
                     // Convert the hex to a character
                     char hex[3] = {str->val[i + 2], str->val[i + 3], '\0'};
-                    int number = (char)strtol(hex, NULL, 16);
+                    int number = (char)strtol(hex, NULL, 16);  // TODO: This conversion is wrong
                     // Check if the number is in the valid range
                     if (number >= 1 && number <= 255) {
                         char c = (char)number;
