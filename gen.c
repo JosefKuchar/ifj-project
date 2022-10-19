@@ -38,9 +38,9 @@ void gen_footer(gen_t* gen) {
 }
 
 void gen_if(gen_t* gen, int construct_count) {
-    str_add_cstr(gen->current, "IF ");
+    str_add_cstr(gen->current, "JUMPIFEQ !else_");
     gen_int(gen, construct_count);
-    str_add_cstr(gen->current, "\n");
+    str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
 }
 
 void gen_else(gen_t* gen, int construct_count) {
@@ -53,7 +53,7 @@ void gen_else(gen_t* gen, int construct_count) {
 }
 
 void gen_if_else_end(gen_t* gen, int construct_count) {
-    str_add_cstr(gen->current, "!elseifend_");
+    str_add_cstr(gen->current, "LABEL !elseifend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }

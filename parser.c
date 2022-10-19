@@ -169,11 +169,13 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 
             break;
         case TOK_IF:
+            str_clear(&parser->gen->variable);
+            str_add_cstr(&parser->gen->variable, "_tmp1");
             increment_construct_count(parser, &state);
-            gen_if(parser->gen, state.construct_count);
             next_token_check_type(parser, TOK_LPAREN);
             next_token(parser);
             rule_exp(parser, state);
+            gen_if(parser->gen, state.construct_count);
             token_check_type(parser, TOK_RPAREN);
             next_token_check_type(parser, TOK_LBRACE);
             next_token(parser);
@@ -188,6 +190,8 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             gen_if_else_end(parser->gen, state.construct_count);
             break;
         case TOK_WHILE:
+            str_clear(&parser->gen->variable);
+            str_add_cstr(&parser->gen->variable, "_tmp1");
             increment_construct_count(parser, &state);
             gen_while(parser->gen, state.construct_count);
             next_token_check_type(parser, TOK_LPAREN);

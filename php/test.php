@@ -7,5 +7,7 @@ Or multiline comments
 */
 
 declare(strict_types=1);
-$ha = 10 > 5;
+
+if (50 > 50) {} else {}
+
 ?>
