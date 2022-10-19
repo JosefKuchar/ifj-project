@@ -4,7 +4,7 @@
 #include "token_term.h"
 
 typedef struct {
-    token_term_t* tokens;
+    token_term_t** tokens;
     int len;
     int size;
 } stack_t;
@@ -30,7 +30,7 @@ void stack_empty(stack_t* stack);
  *
  * @param stack to be pushed to, token to be pushed
  */
-void stack_push(stack_t* stack, token_term_t token);
+void stack_push(stack_t* stack, token_term_t* token);
 
 /**
  * @brief Removes and returns the top of the stack
@@ -39,7 +39,7 @@ void stack_push(stack_t* stack, token_term_t token);
  * 
  * @return token_term_t from top of the stack
  */
-token_term_t stack_pop(stack_t* stack);
+token_term_t* stack_pop(stack_t* stack);
 
 /**
  * @brief Returns top of the stack
@@ -48,7 +48,7 @@ token_term_t stack_pop(stack_t* stack);
  * 
  * @return token_term_t from top of the stack
  */
-token_term_t stack_top(stack_t* stack);
+token_term_t* stack_top(stack_t* stack);
 
 /**
  * @brief Pretty prints stack
@@ -64,7 +64,7 @@ void stack_pprint(stack_t* stack);
  * 
  * @return token_term_t from top of the stack
  */
-token_term_t stack_pop_terminal(stack_t* stack);
+token_term_t* stack_pop_terminal(stack_t* stack);
 
 /**
  * @brief Returns terminal closest to the top of the stack
@@ -73,7 +73,7 @@ token_term_t stack_pop_terminal(stack_t* stack);
  * 
  * @return token_term_t from top of the stack
  */
-token_term_t stack_top_terminal(stack_t* stack);
+token_term_t* stack_top_terminal(stack_t* stack);
 
 /**
  * @brief Pushes start_handle after the terminal closest to the top

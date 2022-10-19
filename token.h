@@ -194,4 +194,14 @@ bool token_is_ar_operator(token_t* token);
  */
 bool token_is_comparator(token_t* token);
 
+bool type_is_datatype(token_type_t type);
+
+bool type_is_literal(token_type_t type);
+
+bool type_is_expression(token_type_t type);
+
+bool type_is_ar_operator(token_type_t type);
+
+bool type_is_comparator(token_type_t type);
+
 #endif  // __TOKEN_H__

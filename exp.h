@@ -27,7 +27,7 @@ token_term_t _parse_expression(stack_t* stack);
  * @param stack instance of stack containing the expression
  * @return token_term_t result of the expression
  */
-token_term_t parse_paren(stack_t* stack);
+token_term_t* parse_paren(stack_t* stack);
 
 /**
  * @brief Parses arithmetic expression
@@ -35,7 +35,7 @@ token_term_t parse_paren(stack_t* stack);
  * @param stack instance of stack containing the expression
  * @return token_term_t result of the expression
  */
-token_term_t parse_arithmetic(stack_t* stack);
+token_term_t* parse_arithmetic(stack_t* stack);
 
 /**
  * @brief Parses string concatenation
@@ -43,7 +43,7 @@ token_term_t parse_arithmetic(stack_t* stack);
  * @param stack instance of stack containing the expression
  * @return token_term_t result of the expression
  */
-token_term_t parse_concat(stack_t* stack);
+token_term_t* parse_concat(stack_t* stack);
 
 /**
  * @brief Parses comparison
@@ -51,5 +51,5 @@ token_term_t parse_concat(stack_t* stack);
  * @param stack instance of stack containing the expression
  * @return token_term_t result of the expression
  */
-token_term_t parse_comparison(stack_t* stack);
+token_term_t* parse_comparison(stack_t* stack);
 #endif  // __EXP_H__
