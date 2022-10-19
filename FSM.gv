@@ -6,7 +6,7 @@ digraph G {
         rankdir = LR];
     {
     node [shape=doublecircle]
-        Q1  // SLASH
+        Q1  // DIVIDE
         Q3  // Comment 
         Q6  // Multiline Comment
         Q7  // LEFT ROUND BRACKET
@@ -28,7 +28,7 @@ digraph G {
         Q24 // EQUAL
         Q25 // EXLEMATION MARK
         Q27 // NOT EQUAL
-        Q28 // INTIGER
+        Q28 // INTEGER
         Q30 // FLOAT
         Q32 // FLOAT WITH EXPONENT
         Q34 // FLOAT WITH +- EXPONENT
