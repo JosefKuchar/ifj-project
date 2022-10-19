@@ -24,6 +24,9 @@ void gen_int(gen_t* gen, int val) {
 
 void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, ".IFJcode22\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@_tmp1\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@_tmp2\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
     gen->current = &gen->global;
     gen->current_header = &gen->header;
 }
@@ -181,6 +184,12 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
                 break;
             case TOK_DIVIDE:
                 str_add_cstr(gen->current, "DIVS\n");
+                break;
+            case TOK_DOT:
+                str_add_cstr(gen->current, "POPS GF@_tmp1\n");
+                str_add_cstr(gen->current, "POPS GF@_tmp2\n");
+                str_add_cstr(gen->current, "CONCAT GF@_tmp3 GF@_tmp2 GF@_tmp1\n");
+                str_add_cstr(gen->current, "PUSHS GF@_tmp3\n");
                 break;
             default:
                 str_add_cstr(gen->current, "Not implemented yet\n");

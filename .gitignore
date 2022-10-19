@@ -69,3 +69,6 @@ test/build
 
 # Test
 run_tests
+
+# Compiler output
+test.ifjc22
