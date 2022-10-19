@@ -191,6 +191,27 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
                 str_add_cstr(gen->current, "CONCAT GF@_tmp3 GF@_tmp2 GF@_tmp1\n");
                 str_add_cstr(gen->current, "PUSHS GF@_tmp3\n");
                 break;
+            case TOK_EQUALS:
+                str_add_cstr(gen->current, "EQS\n");
+                break;
+            case TOK_NEQUALS:
+                str_add_cstr(gen->current, "EQS\n");
+                str_add_cstr(gen->current, "NOTS\n");
+                break;
+            case TOK_LESS:
+                str_add_cstr(gen->current, "LTS\n");
+                break;
+            case TOK_LESS_E:
+                str_add_cstr(gen->current, "GTS\n");
+                str_add_cstr(gen->current, "NOTS\n");
+                break;
+            case TOK_GREATER:
+                str_add_cstr(gen->current, "GTS\n");
+                break;
+            case TOK_GREATER_E:
+                str_add_cstr(gen->current, "LTS\n");
+                str_add_cstr(gen->current, "NOTS\n");
+                break;
             default:
                 str_add_cstr(gen->current, "Not implemented yet\n");
         }
