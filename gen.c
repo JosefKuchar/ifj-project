@@ -10,6 +10,7 @@ gen_t gen_new() {
         .function_header = str_new(),
         .function = str_new(),
         .function_name = str_new(),
+        .variable = str_new(),
         .param_count = 0,
     };
     return gen;
@@ -66,6 +67,45 @@ void gen_while_end(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current, "\n");
 }
 
+void gen_value(gen_t* gen, token_t* token) {
+    switch (token->type) {
+        case TOK_INT_LIT: {
+            str_add_cstr(gen->current, "int@");
+            char buf[16];
+            sprintf(buf, "%d", token->attr.val_i);
+            str_add_cstr(gen->current, buf);
+            break;
+        }
+        case TOK_FLOAT_LIT: {
+            str_add_cstr(gen->current, "float@");
+            char buf[32];
+            sprintf(buf, "%a", token->attr.val_f);
+            str_add_cstr(gen->current, buf);
+            break;
+        }
+        case TOK_STR_LIT:
+            str_add_cstr(gen->current, "string@");
+            for (size_t i = 0; i < token->attr.val_s.len; i++) {
+                char c = token->attr.val_s.val[i];
+                if ((c >= 0 && c <= 32) || c == 35 || c == 92) {
+                    str_add_char(gen->current, '\\');
+                    char buf[5];
+                    sprintf(buf, "%03d", c);
+                    str_add_cstr(gen->current, buf);
+                } else {
+                    str_add_char(gen->current, c);
+                }
+            }
+            break;
+        case TOK_VAR:
+            str_add_cstr(gen->current, "GF@");  // TODO: Get legit scope
+            str_add_cstr(gen->current, token->attr.val_s.val);
+            break;
+        default:
+            error_exit(ERR_INTERNAL);
+    }
+}
+
 void gen_function(gen_t* gen, token_t* token) {
     // Define variable for declaration check
     str_add_cstr(&gen->header, "DEFVAR GF@?");
@@ -116,6 +156,51 @@ void gen_function_call_frame(gen_t* gen, token_t* token) {
     str_add_str(&gen->function_name, &token->attr.val_s);
 }
 
+void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
+    if (root == NULL) {
+        return;
+    }
+
+    gen_exp_from_tree(gen, root->left);
+    gen_exp_from_tree(gen, root->right);
+
+    if (token_is_literal(&root->value) || root->value.type == TOK_VAR) {
+        str_add_cstr(gen->current, "PUSHS ");
+        gen_value(gen, &root->value);
+        str_add_cstr(gen->current, "\n");
+    } else {
+        switch (root->value.type) {
+            case TOK_PLUS:
+                str_add_cstr(gen->current, "ADDS\n");
+                break;
+            case TOK_MINUS:
+                str_add_cstr(gen->current, "SUBS\n");
+                break;
+            case TOK_MULTIPLY:
+                str_add_cstr(gen->current, "MULS\n");
+                break;
+            case TOK_DIVIDE:
+                str_add_cstr(gen->current, "DIVS\n");
+                break;
+            default:
+                str_add_cstr(gen->current, "Not implemented yet\n");
+        }
+    }
+
+    // token_print(&root->value);
+}
+
+void gen_exp(gen_t* gen, token_term_t* root) {
+    gen_exp_from_tree(gen, root);
+    str_add_cstr(gen->current, "POPS GF@");
+    str_add_str(gen->current, &gen->variable);
+    str_add_cstr(gen->current, "\n");
+
+    str_add_cstr(gen->current, "DPRINT GF@");
+    str_add_str(gen->current, &gen->variable);
+    str_add_cstr(gen->current, "\n");
+}
+
 void gen_function_call_param(gen_t* gen, token_t* token) {
     str_add_cstr(gen->current, "DEFVAR TF@_");
     gen_int(gen, gen->param_count);
@@ -123,42 +208,7 @@ void gen_function_call_param(gen_t* gen, token_t* token) {
     str_add_cstr(gen->current, "MOVE TF@_");
     gen_int(gen, gen->param_count);
     str_add_char(gen->current, ' ');
-    switch (token->type) {
-        case TOK_INT_LIT: {
-            str_add_cstr(gen->current, "int@");
-            char buf[16];
-            sprintf(buf, "%d", token->attr.val_i);
-            str_add_cstr(gen->current, buf);
-            break;
-        }
-        case TOK_FLOAT_LIT: {
-            str_add_cstr(gen->current, "float@");
-            char buf[32];
-            sprintf(buf, "%a", token->attr.val_f);
-            str_add_cstr(gen->current, buf);
-            break;
-        }
-        case TOK_STR_LIT:
-            str_add_cstr(gen->current, "string@");
-            for (size_t i = 0; i < token->attr.val_s.len; i++) {
-                char c = token->attr.val_s.val[i];
-                if ((c >= 0 && c <= 32) || c == 35 || c == 92) {
-                    str_add_char(gen->current, '\\');
-                    char buf[5];
-                    sprintf(buf, "%03d", c);
-                    str_add_cstr(gen->current, buf);
-                } else {
-                    str_add_char(gen->current, c);
-                }
-            }
-            break;
-        case TOK_VAR:
-            str_add_cstr(gen->current, "GF@");  // TODO: Get legit scope
-            str_add_cstr(gen->current, token->attr.val_s.val);
-            break;
-        default:
-            error_exit(ERR_INTERNAL);
-    }
+    gen_value(gen, token);
     str_add_char(gen->current, '\n');
     gen->param_count++;
 }
@@ -181,6 +231,7 @@ void gen_free(gen_t* gen) {
     str_free(&gen->function_header);
     str_free(&gen->function);
     str_free(&gen->function_name);
+    str_free(&gen->variable);
 }
 
 void gen_emit(gen_t* gen) {

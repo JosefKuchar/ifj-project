@@ -203,8 +203,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
 
         if (!stack_top(&stack)->terminal && stack.len == 2 &&
             (precedence == R || precedence == X)) {
-            token_graph_print(stack_top(&stack), 0, 0);
-            printf("----------\n");
+            gen_exp(parser->gen, stack_top(&stack));
             break;
         }
         switch (precedence) {

@@ -3,6 +3,7 @@
 
 #include "str.h"
 #include "token.h"
+#include "token_term.h"
 
 typedef struct {
     str_t header;           // Global header (init, definition of global variables)
@@ -11,6 +12,7 @@ typedef struct {
     str_t function_header;  // Current function header (definition of local variables)
     str_t function;         // Current function code
     str_t function_name;    // Current function name
+    str_t variable;         // Current variable name
     str_t* current;         // Pointer to current string
     str_t* current_header;  // Pointer to current header
     int param_count;
@@ -72,5 +74,7 @@ void gen_function_call_frame(gen_t* gen, token_t* token);
 void gen_function_call_param(gen_t* gen, token_t* token);
 
 void gen_variable_def(gen_t* gen, token_t* token, bool in_function);
+
+void gen_exp(gen_t* gen, token_term_t* root);
 
 #endif  // __GEN_H__
