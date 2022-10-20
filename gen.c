@@ -74,6 +74,89 @@ void gen_func_reads(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_func_strlen(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?strlen$declared\n"
+                 "MOVE GF@?strlen$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL strlen\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"
+                 "STRLEN LF@tmp LF@tmp\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_chr(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?chr$declared\n"
+                 "MOVE GF@?chr$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL chr\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"
+                 "INT2CHAR LF@tmp LF@tmp\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_ord(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?ord$declared\n"
+                 "MOVE GF@?ord$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL ord\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"
+                 "STRI2INT LF@tmp LF@tmp int@0\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_substring(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?substring$declared\n"
+                 "MOVE GF@?substring$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL substring\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@i\n"
+                 "DEFVAR LF@len\n"
+                 "DEFVAR LF@str\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@str\n"
+                 "POPS LF@i\n"
+                 "POPS LF@len\n"
+                 "DEFVAR LF@result\n"
+                 "MOVE LF@result string@\n"
+                 "DEFVAR LF@i2\n"
+                 "MOVE LF@i2 LF@i\n"
+                 "LABEL !substring_loop\n"
+                 "JUMPIFEQ !substring_loop_end LF@i2 LF@len\n"
+                 "GETCHAR LF@tmp LF@str LF@i2\n"
+                 "CONCAT LF@result LF@result LF@tmp\n"
+                 "ADD LF@i2 LF@i2 int@1\n"
+                 "JUMP !substring_loop\n"
+                 "LABEL !substring_loop_end\n"
+                 "PUSHS LF@result\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 gen_t gen_new() {
     gen_t gen = {
         .header = str_new(),
@@ -105,6 +188,10 @@ void gen_header(gen_t* gen) {
     gen_func_readi(gen);
     gen_func_readf(gen);
     gen_func_reads(gen);
+    gen_func_strlen(gen);
+    gen_func_chr(gen);
+    gen_func_ord(gen);
+    gen_func_substring(gen);
 
     gen->current = &gen->global;
     gen->current_header = &gen->header;
