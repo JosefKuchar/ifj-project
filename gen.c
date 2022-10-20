@@ -42,6 +42,38 @@ void gen_func_readi(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_func_readf(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?readf$declared\n"
+                 "MOVE GF@?readf$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL readf\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "READ LF@tmp string\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_reads(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?reads$declared\n"
+                 "MOVE GF@?reads$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL reads\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "READ LF@tmp string\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 gen_t gen_new() {
     gen_t gen = {
         .header = str_new(),
@@ -71,6 +103,8 @@ void gen_header(gen_t* gen) {
 
     gen_func_write(gen);
     gen_func_readi(gen);
+    gen_func_readf(gen);
+    gen_func_reads(gen);
 
     gen->current = &gen->global;
     gen->current_header = &gen->header;
