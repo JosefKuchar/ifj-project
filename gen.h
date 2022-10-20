@@ -2,6 +2,7 @@
 #define __GEN_H__
 
 #include "str.h"
+#include "symtable.h"
 #include "token.h"
 #include "token_term.h"
 
@@ -68,16 +69,20 @@ void gen_while_end(gen_t* gen, int construct_count);
 
 void gen_function(gen_t* gen, token_t* token);
 
-void gen_function_end(gen_t* gen);
+void gen_function_end(gen_t* gen, htab_fun_t* function);
 
-void gen_function_call(gen_t* gen);
+void gen_function_call(gen_t* gen, bool in_function);
 
 void gen_function_call_frame(gen_t* gen, token_t* token);
 
-void gen_function_call_param(gen_t* gen, token_t* token);
+void gen_function_call_param(gen_t* gen, token_t* token, bool in_function);
 
 void gen_variable_def(gen_t* gen, token_t* token, bool in_function);
 
-void gen_exp(gen_t* gen, token_term_t* root);
+void gen_exp(gen_t* gen, token_term_t* root, bool in_function);
+
+void gen_return(gen_t* gen);
+
+void gen_return_void(gen_t* gen);
 
 #endif  // __GEN_H__

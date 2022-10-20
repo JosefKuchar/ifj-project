@@ -203,6 +203,11 @@ bool token_is_datatype(token_t* token) {
     return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING;
 }
 
+bool token_is_returntype(token_t* token) {
+    return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING ||
+           token->type == TOK_VOID;
+}
+
 bool token_is_literal(token_t* token) {
     return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT ||
            token->type == TOK_STR_LIT || token->type == TOK_NULL;
@@ -227,8 +232,7 @@ bool type_is_datatype(token_type_t type) {
 }
 
 bool type_is_literal(token_type_t type) {
-    return type == TOK_INT_LIT || type == TOK_FLOAT_LIT ||
-           type == TOK_STR_LIT || type == TOK_NULL;
+    return type == TOK_INT_LIT || type == TOK_FLOAT_LIT || type == TOK_STR_LIT || type == TOK_NULL;
 }
 
 bool type_is_expression(token_type_t type) {
@@ -236,13 +240,13 @@ bool type_is_expression(token_type_t type) {
 }
 
 bool type_is_ar_operator(token_type_t type) {
-    return type == TOK_PLUS || type == TOK_MINUS || type == TOK_DIVIDE ||
-           type == TOK_MULTIPLY || type == TOK_DOT;
+    return type == TOK_PLUS || type == TOK_MINUS || type == TOK_DIVIDE || type == TOK_MULTIPLY ||
+           type == TOK_DOT;
 }
 
 bool type_is_comparator(token_type_t type) {
-    return type == TOK_LESS || type == TOK_LESS_E || type == TOK_GREATER ||
-           type == TOK_GREATER_E || type == TOK_EQUALS || type == TOK_NEQUALS;
+    return type == TOK_LESS || type == TOK_LESS_E || type == TOK_GREATER || type == TOK_GREATER_E ||
+           type == TOK_EQUALS || type == TOK_NEQUALS;
 }
 
 void token_free(token_t* token) {

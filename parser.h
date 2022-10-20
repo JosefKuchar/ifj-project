@@ -8,13 +8,14 @@
 #include "token.h"
 
 typedef struct {
-    scanner_t* scanner;       // Scanner instance
-    gen_t* gen;               // Generator instance
-    token_t token;            // Current token
-    htab_t* local_symtable;   // Local symbol table
-    htab_t* global_symtable;  // Global symbol table
-    htab_pair_t* function;    // Current function
-    bool skip_next;           // Whether to unget the current token
+    scanner_t* scanner;          // Scanner instance
+    gen_t* gen;                  // Generator instance
+    token_t token;               // Current token
+    htab_t* local_symtable;      // Local symbol table
+    htab_t* global_symtable;     // Global symbol table
+    htab_pair_t* function;       // Current function
+    htab_pair_t* function_call;  // Current function call
+    bool skip_next;              // Whether to unget the current token
     int construct_count;
 } parser_t;
 
@@ -48,17 +49,17 @@ void parser_run(parser_t* state);
 
 /**
  * @brief Checks whether current token is of type
- * 
+ *
  * @param parser Instance of parser
  * @param type Type to be compared against
- * 
+ *
  * @return Result of the comparison
  */
 bool token_is_type(parser_t* parser, token_type_t type);
 
 /**
  * @brief Asks scanner for next token and frees the previous one
- * 
+ *
  * @param parser Instance of parser
  */
 
@@ -66,7 +67,7 @@ void next_token(parser_t* parser);
 
 /**
  * @brief Asks scanner for next token and keeps the previous one
- * 
+ *
  * @param parser Instance of parser
  */
 void next_token_keep(parser_t* parser);

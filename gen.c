@@ -245,7 +245,7 @@ void gen_while_end(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current, "\n");
 }
 
-void gen_value(str_t* str, token_t* token) {
+void gen_value(str_t* str, token_t* token, bool in_function) {
     switch (token->type) {
         case TOK_INT_LIT: {
             str_add_cstr(str, "int@");
@@ -279,7 +279,11 @@ void gen_value(str_t* str, token_t* token) {
             str_add_cstr(str, "nil@nil");
             break;
         case TOK_VAR:
-            str_add_cstr(str, "GF@");  // TODO: Get legit scope
+            if (in_function) {
+                str_add_cstr(str, "LF@");
+            } else {
+                str_add_cstr(str, "GF@");
+            }
             str_add_cstr(str, token->attr.val_s.val);
             break;
         default:
@@ -303,12 +307,29 @@ void gen_function(gen_t* gen, token_t* token) {
     str_add_cstr(&gen->function_header, "LABEL ");
     str_add_cstr(&gen->function_header, token->attr.val_s.val);
     str_add_cstr(&gen->function_header, "\n");
+    str_add_cstr(&gen->function_header,
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@_tmp1\n");
+
     gen->current = &gen->function;
     gen->current_header = &gen->function_header;
 }
 
-void gen_function_end(gen_t* gen) {
-    str_add_cstr(&gen->function, "RETURN\n");
+void gen_function_end(gen_t* gen, htab_fun_t* function) {
+    for (int i = 0; i < function->param_count; i++) {
+        str_add_cstr(&gen->function_header, "DEFVAR LF@");
+        str_add_str(&gen->function_header, &function->params[i].name);
+        str_add_char(&gen->function_header, '\n');
+
+        str_add_cstr(&gen->function_header, "POPS LF@");
+        str_add_str(&gen->function_header, &function->params[i].name);
+        str_add_char(&gen->function_header, '\n');
+    }
+
+    str_add_cstr(&gen->function,
+                 "POPFRAME\n"
+                 "RETURN\n");
     str_add_str(&gen->functions, &gen->function_header);
     str_add_str(&gen->functions, &gen->function);
     str_clear(&gen->function_header);
@@ -317,7 +338,20 @@ void gen_function_end(gen_t* gen) {
     gen->current_header = &gen->header;
 }
 
-void gen_function_call(gen_t* gen) {
+void gen_return(gen_t* gen) {
+    str_add_cstr(gen->current,
+                 "PUSHS GF@_tmp1\n"  // TODO global scope
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_return_void(gen_t* gen) {
+    str_add_cstr(gen->current,
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_function_call(gen_t* gen, bool in_function) {
     str_add_str(gen->current, &gen->params);
     str_clear(&gen->params);
 
@@ -334,7 +368,12 @@ void gen_function_call(gen_t* gen) {
     str_clear(&gen->function_name);
 
     if (strlen(gen->variable.val) != 0) {
-        str_add_cstr(gen->current, "POPS GF@");
+        str_add_cstr(gen->current, "POPS ");
+        if (in_function) {
+            str_add_cstr(gen->current, "LF@");
+        } else {
+            str_add_cstr(gen->current, "GF@");
+        }
         str_add_str(gen->current, &gen->variable);
         str_add_char(gen->current, '\n');
     }
@@ -354,17 +393,17 @@ void gen_function_call_frame(gen_t* gen, token_t* token) {
     str_add_str(&gen->function_name, &token->attr.val_s);
 }
 
-void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
+void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
     if (root == NULL) {
         return;
     }
 
-    gen_exp_from_tree(gen, root->left);
-    gen_exp_from_tree(gen, root->right);
+    gen_exp_from_tree(gen, root->left, in_function);
+    gen_exp_from_tree(gen, root->right, in_function);
 
     if (token_is_literal(&root->value) || root->value.type == TOK_VAR) {
         str_add_cstr(gen->current, "PUSHS ");
-        gen_value(gen->current, &root->value);
+        gen_value(gen->current, &root->value, in_function);
         str_add_cstr(gen->current, "\n");
     } else {
         switch (root->value.type) {
@@ -415,17 +454,26 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
     // token_print(&root->value);
 }
 
-void gen_exp(gen_t* gen, token_term_t* root) {
-    gen_exp_from_tree(gen, root);
-    str_add_cstr(gen->current, "POPS GF@");
-    str_add_str(gen->current, &gen->variable);
-    str_add_cstr(gen->current, "\n");
+void gen_exp(gen_t* gen, token_term_t* root, bool in_function) {
+    gen_exp_from_tree(gen, root, in_function);
+
+    if (gen->variable.len == 0) {
+        str_add_cstr(gen->current, "POPS GF@_tmp1\n");
+    } else {
+        if (in_function) {
+            str_add_cstr(gen->current, "POPS LF@");
+        } else {
+            str_add_cstr(gen->current, "POPS GF@");
+        }
+        str_add_str(gen->current, &gen->variable);
+        str_add_cstr(gen->current, "\n");
+    }
 }
 
-void gen_function_call_param(gen_t* gen, token_t* token) {
+void gen_function_call_param(gen_t* gen, token_t* token, bool in_function) {
     str_t str = str_new();
     str_add_cstr(&str, "PUSHS ");
-    gen_value(&str, token);
+    gen_value(&str, token, in_function);
     str_add_cstr(&str, "\n");
     str_add_str(&str, &gen->params);
     str_clear(&gen->params);

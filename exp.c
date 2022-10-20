@@ -203,7 +203,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
 
         if (!stack_top(&stack)->terminal && stack.len == 2 &&
             (precedence == R || precedence == X)) {
-            gen_exp(parser->gen, stack_top(&stack));
+            gen_exp(parser->gen, stack_top(&stack), state.in_function);
             break;
         }
         switch (precedence) {

@@ -204,4 +204,6 @@ bool type_is_ar_operator(token_type_t type);
 
 bool type_is_comparator(token_type_t type);
 
+bool token_is_returntype(token_t* token);
+
 #endif  // __TOKEN_H__
