@@ -197,6 +197,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             next_token_check_type(parser, TOK_LPAREN);
             next_token(parser);
             rule_exp(parser, state);
+            gen_while_exit(parser->gen, state.construct_count);
             token_check_type(parser, TOK_RPAREN);
             next_token_check_type(parser, TOK_LBRACE);
             next_token(parser);

@@ -8,6 +8,11 @@ Or multiline comments
 
 declare(strict_types=1);
 
-if (50 > 50) {} else {}
+$a = 10;
+
+while ($a > 5) {
+    $a = $a - 1;
+    write("\n", $a);
+}
 
 ?>

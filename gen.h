@@ -56,6 +56,8 @@ void gen_if_else_end(gen_t* gen, int construct_count);
  */
 void gen_while(gen_t* gen, int construct_count);
 
+void gen_while_exit(gen_t* gen, int construct_count);
+
 /**
  * @brief Generate end of while statement
  *

@@ -1,16 +1,21 @@
 .IFJcode22
+PUSHS string@test
+PUSHS string@test2
+PUSHS int@2
+CALL write
+EXIT int@0
+LABEL write
 CREATEFRAME
 PUSHFRAME
-EXIT -1
+DEFVAR LF@i
+DEFVAR LF@current
+POPS LF@i
+LABEL loop
+JUMPIFEQ loop_end int@0 LF@i
+SUB LF@i LF@i int@1
+POPS LF@current
+WRITE LF@current
+JUMP loop
+LABEL loop_end
 POPFRAME
-CLEARS
-
-## IF
-JUMPIFEQ !else@1
-
-JUMP !end@1
-## ELSE
-LABEL !else@1
-
-## END
-LABEL !end@1
+RETURN

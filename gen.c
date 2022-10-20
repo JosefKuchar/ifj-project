@@ -1,6 +1,30 @@
 #include "gen.h"
 #include <stdio.h>
+#include <string.h>
 #include "error.h"
+
+void gen_func_write(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?write$declared\n"
+                 "MOVE GF@?write$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL write\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@i\n"
+                 "DEFVAR LF@current\n"
+                 "POPS LF@i\n"
+                 "LABEL !write_loop\n"
+                 "JUMPIFEQ !write_loop_end int@0 LF@i\n"
+                 "SUB LF@i LF@i int@1\n"
+                 "POPS LF@current\n"
+                 "WRITE LF@current\n"
+                 "JUMP !write_loop\n"
+                 "LABEL !write_loop_end\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
 
 gen_t gen_new() {
     gen_t gen = {
@@ -27,6 +51,9 @@ void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp1\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp2\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
+
+    gen_func_write(gen);
+
     gen->current = &gen->global;
     gen->current_header = &gen->header;
 }
@@ -59,13 +86,22 @@ void gen_if_else_end(gen_t* gen, int construct_count) {
 }
 
 void gen_while(gen_t* gen, int construct_count) {
-    str_add_cstr(gen->current, "WHILE ");
+    str_add_cstr(gen->current, "LABEL !while_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
+void gen_while_exit(gen_t* gen, int construct_count) {
+    str_add_cstr(gen->current, "JUMPIFEQ !whileend_");
+    gen_int(gen, construct_count);
+    str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
+}
+
 void gen_while_end(gen_t* gen, int construct_count) {
-    str_add_cstr(gen->current, "WHILE_END ");
+    str_add_cstr(gen->current, "JUMP !while_");
+    gen_int(gen, construct_count);
+    str_add_cstr(gen->current, "\n");
+    str_add_cstr(gen->current, "LABEL !whileend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }
@@ -140,6 +176,12 @@ void gen_function_end(gen_t* gen) {
 }
 
 void gen_function_call(gen_t* gen) {
+    if (strcmp(gen->function_name.val, "write") == 0) {
+        str_add_cstr(gen->current, "PUSHS int@");
+        gen_int(gen, gen->param_count);
+        str_add_char(gen->current, '\n');
+    }
+
     str_add_cstr(gen->current, "CALL ");
     str_add_str(gen->current, &gen->function_name);
     str_add_cstr(gen->current, "\n");
@@ -155,7 +197,8 @@ void gen_function_call_frame(gen_t* gen, token_t* token) {
     str_add_cstr(gen->current, token->attr.val_s.val);
     str_add_cstr(gen->current, "$declared\n");
     // Generate call frame
-    str_add_cstr(gen->current, "CREATEFRAME\n");
+    /*
+    str_add_cstr(gen->current, "CREATEFRAME\n");*/
     str_add_str(&gen->function_name, &token->attr.val_s);
 }
 
@@ -225,21 +268,12 @@ void gen_exp(gen_t* gen, token_term_t* root) {
     str_add_cstr(gen->current, "POPS GF@");
     str_add_str(gen->current, &gen->variable);
     str_add_cstr(gen->current, "\n");
-
-    str_add_cstr(gen->current, "DPRINT GF@");
-    str_add_str(gen->current, &gen->variable);
-    str_add_cstr(gen->current, "\n");
 }
 
 void gen_function_call_param(gen_t* gen, token_t* token) {
-    str_add_cstr(gen->current, "DEFVAR TF@_");
-    gen_int(gen, gen->param_count);
-    str_add_char(gen->current, '\n');
-    str_add_cstr(gen->current, "MOVE TF@_");
-    gen_int(gen, gen->param_count);
-    str_add_char(gen->current, ' ');
+    str_add_cstr(gen->current, "PUSHS ");
     gen_value(gen, token);
-    str_add_char(gen->current, '\n');
+    str_add_cstr(gen->current, "\n");
     gen->param_count++;
 }
 
