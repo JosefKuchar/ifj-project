@@ -75,3 +75,6 @@ test: tests.o gtest_main.a $(TEST_OBJS)
 
 examples: main
 	cd examples && ./examples.sh
+
+jirka_tests: main
+	cd IFJ22_Tester && python3 test.py ../main

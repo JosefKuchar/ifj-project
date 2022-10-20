@@ -12,9 +12,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: make
         run: make
       - name: test
         run: make test
       - name: examples
         run: make examples
+      - name: jirka_tests
+        run: make jirka_tests
