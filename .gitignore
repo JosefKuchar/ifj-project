@@ -73,3 +73,6 @@ run_tests
 # Compiler output
 test.ifjc22
 examples/out.ifjc22
+
+# Examples outputs
+!examples/*.out
