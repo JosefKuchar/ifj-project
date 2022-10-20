@@ -33,6 +33,8 @@ typedef struct {
     enum scanner_state state;  // Current state
     str_t buffer;              // Buffer for previous characters
     FILE* input;               // Input stream
+    size_t line_nr;
+    size_t col_nr;
 } scanner_t;
 
 /**

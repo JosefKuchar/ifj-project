@@ -60,6 +60,8 @@ const char* token_names[] = {[TOK_EOF] = "EOF",
 void token_print(token_t* token) {
     const char* name = token_names[token->type];
 
+    fprintf(stderr, "[%zu:%zu]", token->line_nr, token->col_nr);
+
     if (token->type == TOK_VAR || token->type == TOK_STR_LIT || token->type == TOK_FUN_NAME) {
         fprintf(stderr, "{ %s, \"%s\" }\n", name, token->attr.val_s.val);
     } else if (token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING) {
@@ -75,17 +77,21 @@ void token_print(token_t* token) {
     }
 }
 
-token_t token_new(token_type_t type) {
-    return (token_t){.type = type};
+token_t token_new(token_type_t type, size_t line_nr, size_t col_nr) {
+    return (token_t){.type = type, .line_nr = line_nr, .col_nr = col_nr};
 }
 
-token_t token_new_with_string(token_type_t type, str_t* str) {
-    token_t token = {.type = type, .attr.val_s = str_new_from_str(str)};
+token_t token_new_with_string(token_type_t type, str_t* str, size_t line_nr, size_t col_nr) {
+    token_t token = {
+        .type = type, .attr.val_s = str_new_from_str(str), .line_nr = line_nr, .col_nr = col_nr};
     str_clear(str);
     return token;
 }
 
-token_t token_new_with_string_literal(token_type_t type, str_t* str) {
+token_t token_new_with_string_literal(token_type_t type,
+                                      str_t* str,
+                                      size_t line_nr,
+                                      size_t col_nr) {
     str_t new_str = str_new();
 
     // Loop through all characters in the string literal
@@ -176,27 +182,27 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str) {
     }
 
     str_clear(str);
-    return (token_t){.type = type, .attr.val_s = new_str};
+    return (token_t){.type = type, .attr.val_s = new_str, .line_nr = line_nr, .col_nr = col_nr};
 }
 
-token_t token_new_with_int(token_type_t type, str_t* str) {
+token_t token_new_with_int(token_type_t type, str_t* str, size_t line_nr, size_t col_nr) {
     // TODO: error checks
     long num = strtoul(str->val, NULL, 10);
 
     str_clear(str);
-    return (token_t){.type = type, .attr.val_i = (int)num};
+    return (token_t){.type = type, .attr.val_i = (int)num, .line_nr = line_nr, .col_nr = col_nr};
 }
 
-token_t token_new_with_float(token_type_t type, str_t* str) {
+token_t token_new_with_float(token_type_t type, str_t* str, size_t line_nr, size_t col_nr) {
     // TODO: error checks
     double num = strtod(str->val, NULL);
 
     str_clear(str);
-    return (token_t){.type = type, .attr.val_f = num};
+    return (token_t){.type = type, .attr.val_f = num, .line_nr = line_nr, .col_nr = col_nr};
 }
 
-token_t token_new_with_bool(token_type_t type, bool val) {
-    return (token_t){.type = type, .attr.val_b = val};
+token_t token_new_with_bool(token_type_t type, bool val, size_t line_nr, size_t col_nr) {
+    return (token_t){.type = type, .attr.val_b = val, .line_nr = line_nr, .col_nr = col_nr};
 }
 
 bool token_is_datatype(token_t* token) {

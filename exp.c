@@ -202,7 +202,7 @@ token_term_t* parse_expression(stack_t* stack) {
                 error_not_implemented();
                 if (token_is_literal(&stack->tokens[0]->value) ||
                     stack->tokens[0]->value.type == TOK_VAR) {
-                    return token_term_new(token_new(TOK_EXP_END), false);
+                    return token_term_new(token_new(TOK_EXP_END, 0, 0), false);
                 }
             }
         }
@@ -215,7 +215,7 @@ token_term_t* parse_expression(stack_t* stack) {
 void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
-    stack_push(&stack, token_term_new(token_new(TOK_DOLLAR), true));
+    stack_push(&stack, token_term_new(token_new(TOK_DOLLAR, 0, 0), true));
     stack_t current_expression = stack_new();
 
     while (true) {

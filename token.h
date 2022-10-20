@@ -69,6 +69,8 @@ typedef union {
 typedef struct {
     token_type_t type;
     token_attribute_t attr;
+    size_t line_nr;
+    size_t col_nr;
 } token_t;
 
 /**
@@ -84,7 +86,7 @@ void token_print(token_t* token);
  * @param type Token type
  * @return New token
  */
-token_t token_new(token_type_t type);
+token_t token_new(token_type_t type, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Create new token with supplied string AND CONSUME THE STRING
@@ -93,7 +95,7 @@ token_t token_new(token_type_t type);
  * @param str String
  * @return New token with string
  */
-token_t token_new_with_string(token_type_t type, str_t* str);
+token_t token_new_with_string(token_type_t type, str_t* str, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Create new token with supplied string literal AND CONSUME THE STRING
@@ -102,7 +104,7 @@ token_t token_new_with_string(token_type_t type, str_t* str);
  * @param str String
  * @return New token with string
  */
-token_t token_new_with_string_literal(token_type_t type, str_t* str);
+token_t token_new_with_string_literal(token_type_t type, str_t* str, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Create new token with supplied string value of an int AND CONSUME THE STRING
@@ -111,7 +113,7 @@ token_t token_new_with_string_literal(token_type_t type, str_t* str);
  * @param str String
  * @return New token with int
  */
-token_t token_new_with_int(token_type_t type, str_t* str);
+token_t token_new_with_int(token_type_t type, str_t* str, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Create new token with supplied string value of a float AND CONSUME THE STRING
@@ -120,7 +122,7 @@ token_t token_new_with_int(token_type_t type, str_t* str);
  * @param str String
  * @return New token with float
  */
-token_t token_new_with_float(token_type_t type, str_t* str);
+token_t token_new_with_float(token_type_t type, str_t* str, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Create new token with supplied bool
@@ -129,7 +131,7 @@ token_t token_new_with_float(token_type_t type, str_t* str);
  * @param val Bool value
  * @return New token with bool
  */
-token_t token_new_with_bool(token_type_t type, bool val);
+token_t token_new_with_bool(token_type_t type, bool val, size_t line_nr, size_t col_nr);
 
 /**
  * @brief Check if token is a data type (eg. int, float, string)
