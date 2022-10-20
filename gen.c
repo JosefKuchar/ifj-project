@@ -3,6 +3,13 @@
 #include <string.h>
 #include "error.h"
 
+/**
+ * @brief function write (term1 ,term2 , …, termn) : void
+ * Writes all terms to the standard output.
+ * Similar to echo in php.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_write(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?write$declared\n"
@@ -12,20 +19,27 @@ void gen_func_write(gen_t* gen) {
                  "LABEL write\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
-                 "DEFVAR LF@i\n"
-                 "DEFVAR LF@current\n"
-                 "POPS LF@i\n"
-                 "LABEL !write_loop\n"
-                 "JUMPIFEQ !write_loop_end int@0 LF@i\n"
-                 "SUB LF@i LF@i int@1\n"
-                 "POPS LF@current\n"
-                 "WRITE LF@current\n"
-                 "JUMP !write_loop\n"
-                 "LABEL !write_loop_end\n"
+                 "DEFVAR LF@i\n"                          // Loop counter
+                 "DEFVAR LF@current\n"                    // Current term
+                 "POPS LF@i\n"                            // Get number of terms
+                 "LABEL !write_loop\n"                    // Loop
+                 "JUMPIFEQ !write_loop_end int@0 LF@i\n"  // Exit loop if i == 0
+                 "SUB LF@i LF@i int@1\n"                  // i--
+                 "POPS LF@current\n"                      // Get current term
+                 "WRITE LF@current\n"                     // Output current term
+                 "JUMP !write_loop\n"                     // Back to loop
+                 "LABEL !write_loop_end\n"                // End of loop
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function readi() : ?int
+ * Reads an integer from the standard input.
+ * Returns null if input is invalid.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_readi(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?readi$declared\n"
@@ -36,12 +50,19 @@ void gen_func_readi(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "READ LF@tmp int\n"
-                 "PUSHS LF@tmp\n"
+                 "READ LF@tmp int\n"  // Read int
+                 "PUSHS LF@tmp\n"     // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function readf() : ?int
+ * Reads a float from the standard input.
+ * Returns null if input is invalid.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_readf(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?readf$declared\n"
@@ -52,12 +73,19 @@ void gen_func_readf(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "READ LF@tmp string\n"
-                 "PUSHS LF@tmp\n"
+                 "READ LF@tmp float\n"  // Read float
+                 "PUSHS LF@tmp\n"       // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function readf() : ?int
+ * Reads a string from the standard input.
+ * Returns null if input is invalid.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_reads(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?reads$declared\n"
@@ -68,12 +96,18 @@ void gen_func_reads(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "READ LF@tmp string\n"
-                 "PUSHS LF@tmp\n"
+                 "READ LF@tmp string\n"  // Read string
+                 "PUSHS LF@tmp\n"        // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function strlen(string $s) : int
+ * Returns length of string.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_strlen(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?strlen$declared\n"
@@ -84,75 +118,102 @@ void gen_func_strlen(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"
-                 "STRLEN LF@tmp LF@tmp\n"
-                 "PUSHS LF@tmp\n"
+                 "POPS LF@tmp\n"           // Get string
+                 "STRLEN LF@tmp LF@tmp\n"  // Get length
+                 "PUSHS LF@tmp\n"          // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function chr(int $i) : string
+ * Returns character with ASCII code $i.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_chr(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?chr$declared\n"
                  "MOVE GF@?chr$declared bool@true\n");
 
+    // TODO: Check if $i is in range 0-255
     str_add_cstr(&gen->functions,
                  "LABEL chr\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"
-                 "INT2CHAR LF@tmp LF@tmp\n"
-                 "PUSHS LF@tmp\n"
+                 "POPS LF@tmp\n"             // Get int
+                 "INT2CHAR LF@tmp LF@tmp\n"  // Convert to char
+                 "PUSHS LF@tmp\n"            // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function ord(string $c) : int
+ * Returns ASCII code of first character of $c.
+ * Returns 0 if $c is empty.
+ *
+ * @param gen Generator instance
+ */
 void gen_func_ord(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?ord$declared\n"
                  "MOVE GF@?ord$declared bool@true\n");
 
+    // TODO: Return 0 if $c is empty
     str_add_cstr(&gen->functions,
                  "LABEL ord\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"
-                 "STRI2INT LF@tmp LF@tmp int@0\n"
-                 "PUSHS LF@tmp\n"
+                 "POPS LF@tmp\n"                   // Get string
+                 "STRI2INT LF@tmp LF@tmp int@0\n"  // Get ASCII code of first char
+                 "PUSHS LF@tmp\n"                  // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
+/**
+ * @brief function substring(string $s, int $i, int $j) : ?string
+ * Returns substring of $s starting at $i and ending at $j.
+ *
+ * Returns null when
+ * $i < 0
+ * $j < 0
+ * $i > $j
+ * $i >= strlen($s)
+ * $j >= strlen($s)
+ *
+ * @param gen
+ */
 void gen_func_substring(gen_t* gen) {
     str_add_cstr(&gen->header,
                  "DEFVAR GF@?substring$declared\n"
                  "MOVE GF@?substring$declared bool@true\n");
 
+    // TODO: Return null when conditions in function description are met
     str_add_cstr(&gen->functions,
                  "LABEL substring\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@i\n"
-                 "DEFVAR LF@len\n"
+                 "DEFVAR LF@j\n"
                  "DEFVAR LF@str\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@str\n"
-                 "POPS LF@i\n"
-                 "POPS LF@len\n"
-                 "DEFVAR LF@result\n"
-                 "MOVE LF@result string@\n"
-                 "DEFVAR LF@i2\n"
-                 "MOVE LF@i2 LF@i\n"
-                 "LABEL !substring_loop\n"
-                 "JUMPIFEQ !substring_loop_end LF@i2 LF@len\n"
-                 "GETCHAR LF@tmp LF@str LF@i2\n"
-                 "CONCAT LF@result LF@result LF@tmp\n"
-                 "ADD LF@i2 LF@i2 int@1\n"
-                 "JUMP !substring_loop\n"
-                 "LABEL !substring_loop_end\n"
-                 "PUSHS LF@result\n"
+                 "DEFVAR LF@res\n"
+                 "POPS LF@str\n"                             // Get string
+                 "POPS LF@i\n"                               // Get start index
+                 "POPS LF@j\n"                               // Get end index
+                 "MOVE LF@res string@\n"                     // res = ""
+                 "LABEL !substring_loop\n"                   // Loop
+                 "JUMPIFEQ !substring_loop_end LF@i LF@j\n"  // If i == j, end
+                 "GETCHAR LF@tmp LF@str LF@i\n"              // Get char at index i
+                 "CONCAT LF@res LF@res LF@tmp\n"             // res += char
+                 "ADD LF@i LF@i int@1\n"                     // i++
+                 "JUMP !substring_loop\n"                    // Jump to loop
+                 "LABEL !substring_loop_end\n"               // Loop end
+                 "PUSHS LF@res\n"                            // Return
                  "POPFRAME\n"
                  "RETURN\n");
 }
