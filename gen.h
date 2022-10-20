@@ -13,6 +13,7 @@ typedef struct {
     str_t function;         // Current function code
     str_t function_name;    // Current function name
     str_t variable;         // Current variable name
+    str_t params;
     str_t* current;         // Pointer to current string
     str_t* current_header;  // Pointer to current header
     int param_count;

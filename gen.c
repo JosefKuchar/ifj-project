@@ -26,6 +26,22 @@ void gen_func_write(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_func_readi(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?readi$declared\n"
+                 "MOVE GF@?readi$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL readi\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "READ LF@tmp int\n"
+                 "PUSHS LF@tmp\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 gen_t gen_new() {
     gen_t gen = {
         .header = str_new(),
@@ -34,6 +50,7 @@ gen_t gen_new() {
         .function_header = str_new(),
         .function = str_new(),
         .function_name = str_new(),
+        .params = str_new(),
         .variable = str_new(),
         .param_count = 0,
     };
@@ -53,6 +70,7 @@ void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
 
     gen_func_write(gen);
+    gen_func_readi(gen);
 
     gen->current = &gen->global;
     gen->current_header = &gen->header;
@@ -106,39 +124,42 @@ void gen_while_end(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current, "\n");
 }
 
-void gen_value(gen_t* gen, token_t* token) {
+void gen_value(str_t* str, token_t* token) {
     switch (token->type) {
         case TOK_INT_LIT: {
-            str_add_cstr(gen->current, "int@");
+            str_add_cstr(str, "int@");
             char buf[16];
             sprintf(buf, "%d", token->attr.val_i);
-            str_add_cstr(gen->current, buf);
+            str_add_cstr(str, buf);
             break;
         }
         case TOK_FLOAT_LIT: {
-            str_add_cstr(gen->current, "float@");
+            str_add_cstr(str, "float@");
             char buf[32];
             sprintf(buf, "%a", token->attr.val_f);
-            str_add_cstr(gen->current, buf);
+            str_add_cstr(str, buf);
             break;
         }
         case TOK_STR_LIT:
-            str_add_cstr(gen->current, "string@");
+            str_add_cstr(str, "string@");
             for (size_t i = 0; i < token->attr.val_s.len; i++) {
                 char c = token->attr.val_s.val[i];
                 if ((c >= 0 && c <= 32) || c == 35 || c == 92) {
-                    str_add_char(gen->current, '\\');
+                    str_add_char(str, '\\');
                     char buf[5];
                     sprintf(buf, "%03d", c);
-                    str_add_cstr(gen->current, buf);
+                    str_add_cstr(str, buf);
                 } else {
-                    str_add_char(gen->current, c);
+                    str_add_char(str, c);
                 }
             }
             break;
+        case TOK_NULL:
+            str_add_cstr(str, "nil@nil");
+            break;
         case TOK_VAR:
-            str_add_cstr(gen->current, "GF@");  // TODO: Get legit scope
-            str_add_cstr(gen->current, token->attr.val_s.val);
+            str_add_cstr(str, "GF@");  // TODO: Get legit scope
+            str_add_cstr(str, token->attr.val_s.val);
             break;
         default:
             error_exit(ERR_INTERNAL);
@@ -176,6 +197,9 @@ void gen_function_end(gen_t* gen) {
 }
 
 void gen_function_call(gen_t* gen) {
+    str_add_str(gen->current, &gen->params);
+    str_clear(&gen->params);
+
     if (strcmp(gen->function_name.val, "write") == 0) {
         str_add_cstr(gen->current, "PUSHS int@");
         gen_int(gen, gen->param_count);
@@ -187,6 +211,13 @@ void gen_function_call(gen_t* gen) {
     str_add_cstr(gen->current, "\n");
     gen->param_count = 0;
     str_clear(&gen->function_name);
+
+    if (strlen(gen->variable.val) != 0) {
+        str_add_cstr(gen->current, "POPS GF@");
+        str_add_str(gen->current, &gen->variable);
+        str_add_char(gen->current, '\n');
+    }
+
     str_add_cstr(gen->current, "# CALL END\n");
 }
 
@@ -212,7 +243,7 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root) {
 
     if (token_is_literal(&root->value) || root->value.type == TOK_VAR) {
         str_add_cstr(gen->current, "PUSHS ");
-        gen_value(gen, &root->value);
+        gen_value(gen->current, &root->value);
         str_add_cstr(gen->current, "\n");
     } else {
         switch (root->value.type) {
@@ -271,9 +302,15 @@ void gen_exp(gen_t* gen, token_term_t* root) {
 }
 
 void gen_function_call_param(gen_t* gen, token_t* token) {
-    str_add_cstr(gen->current, "PUSHS ");
-    gen_value(gen, token);
-    str_add_cstr(gen->current, "\n");
+    str_t str = str_new();
+    str_add_cstr(&str, "PUSHS ");
+    gen_value(&str, token);
+    str_add_cstr(&str, "\n");
+    str_add_str(&str, &gen->params);
+    str_clear(&gen->params);
+    str_add_str(&gen->params, &str);
+    str_free(&str);
+
     gen->param_count++;
 }
 
@@ -296,6 +333,7 @@ void gen_free(gen_t* gen) {
     str_free(&gen->function);
     str_free(&gen->function_name);
     str_free(&gen->variable);
+    str_free(&gen->params);
 }
 
 void gen_emit(gen_t* gen) {

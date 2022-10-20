@@ -206,6 +206,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             gen_while_end(parser->gen, state.construct_count);
             break;
         case TOK_FUN_NAME:
+            str_clear(&parser->gen->variable);
             rule_function_call(parser, state);
             break;
         case TOK_RETURN:
