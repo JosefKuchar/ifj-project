@@ -293,6 +293,7 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_DIVIDE: {
                 if (c == '*') {
+                    scanner->col_nr = 0;
                     scanner->line_nr++;
                     scanner->state = SC_MCOMMENT;
                 } else if (c == '/') {
@@ -319,6 +320,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == EOF) {
                     error_exit(ERR_LEX);  // Unterminated comment
                 } else if (c == '*') {
+                    scanner->col_nr = 0;
                     scanner->line_nr++;
                     const int c2 = fgetc(scanner->input);
                     if (c2 == '/') {
