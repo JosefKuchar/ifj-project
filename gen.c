@@ -183,7 +183,7 @@ void gen_func_ord(gen_t* gen) {
  * $j < 0
  * $i > $j
  * $i >= strlen($s)
- * $j >= strlen($s)
+ * $j > strlen($s)
  *
  * @param gen
  */
