@@ -5,6 +5,7 @@
 COMPILER="../main "  # zde muze byt vas prekladac IFJ22 (napr. ./ifj22)
 HELPER="ifj22.php"
 INTERPRETER="../ic22int "  # zde muze byt interpret IFJcode22 (./ic22int)
+RETURNCODE=0
 
 for i in *.php; do
     
@@ -27,10 +28,11 @@ for i in *.php; do
     else
         echo "DIFFERENCE to $OUT"
         cat $IN | $INTERPRETER $PRG 2> >(sed $'s,.*,\e[31m&\e[m,'>&2) | diff - $OUT
+        RETURNCODE=1
     fi
     echo
 done;
 
 # rm *.tmp
 
-exit 0
+exit $RETURNCODE

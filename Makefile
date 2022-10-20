@@ -10,7 +10,7 @@ OBJS := $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=%.d)
 
 # These will run every time (not just when the files are newer)
-.PHONY: run clean zip test pdf
+.PHONY: run clean zip test pdf examples
 
 # Main target
 main: $(OBJS)
@@ -72,3 +72,6 @@ tests.o: $(GTEST_HEADERS) test/tests.cpp
 
 test: tests.o gtest_main.a $(TEST_OBJS)
 	$(CXX) $(CPPFLAGS_T) $(CXXFLAGS_T) -lm -lpthread $^ -o run_tests && ./run_tests
+
+examples: main
+	cd examples && ./examples.sh
