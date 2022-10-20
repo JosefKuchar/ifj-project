@@ -1,0 +1,4 @@
+[submodule "IFJ22_Tester"]
+	path = IFJ22_Tester
+	url = https://github.com/galloj/IFJ22_Tester
+	branch = master
