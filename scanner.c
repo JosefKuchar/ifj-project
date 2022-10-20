@@ -47,7 +47,8 @@ token_t scanner_get_next(scanner_t* scanner) {
                     error_exit(ERR_LEX);
                 }
 
-                if (isspace(c)) {
+                str_add_char(&scanner->buffer, c);
+                if (scanner->buffer.len == 5) {  // <?php
                     if (strcmp(scanner->buffer.val, "<?php") != 0) {
                         error_exit(ERR_LEX);  // TODO: Check if this error is right
                     } else {
@@ -56,7 +57,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                         break;
                     }
                 }
-                str_add_char(&scanner->buffer, c);
                 break;
             }
             case SC_START: {
@@ -136,7 +136,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                     break;
                 }
 
-                error_not_implemented();
+                error_exit(ERR_LEX);
                 break;
             }
             case SC_ASSIGN: {
@@ -284,11 +284,13 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_MCOMMENT: {
                 if (c == EOF) {
-                    scanner->state = SC_START;
+                    error_exit(ERR_LEX);  // Unterminated comment
                 } else if (c == '*') {
                     const int c2 = fgetc(scanner->input);
                     if (c2 == '/') {
                         scanner->state = SC_START;
+                    } else if (c == EOF) {
+                        error_exit(ERR_LEX);
                     } else {
                         ungetc(c2, scanner->input);
                     }
