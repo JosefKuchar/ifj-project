@@ -3,16 +3,7 @@
 #include "error.h"
 #include "exp.h"
 
-void skip_next(parser_t* parser) {
-    parser->skip_next = true;
-}
-
 void next_token(parser_t* parser) {
-    if (parser->skip_next) {
-        parser->skip_next = false;
-        return;
-    }
-
     token_free(&parser->token);
     parser->token = scanner_get_next(parser->scanner);
 #ifdef DEBUG_TOK
@@ -21,11 +12,6 @@ void next_token(parser_t* parser) {
 }
 
 void next_token_keep(parser_t* parser) {
-    if (parser->skip_next) {
-        parser->skip_next = false;
-        return;
-    }
-
     parser->token = scanner_get_next(parser->scanner);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
@@ -254,15 +240,14 @@ void rule_program(parser_t* parser, parser_state_t state) {
     switch (parser->token.type) {
         case TOK_FUNCTION:
             rule_function(parser, state);
+            next_token(parser);
             break;
         case TOK_EOF:
             return;
         default:
             rule_statement(parser, state);
-            skip_next(parser);
             break;
     }
-    next_token(parser);
     rule_program(parser, state);
 }
 
@@ -291,7 +276,6 @@ void parser_run(parser_t* parser) {
     parser_state_t state = {
         .in_loop = false,
         .in_function = false,
-        .exp = 0,
     };
 
     gen_header(parser->gen);
