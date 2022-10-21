@@ -129,7 +129,7 @@ token_term_t* parse_comparison(stack_t* stack) {
 }
 
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
-    // only ==/!== for formatting reasons
+    // =/!= only for formatting reasons
     /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST .  NI $ */
     {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // +
     {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // -
@@ -161,7 +161,6 @@ int get_precedence(token_t stack_top, token_t input) {
 }
 
 token_term_t* parse_expression(stack_t* stack) {
-    // token_term_t* tok = token_term_new(token_new(TOK_EOF), false);
     if (stack->len == 3) {
         int type = stack->tokens[1]->value.type;
         if (stack->tokens[2]->value.type == TOK_LPAREN) {
@@ -215,12 +214,11 @@ token_term_t* parse_expression(stack_t* stack) {
 void rule_exp(parser_t* parser, parser_state_t state) {
     (void)state;
     stack_t stack = stack_new();
-    stack_push(&stack, token_term_new(token_new(TOK_DOLLAR, 0, 0), true));
     stack_t current_expression = stack_new();
 
+    stack_push(&stack, token_term_new(token_new(TOK_DOLLAR, 0, 0), true));
+
     while (true) {
-        // printf("Comparing tokens: %s and %s\n", token_to_string(parser->token.type),
-        // token_to_string(stack_top_terminal(&stack).token.type));
         int precedence = get_precedence(stack_top_terminal(&stack)->value, parser->token);
 
         token_term_t* token = NULL;

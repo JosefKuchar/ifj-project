@@ -35,11 +35,7 @@ void stack_free(stack_t* stack) {
 }
 
 void stack_empty(stack_t* stack) {
-    // Free the stack
-    // for (int i = 0; i < stack->len; i++) {
-    //     token_term_free(stack->tokens[i]);
-    //     stack->tokens[i] = NULL;
-    // }
+    // Just set length to 0 (this is correct)
     stack->len = 0;
 }
 
@@ -139,7 +135,8 @@ void stack_push_after_terminal(stack_t* stack) {
             for (int j = 1; j < i + 1; j++) {
                 stack->tokens[stack->len - j + 1] = stack->tokens[stack->len - j];
             }
-            stack->tokens[stack->len - i + 1] = token_term_new(token_new(TOK_HANDLE_START, 0, 0), false);
+            stack->tokens[stack->len - i + 1] =
+                token_term_new(token_new(TOK_HANDLE_START, 0, 0), false);
             stack->len++;
 
             return;
