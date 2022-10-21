@@ -240,11 +240,13 @@ void gen_int(gen_t* gen, int val) {
 }
 
 void gen_header(gen_t* gen) {
+    // Program header
     str_add_cstr(&gen->header, ".IFJcode22\n");
+    // Temporary variables for operations
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp1\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp2\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
-
+    // Generate buidin functions
     gen_func_write(gen);
     gen_func_readi(gen);
     gen_func_readf(gen);
@@ -253,59 +255,76 @@ void gen_header(gen_t* gen) {
     gen_func_chr(gen);
     gen_func_ord(gen);
     gen_func_substring(gen);
-
+    // Set current scope
     gen->current = &gen->global;
     gen->current_header = &gen->header;
 }
 
 void gen_footer(gen_t* gen) {
+    // Global exit (success)
     str_add_cstr(&gen->global, "EXIT int@0\n");
+    // Error exits
     str_add_cstr(&gen->global, "LABEL !ERR_CALL\n");
     str_add_cstr(&gen->global, "EXIT int@3\n");  // TODO: Check error code
 }
 
 void gen_if(gen_t* gen, int construct_count) {
+    // Jump to else branch if condition is not met
     str_add_cstr(gen->current, "JUMPIFEQ !else_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
 }
 
 void gen_else(gen_t* gen, int construct_count) {
+    // Jump to if-else end in if branch
     str_add_cstr(gen->current, "JUMP !elseifend_");
     gen_int(gen, construct_count);
     str_add_char(gen->current, '\n');
+    // Else branch label
     str_add_cstr(gen->current, "LABEL !else_");
     gen_int(gen, construct_count);
     str_add_char(gen->current, '\n');
 }
 
 void gen_if_else_end(gen_t* gen, int construct_count) {
+    // If-else end label
     str_add_cstr(gen->current, "LABEL !elseifend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
 void gen_while(gen_t* gen, int construct_count) {
+    // While label
     str_add_cstr(gen->current, "LABEL !while_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
 void gen_while_exit(gen_t* gen, int construct_count) {
+    // Jump to while end if condition is not met
     str_add_cstr(gen->current, "JUMPIFEQ !whileend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
 }
 
 void gen_while_end(gen_t* gen, int construct_count) {
+    // Jump back to while label
     str_add_cstr(gen->current, "JUMP !while_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
+    // Define while end label
     str_add_cstr(gen->current, "LABEL !whileend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
+/**
+ * @brief Generate value (literal / variable) from token
+ *
+ * @param str Destination
+ * @param token Source token
+ * @param in_function Whether are we in function scope
+ */
 void gen_value(str_t* str, token_t* token, bool in_function) {
     switch (token->type) {
         case TOK_INT_LIT: {
@@ -326,6 +345,7 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             str_add_cstr(str, "string@");
             for (size_t i = 0; i < token->attr.val_s.len; i++) {
                 char c = token->attr.val_s.val[i];
+                // These ASCII codes have to be represented with escape sequences
                 if ((c >= 0 && c <= 32) || c == 35 || c == 92) {
                     str_add_char(str, '\\');
                     char buf[5];
@@ -348,6 +368,7 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             str_add_cstr(str, token->attr.val_s.val);
             break;
         default:
+            // Other token types shouldn't be here
             error_exit(ERR_INTERNAL);
     }
 }
@@ -368,38 +389,46 @@ void gen_function(gen_t* gen, token_t* token) {
     str_add_cstr(&gen->function_header, "LABEL ");
     str_add_cstr(&gen->function_header, token->attr.val_s.val);
     str_add_cstr(&gen->function_header, "\n");
+    // Create function frame and return value
     str_add_cstr(&gen->function_header,
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@_tmp1\n");
-
+    // Set scope to function
     gen->current = &gen->function;
     gen->current_header = &gen->function_header;
 }
 
 void gen_function_end(gen_t* gen, htab_fun_t* function) {
+    // Get values from stack to local variables
     for (int i = 0; i < function->param_count; i++) {
+        // Define local variable
         str_add_cstr(&gen->function_header, "DEFVAR LF@");
         str_add_str(&gen->function_header, &function->params[i].name);
         str_add_char(&gen->function_header, '\n');
-
+        // Pop from stack
         str_add_cstr(&gen->function_header, "POPS LF@");
         str_add_str(&gen->function_header, &function->params[i].name);
         str_add_char(&gen->function_header, '\n');
     }
 
+    // Generate default return from function without passing value
     str_add_cstr(&gen->function,
                  "POPFRAME\n"
                  "RETURN\n");
+    // Add our complete function to other functions
     str_add_str(&gen->functions, &gen->function_header);
     str_add_str(&gen->functions, &gen->function);
+    // Clear current function strings
     str_clear(&gen->function_header);
     str_clear(&gen->function);
+    // Set scope back to global
     gen->current = &gen->global;
     gen->current_header = &gen->header;
 }
 
 void gen_return(gen_t* gen) {
+    // Return value that we got from last expression
     str_add_cstr(gen->current,
                  "PUSHS GF@_tmp1\n"  // TODO global scope
                  "POPFRAME\n"
@@ -407,27 +436,34 @@ void gen_return(gen_t* gen) {
 }
 
 void gen_return_void(gen_t* gen) {
+    // Just return without returning value
     str_add_cstr(gen->current,
                  "POPFRAME\n"
                  "RETURN\n");
 }
 
 void gen_function_call(gen_t* gen, bool in_function) {
+    // Include call parameters
     str_add_str(gen->current, &gen->params);
     str_clear(&gen->params);
 
+    // This is special case: If function is "write" (with variable term count)
+    // We push number of terms to stack so the function knows how many there are
     if (strcmp(gen->function_name.val, "write") == 0) {
         str_add_cstr(gen->current, "PUSHS int@");
         gen_int(gen, gen->param_count);
         str_add_char(gen->current, '\n');
     }
 
+    // Do the actual call
     str_add_cstr(gen->current, "CALL ");
     str_add_str(gen->current, &gen->function_name);
     str_add_cstr(gen->current, "\n");
+    // Cleanup
     gen->param_count = 0;
     str_clear(&gen->function_name);
 
+    // Get returned value
     if (strlen(gen->variable.val) != 0) {
         str_add_cstr(gen->current, "POPS ");
         if (in_function) {
@@ -438,35 +474,41 @@ void gen_function_call(gen_t* gen, bool in_function) {
         str_add_str(gen->current, &gen->variable);
         str_add_char(gen->current, '\n');
     }
-
-    str_add_cstr(gen->current, "# CALL END\n");
 }
 
 void gen_function_call_frame(gen_t* gen, token_t* token) {
-    str_add_cstr(gen->current, "# CALL START\n");
     // Check if function is declared
     str_add_cstr(gen->current, "JUMPIFEQ !ERR_CALL bool@false GF@?");
     str_add_cstr(gen->current, token->attr.val_s.val);
     str_add_cstr(gen->current, "$declared\n");
-    // Generate call frame
-    /*
-    str_add_cstr(gen->current, "CREATEFRAME\n");*/
+    // Save function name for future use (actual calling)
     str_add_str(&gen->function_name, &token->attr.val_s);
 }
 
+/**
+ * @brief Generate expression instructions from expression tree (post-order traversal)
+ *
+ * @param gen Generator instance
+ * @param root Root node
+ * @param in_function Whether are we in function
+ */
 void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
+    // Parent is leaf
     if (root == NULL) {
         return;
     }
 
+    // Generate children
     gen_exp_from_tree(gen, root->left, in_function);
     gen_exp_from_tree(gen, root->right, in_function);
 
+    // If token is literal / variable (leaf node) then just generate value
     if (token_is_literal(&root->value) || root->value.type == TOK_VAR) {
         str_add_cstr(gen->current, "PUSHS ");
         gen_value(gen->current, &root->value, in_function);
         str_add_cstr(gen->current, "\n");
     } else {
+        // Do operations
         switch (root->value.type) {
             case TOK_PLUS:
                 str_add_cstr(gen->current, "ADDS\n");
@@ -481,6 +523,8 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                 str_add_cstr(gen->current, "DIVS\n");
                 break;
             case TOK_DOT:
+                // Concat operator ('.') does not have stack instruction so we have to
+                // 2x pop, do concatenation and push final value back...
                 str_add_cstr(gen->current, "POPS GF@_tmp1\n");
                 str_add_cstr(gen->current, "POPS GF@_tmp2\n");
                 str_add_cstr(gen->current, "CONCAT GF@_tmp3 GF@_tmp2 GF@_tmp1\n");
@@ -497,6 +541,7 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                 str_add_cstr(gen->current, "LTS\n");
                 break;
             case TOK_LESS_E:
+                // Less-than-equals is negated greater-than
                 str_add_cstr(gen->current, "GTS\n");
                 str_add_cstr(gen->current, "NOTS\n");
                 break;
@@ -504,22 +549,25 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                 str_add_cstr(gen->current, "GTS\n");
                 break;
             case TOK_GREATER_E:
+                // Greater-than-equals is negated less-than
                 str_add_cstr(gen->current, "LTS\n");
                 str_add_cstr(gen->current, "NOTS\n");
                 break;
             default:
-                str_add_cstr(gen->current, "Not implemented yet\n");
+                // This shouldn't happen
+                error_not_implemented();
         }
     }
-
-    // token_print(&root->value);
 }
 
 void gen_exp(gen_t* gen, token_term_t* root, bool in_function) {
+    // Generate actual expression from tree
     gen_exp_from_tree(gen, root, in_function);
 
+    // Return expression / expression without assignment
     if (gen->variable.len == 0) {
         str_add_cstr(gen->current, "POPS GF@_tmp1\n");
+        // Assign (pop from stack) expression result to saved variable name
     } else {
         if (in_function) {
             str_add_cstr(gen->current, "POPS LF@");
@@ -532,6 +580,9 @@ void gen_exp(gen_t* gen, token_term_t* root, bool in_function) {
 }
 
 void gen_function_call_param(gen_t* gen, token_t* token, bool in_function) {
+    // Add instruction parameters to stack
+    // We have to push them in reverse order
+    // TODO: Rewrite this, this is ugly
     str_t str = str_new();
     str_add_cstr(&str, "PUSHS ");
     gen_value(&str, token, in_function);
@@ -545,6 +596,7 @@ void gen_function_call_param(gen_t* gen, token_t* token, bool in_function) {
 }
 
 void gen_variable_def(gen_t* gen, token_t* token, bool in_function) {
+    // Define new variable based on scope
     str_add_cstr(gen->current_header, "DEFVAR ");
     if (in_function) {
         str_add_cstr(gen->current_header, "LF@");
