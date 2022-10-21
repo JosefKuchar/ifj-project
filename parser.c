@@ -3,14 +3,6 @@
 #include "error.h"
 #include "exp.h"
 
-void next_token(parser_t* parser) {
-    token_free(&parser->token);
-    parser->token = scanner_get_next(parser->scanner);
-#ifdef DEBUG_TOK
-    token_print(&parser->token);
-#endif  // DEBUG_TOK
-}
-
 void next_token_keep(parser_t* parser) {
     parser->token = scanner_get_next(parser->scanner);
 #ifdef DEBUG_TOK
@@ -18,19 +10,57 @@ void next_token_keep(parser_t* parser) {
 #endif  // DEBUG_TOK
 }
 
+/**
+ * @brief Get next token from scanner and save it into parser instance
+ * Frees the previous token
+ *
+ * @param parser Parser instance
+ */
+void next_token(parser_t* parser) {
+    token_free(&parser->token);
+    next_token_keep(parser);
+}
+
+/**
+ * @brief Check if current token is of given type
+ *
+ * @param parser Parser instance
+ * @param type Checked token
+ * @return true if current token is of given type
+ */
 bool token_is_type(parser_t* parser, token_type_t type) {
     return parser->token.type == type;
 }
 
+/**
+ * @brief Check if next token is of given type
+ *
+ * @param parser Parser instance
+ * @param type Checked token
+ * @return true if next token is of given type
+ */
 bool next_token_is_type(parser_t* parser, token_type_t type) {
     next_token(parser);
     return token_is_type(parser, type);
 }
 
+/**
+ * @brief Check if current token is accepted by given function
+ *
+ * @param parser Parser instance
+ * @param check_function Checker function
+ * @return true if current token is accepted by given function
+ */
 bool token_check_by_function(parser_t* parser, bool (*check_function)(token_t*)) {
     return check_function(&parser->token);
 }
 
+/**
+ * @brief Check if current token is of given type, if not, throw error
+ *
+ * @param parser Parser instance
+ * @param type Token type
+ */
 void token_check_type(parser_t* parser, token_type_t type) {
     if (!token_is_type(parser, type)) {
 #ifdef DEBUG_TOK
@@ -41,11 +71,23 @@ void token_check_type(parser_t* parser, token_type_t type) {
     }
 }
 
+/**
+ * @brief Check if next token is of given type, if not, throw error
+ *
+ * @param parser Parser instance
+ * @param type Token type
+ */
 void next_token_check_type(parser_t* parser, token_type_t type) {
     next_token(parser);
     token_check_type(parser, type);
 }
 
+/**
+ * @brief Check if next token is accepted by given function, if not, throw error
+ *
+ * @param parser  Parser instance
+ * @param check_function Checker function
+ */
 void next_token_check_by_function(parser_t* parser, bool (*check_function)(token_t*)) {
     next_token(parser);
     if (!token_check_by_function(parser, check_function)) {
@@ -53,6 +95,12 @@ void next_token_check_by_function(parser_t* parser, bool (*check_function)(token
     }
 }
 
+/**
+ * @brief Increment construct count both in parser instance and recursive state
+ *
+ * @param parser Parser instance
+ * @param state Recursive state
+ */
 void increment_construct_count(parser_t* parser, parser_state_t* state) {
     state->construct_count = parser->construct_count;
     parser->construct_count++;

@@ -15,7 +15,7 @@ typedef struct {
     htab_t* global_symtable;     // Global symbol table
     htab_pair_t* function;       // Current function
     htab_pair_t* function_call;  // Current function call
-    int construct_count;
+    int construct_count;         // Counter of if/else/while constructs (for generator)
 } parser_t;
 
 typedef struct {
@@ -44,24 +44,6 @@ void parser_free(parser_t* state);
  *
  */
 void parser_run(parser_t* state);
-
-/**
- * @brief Checks whether current token is of type
- *
- * @param parser Instance of parser
- * @param type Type to be compared against
- *
- * @return Result of the comparison
- */
-bool token_is_type(parser_t* parser, token_type_t type);
-
-/**
- * @brief Asks scanner for next token and frees the previous one
- *
- * @param parser Instance of parser
- */
-
-void next_token(parser_t* parser);
 
 /**
  * @brief Asks scanner for next token and keeps the previous one
