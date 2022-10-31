@@ -1,3 +1,12 @@
+/**
+ * @file symtable.h
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Header file for symbol table
+ */
+
 #ifndef __SYMTABLE_H__
 #define __SYMTABLE_H__
 

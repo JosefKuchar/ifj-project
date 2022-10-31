@@ -1,3 +1,12 @@
+/**
+ * @file str.h
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Declaration of helper functions for working with dynamic strings
+ */
+
 #ifndef __STR_H__
 #define __STR_H__
 

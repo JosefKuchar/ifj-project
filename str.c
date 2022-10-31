@@ -1,3 +1,12 @@
+/**
+ * @file str.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Implementation of helper functions for working with dynamic strings
+ */
+
 #include "str.h"
 #include <stdio.h>
 #include <stdlib.h>

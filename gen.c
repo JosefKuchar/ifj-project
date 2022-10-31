@@ -1,3 +1,12 @@
+/**
+ * @file gen.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief IFJ22 code generator
+ */
+
 #include "gen.h"
 #include <stdio.h>
 #include <string.h>

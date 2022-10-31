@@ -1,3 +1,12 @@
+/**
+ * @file symtable.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Symbol table implementation using hash table
+ */
+
 #include "symtable.h"
 #include <stdint.h>
 #include <stdio.h>
