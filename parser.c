@@ -1,3 +1,12 @@
+/**
+ * @file parser.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Semantic and syntax parser
+ */
+
 #include "parser.h"
 #include <stdio.h>
 #include "error.h"

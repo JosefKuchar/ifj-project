@@ -1,3 +1,12 @@
+/**
+ * @file token.h
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Declaration of token functions
+ */
+
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 

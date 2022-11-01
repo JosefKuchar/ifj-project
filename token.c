@@ -1,3 +1,12 @@
+/**
+ * @file token.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Implementation of token functions
+ */
+
 #include "token.h"
 #include <ctype.h>
 #include <math.h>

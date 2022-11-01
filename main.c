@@ -1,3 +1,12 @@
+/**
+ * @file main.c
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Entry point of IFJ22 compiler
+ */
+
 #include <stdio.h>
 #include "error.h"
 #include "gen.h"
