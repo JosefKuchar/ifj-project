@@ -443,7 +443,7 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
 
     // No return where expected
     if (function->returns.type != TOK_VOID && function->returns.required != false) {
-        str_add_cstr(&gen->function_header, "JUMP !ERR_SEM_CALL\n");
+        str_add_cstr(&gen->function, "JUMP !ERR_SEM_CALL\n");
     }
 
     // Generate default return from function without passing value
@@ -485,7 +485,7 @@ void gen_return_void(gen_t* gen, htab_fun_t* function) {
     if (function != NULL) {
         // Check if we can return without value
         if (function->returns.type != TOK_VOID && function->returns.required != false) {
-            str_add_cstr(gen->current_header, "JUMP !ERR_SEM_CALL\n");
+            str_add_cstr(gen->current, "JUMP !ERR_SEM_RET\n");
         }
 
         // Just return without returning value
