@@ -255,6 +255,7 @@ void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp1\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp2\n");
     str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@_type\n");
     // Generate buidin functions
     gen_func_write(gen);
     gen_func_readi(gen);
@@ -275,6 +276,8 @@ void gen_footer(gen_t* gen) {
     // Error exits
     str_add_cstr(&gen->global, "LABEL !ERR_CALL\n");
     str_add_cstr(&gen->global, "EXIT int@3\n");  // TODO: Check error code
+    str_add_cstr(&gen->global, "LABEL !ERR_SEM_VAR\n");
+    str_add_cstr(&gen->global, "EXIT int@5\n");
 }
 
 void gen_if(gen_t* gen, int construct_count) {
@@ -337,6 +340,7 @@ void gen_while_end(gen_t* gen, int construct_count) {
 void gen_value(str_t* str, token_t* token, bool in_function) {
     switch (token->type) {
         case TOK_INT_LIT: {
+            str_add_cstr(str, "PUSHS ");
             str_add_cstr(str, "int@");
             char buf[16];
             sprintf(buf, "%d", token->attr.val_i);
@@ -344,6 +348,7 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             break;
         }
         case TOK_FLOAT_LIT: {
+            str_add_cstr(str, "PUSHS ");
             str_add_cstr(str, "float@");
             char buf[32];
             sprintf(buf, "%a", token->attr.val_f);
@@ -351,6 +356,7 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             break;
         }
         case TOK_STR_LIT:
+            str_add_cstr(str, "PUSHS ");
             str_add_cstr(str, "string@");
             for (size_t i = 0; i < token->attr.val_s.len; i++) {
                 char c = token->attr.val_s.val[i];
@@ -366,15 +372,25 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             }
             break;
         case TOK_NULL:
+            str_add_cstr(str, "PUSHS ");
             str_add_cstr(str, "nil@nil");
             break;
         case TOK_VAR:
+            str_add_cstr(str, "TYPE GF@_type ");
             if (in_function) {
                 str_add_cstr(str, "LF@");
             } else {
                 str_add_cstr(str, "GF@");
             }
-            str_add_cstr(str, token->attr.val_s.val);
+            str_add_str(str, &token->attr.val_s);
+            str_add_cstr(str, "\nJUMPIFEQ !ERR_SEM_VAR string@ GF@_type\n");
+            str_add_cstr(str, "PUSHS ");
+            if (in_function) {
+                str_add_cstr(str, "LF@");
+            } else {
+                str_add_cstr(str, "GF@");
+            }
+            str_add_str(str, &token->attr.val_s);
             break;
         default:
             // Other token types shouldn't be here
@@ -523,7 +539,6 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
 
     // If token is literal / variable (leaf node) then just generate value
     if (token_is_literal(&root->value) || root->value.type == TOK_VAR) {
-        str_add_cstr(gen->current, "PUSHS ");
         gen_value(gen->current, &root->value, in_function);
         str_add_cstr(gen->current, "\n");
     } else {
@@ -603,7 +618,6 @@ void gen_function_call_param(gen_t* gen, token_t* token, bool in_function) {
     // We have to push them in reverse order
     // TODO: Rewrite this, this is ugly
     str_t str = str_new();
-    str_add_cstr(&str, "PUSHS ");
     gen_value(&str, token, in_function);
     str_add_cstr(&str, "\n");
     str_add_str(&str, &gen->params);
