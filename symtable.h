@@ -31,9 +31,15 @@ typedef struct {
 } htab_param_t;
 
 typedef struct {
+    token_type_t type;
+    bool required;
+} htab_return_t;
+
+typedef struct {
     int param_count;
     bool defined;
     htab_param_t* params;
+    htab_return_t returns;
 } htab_fun_t;
 
 typedef const char* htab_key_t;  // Key type
@@ -140,5 +146,7 @@ void htab_clear(htab_t* t);
  * @param t Hash table
  */
 void htab_free(htab_t* t);
+
+void htab_define_buildin(htab_t* t);
 
 #endif  // __SYMTABLE_H__

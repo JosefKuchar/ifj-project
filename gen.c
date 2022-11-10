@@ -66,7 +66,7 @@ void gen_func_readi(gen_t* gen) {
 }
 
 /**
- * @brief function readf() : ?int
+ * @brief function readf() : ?float
  * Reads a float from the standard input.
  * Returns null if input is invalid.
  *
@@ -89,7 +89,7 @@ void gen_func_readf(gen_t* gen) {
 }
 
 /**
- * @brief function readf() : ?int
+ * @brief function reads() : ?string
  * Reads a string from the standard input.
  * Returns null if input is invalid.
  *

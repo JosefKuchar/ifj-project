@@ -77,4 +77,4 @@ examples: main
 	cd examples && ./examples.sh
 
 jirka_tests: main
-	cd IFJ22_Tester && python3 test.py ../main
+	cd IFJ22_Tester && python3 test.py ../main ../ic22int

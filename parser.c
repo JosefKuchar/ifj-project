@@ -116,10 +116,15 @@ void increment_construct_count(parser_t* parser, parser_state_t* state) {
 }
 
 parser_t parser_new(scanner_t* scanner, gen_t* gen) {
-    return (parser_t){.scanner = scanner,
-                      .gen = gen,
-                      .local_symtable = htab_new(),
-                      .global_symtable = htab_new()};
+    parser_t parser = {.scanner = scanner,
+                       .gen = gen,
+                       .local_symtable = htab_new(),
+                       .global_symtable = htab_new()};
+
+    // Define buildin functions
+    htab_define_buildin(parser.global_symtable);
+
+    return parser;
 }
 
 void parser_free(parser_t* parser) {

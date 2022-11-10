@@ -327,3 +327,108 @@ size_t htab_size(const htab_t* t) {
 
     return t->size;
 }
+
+void htab_define_buildin(htab_t* t) {
+    htab_param_t* params;
+
+    // write
+    htab_add(t, "write",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 0, .defined = true, .returns = {.type = TOK_VOID}}});
+
+    // readi
+    htab_add(t, "readi",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 0,
+                              .defined = true,
+                              .returns = {.type = TOK_INT, .required = false}},
+             });
+
+    // readf
+    htab_add(t, "readf",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 0,
+                              .defined = true,
+                              .returns = {.type = TOK_FLOAT, .required = false}},
+             });
+
+    // reads
+    htab_add(t, "reads",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 0,
+                              .defined = true,
+                              .returns = {.type = TOK_STRING, .required = false}},
+             });
+
+    // strlen
+    params = malloc(sizeof(htab_param_t));
+    if (params == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    params[0].type = TOK_STRING;
+    params[0].required = true;
+    htab_add(t, "strlen",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_INT, .required = true}},
+             });
+
+    // chr
+    params = malloc(sizeof(htab_param_t));
+    if (params == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    params[0].type = TOK_INT;
+    params[0].required = true;
+    htab_add(t, "chr",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_STRING, .required = true}},
+             });
+
+    // ord
+    params = malloc(sizeof(htab_param_t));
+    if (params == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    params[0].type = TOK_STRING;
+    params[0].required = true;
+    htab_add(t, "ord",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_INT, .required = true}},
+             });
+
+    // substring
+    params = malloc(3 * sizeof(htab_param_t));
+    if (params == NULL) {
+        error_exit(ERR_INTERNAL);
+    }
+    params[0].type = TOK_STRING;
+    params[0].required = true;
+    params[1].type = TOK_INT;
+    params[1].required = true;
+    params[2].type = TOK_INT;
+    params[2].required = true;
+    htab_add(t, "substring",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 3,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_STRING, .required = true}},
+             });
+}
