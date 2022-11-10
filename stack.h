@@ -1,3 +1,12 @@
+/**
+ * @file stack.h
+ * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+ * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+ * @author Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+ * @author Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+ * @brief Declarations of helper functions for working with stack
+ */
+
 #ifndef __STACK_H__
 #define __STACK_H__
 
