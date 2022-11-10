@@ -306,6 +306,12 @@ void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
         str_new_from_str(&token->attr.val_s);
 }
 
+void htab_function_add_return_type(htab_pair_t* fun, token_t* token) {
+    // Set return type
+    fun->value.function.returns.type = token->type;
+    fun->value.function.returns.required = !token->attr.val_b;
+}
+
 bool htab_add_variable(htab_t* t, token_t* token) {
     // Check if variable is already defined
     if (htab_find(t, token->attr.val_s.val) != NULL) {

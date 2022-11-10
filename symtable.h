@@ -129,6 +129,8 @@ void htab_function_add_param(htab_pair_t* fun, token_t* token);
  */
 void htab_function_add_param_name(htab_pair_t* fun, token_t* token);
 
+void htab_function_add_return_type(htab_pair_t* fun, token_t* token);
+
 bool htab_add_variable(htab_t* t, token_t* token);
 
 void htab_for_each(const htab_t* t, void (*f)(htab_pair_t* data));

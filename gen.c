@@ -276,8 +276,12 @@ void gen_footer(gen_t* gen) {
     // Error exits
     str_add_cstr(&gen->global, "LABEL !ERR_CALL\n");
     str_add_cstr(&gen->global, "EXIT int@3\n");  // TODO: Check error code
+    str_add_cstr(&gen->global, "LABEL !ERR_SEM_CALL\n");
+    str_add_cstr(&gen->global, "EXIT int@4\n");
     str_add_cstr(&gen->global, "LABEL !ERR_SEM_VAR\n");
     str_add_cstr(&gen->global, "EXIT int@5\n");
+    str_add_cstr(&gen->global, "LABEL !ERR_SEM_RET\n");
+    str_add_cstr(&gen->global, "EXIT int@6\n");
 }
 
 void gen_if(gen_t* gen, int construct_count) {
@@ -437,6 +441,11 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
         str_add_char(&gen->function_header, '\n');
     }
 
+    // No return where expected
+    if (function->returns.type != TOK_VOID && function->returns.required != false) {
+        str_add_cstr(&gen->function_header, "JUMP !ERR_SEM_CALL\n");
+    }
+
     // Generate default return from function without passing value
     str_add_cstr(&gen->function,
                  "POPFRAME\n"
@@ -452,8 +461,15 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
     gen->current_header = &gen->header;
 }
 
-void gen_return(gen_t* gen, bool in_function) {
-    if (in_function) {
+void gen_return(gen_t* gen, htab_fun_t* function) {
+    if (function != NULL) {
+        // Check if function returns value
+        if (function->returns.type == TOK_VOID) {
+            str_add_cstr(gen->current_header, "JUMP !ERR_SEM_RET\n");
+        }
+
+        // Check return value type
+
         // Return value that we got from last expression
         str_add_cstr(gen->current,
                      "PUSHS GF@_tmp1\n"
@@ -465,8 +481,13 @@ void gen_return(gen_t* gen, bool in_function) {
     }
 }
 
-void gen_return_void(gen_t* gen, bool in_function) {
-    if (in_function) {
+void gen_return_void(gen_t* gen, htab_fun_t* function) {
+    if (function != NULL) {
+        // Check if we can return without value
+        if (function->returns.type != TOK_VOID && function->returns.required != false) {
+            str_add_cstr(gen->current_header, "JUMP !ERR_SEM_CALL\n");
+        }
+
         // Just return without returning value
         str_add_cstr(gen->current,
                      "POPFRAME\n"

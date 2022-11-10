@@ -170,13 +170,13 @@ void gen_exp(gen_t* gen, token_term_t* root, bool in_function);
  *
  * @param gen Generator instance
  */
-void gen_return(gen_t* gen, bool in_function);
+void gen_return(gen_t* gen, htab_fun_t* function);
 
 /**
  * @brief Generator return (without value)
  *
  * @param gen Generator instance
  */
-void gen_return_void(gen_t* gen, bool in_function);
+void gen_return_void(gen_t* gen, htab_fun_t* function);
 
 #endif  // __GEN_H__
