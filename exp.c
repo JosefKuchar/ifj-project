@@ -63,6 +63,12 @@ token_term_t* parse_arithmetic(stack_t* stack) {
 
     token_type_t a = stack->tokens[0]->result;
     token_type_t b = stack->tokens[2]->result;
+
+    if (a == TOK_VAR || b == TOK_VAR) {
+        new->result = TOK_VAR;
+        return new;
+    }
+
     if (a == TOK_FLOAT_LIT || b == TOK_FLOAT_LIT) {
         if (!type_is_number(a) || !type_is_number(b)) {
             error_exit(ERR_SYN);
@@ -73,10 +79,6 @@ token_term_t* parse_arithmetic(stack_t* stack) {
 
     if (a == TOK_INT_LIT && b == TOK_INT_LIT) {
         new->result = TOK_INT_LIT;
-        return new;
-    }
-    if (a == TOK_VAR || b == TOK_VAR) {  // TODO: fix type checks on vars
-        new->result = TOK_VAR;
         return new;
     }
     error_exit(ERR_SYN);
