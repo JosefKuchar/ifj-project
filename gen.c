@@ -436,19 +436,29 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
     gen->current_header = &gen->header;
 }
 
-void gen_return(gen_t* gen) {
-    // Return value that we got from last expression
-    str_add_cstr(gen->current,
-                 "PUSHS GF@_tmp1\n"  // TODO global scope
-                 "POPFRAME\n"
-                 "RETURN\n");
+void gen_return(gen_t* gen, bool in_function) {
+    if (in_function) {
+        // Return value that we got from last expression
+        str_add_cstr(gen->current,
+                     "PUSHS GF@_tmp1\n"  // TODO global scope
+                     "POPFRAME\n"
+                     "RETURN\n");
+    } else {
+        // Return from main scope
+        str_add_cstr(gen->current, "EXIT int@0\n");
+    }
 }
 
-void gen_return_void(gen_t* gen) {
-    // Just return without returning value
-    str_add_cstr(gen->current,
-                 "POPFRAME\n"
-                 "RETURN\n");
+void gen_return_void(gen_t* gen, bool in_function) {
+    if (in_function) {
+        // Just return without returning value
+        str_add_cstr(gen->current,
+                     "POPFRAME\n"
+                     "RETURN\n");
+    } else {
+        // Return from main scope
+        str_add_cstr(gen->current, "EXIT int@0\n");
+    }
 }
 
 void gen_function_call(gen_t* gen, bool in_function) {

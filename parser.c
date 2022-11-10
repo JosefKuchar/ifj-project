@@ -259,19 +259,19 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             token_check_type(parser, TOK_RBRACE);                // }
             gen_while_end(parser->gen, state.construct_count);   //
             break;
-        case TOK_FUN_NAME:                              // function_name
-            str_clear(&parser->gen->variable);          //
-            rule_function_call(parser, state);          // <function_call>
-            break;                                      //
-        case TOK_RETURN:                                // return
-            str_clear(&parser->gen->variable);          //
-            next_token(parser);                         //
-            if (parser->token.type == TOK_SEMICOLON) {  //
-                gen_return_void(parser->gen);           // [;]
-                break;                                  //
-            }                                           //
-            rule_value(parser, state);                  // <value>
-            gen_return(parser->gen);                    //
+        case TOK_FUN_NAME:                                        // function_name
+            str_clear(&parser->gen->variable);                    //
+            rule_function_call(parser, state);                    // <function_call>
+            break;                                                //
+        case TOK_RETURN:                                          // return
+            str_clear(&parser->gen->variable);                    //
+            next_token(parser);                                   //
+            if (parser->token.type == TOK_SEMICOLON) {            //
+                gen_return_void(parser->gen, state.in_function);  // [;]
+                break;                                            //
+            }                                                     //
+            rule_value(parser, state);                            // <value>
+            gen_return(parser->gen, state.in_function);           //
             break;
         default:
             if (token_is_expression(&parser->token)) {    //
