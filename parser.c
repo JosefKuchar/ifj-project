@@ -12,8 +12,20 @@
 #include "error.h"
 #include "exp.h"
 
-void next_token_keep(parser_t* parser) {
+void check_variable_exists(parser_t* parser, parser_state_t state) {
+    if (parser->token.type == TOK_VAR) {
+        htab_pair_t* value =
+            htab_find(state.in_function ? parser->local_symtable : parser->global_symtable,
+                      parser->token.attr.val_s.val);
+        if (value == NULL) {
+            error_exit(ERR_SEM_VAR);
+        }
+    }
+}
+
+void next_token_keep(parser_t* parser, parser_state_t state) {
     parser->token = scanner_get_next(parser->scanner);
+    check_variable_exists(parser, state);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
 #endif  // DEBUG_TOK
@@ -27,7 +39,7 @@ void next_token_keep(parser_t* parser) {
  */
 void next_token(parser_t* parser) {
     token_free(&parser->token);
-    next_token_keep(parser);
+    parser->token = scanner_get_next(parser->scanner);
 }
 
 /**
@@ -166,6 +178,7 @@ void rule_additional_call_param(parser_t* parser, parser_state_t state) {
             !token_is_literal(&parser->token)) {                     //
             error_exit(ERR_SYN);                                     //
         }                                                            //
+        check_variable_exists(parser, state);                        //
         gen_function_call_param(parser->gen,                         //
                                 &parser->token, state.in_function);  //
         rule_additional_call_param(parser, state);                   // <additional_call_param>
@@ -177,6 +190,7 @@ void rule_call_param(parser_t* parser, parser_state_t state) {
     next_token(parser);
     if (token_is_type(parser, TOK_VAR) ||                            // $var | literal
         token_is_literal(&parser->token)) {                          //
+        check_variable_exists(parser, state);                        //
         gen_function_call_param(parser->gen,                         //
                                 &parser->token, state.in_function);  //
         rule_additional_call_param(parser, state);                   // <additional_call_param>

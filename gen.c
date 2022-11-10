@@ -440,7 +440,7 @@ void gen_return(gen_t* gen, bool in_function) {
     if (in_function) {
         // Return value that we got from last expression
         str_add_cstr(gen->current,
-                     "PUSHS GF@_tmp1\n"  // TODO global scope
+                     "PUSHS GF@_tmp1\n"
                      "POPFRAME\n"
                      "RETURN\n");
     } else {

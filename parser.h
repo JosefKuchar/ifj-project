@@ -59,6 +59,6 @@ void parser_run(parser_t* state);
  *
  * @param parser Instance of parser
  */
-void next_token_keep(parser_t* parser);
+void next_token_keep(parser_t* parser, parser_state_t state);
 
 #endif  // __PARSER_H__
