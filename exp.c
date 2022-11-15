@@ -73,6 +73,13 @@ token_term_t* parse_arithmetic(stack_t* stack) {
     token_type_t a = stack->tokens[0]->result;
     token_type_t b = stack->tokens[2]->result;
 
+    if (a == TOK_NULL) {
+        a = TOK_INT_LIT;
+    }
+    if (b == TOK_NULL) {
+        b = TOK_INT_LIT;
+    }
+
     if (a == TOK_VAR || b == TOK_VAR) {
         new->result = TOK_VAR;
         return new;
