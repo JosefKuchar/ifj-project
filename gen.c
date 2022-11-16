@@ -183,6 +183,83 @@ void gen_func_ord(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_func_floatval(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?floatval$declared\n"
+                 "MOVE GF@?floatval$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL floatval\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"  // Get term
+                 "TYPE GF@_type1 LF@tmp\n"
+                 "JUMPIFEQ !floatval_null string@nil GF@_type1\n"   // null
+                 "JUMPIFEQ !floatval_int string@int GF@_type1\n"    // int
+                 "JUMPIFEQ !floatval_end string@float GF@_type1\n"  // float
+                 "JUMP !ERR_SEM_COMP\n"
+                 "LABEL !floatval_null\n"
+                 "MOVE LF@tmp float@0x0p+0\n"  // null -> 0.0
+                 "JUMP !floatval_end\n"
+                 "LABEL !floatval_int\n"
+                 "INT2FLOAT LF@tmp LF@tmp\n"  // int -> float
+                 "LABEL !floatval_end\n"
+                 "PUSHS LF@tmp\n"  // Return
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_intval(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?intval$declared\n"
+                 "MOVE GF@?intval$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL intval\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"  // Get term
+                 "TYPE GF@_type1 LF@tmp\n"
+                 "JUMPIFEQ !intval_null string@nil GF@_type1\n"     // null
+                 "JUMPIFEQ !intval_end string@int GF@_type1\n"      // int
+                 "JUMPIFEQ !intval_float string@float GF@_type1\n"  // float
+                 "JUMP !ERR_SEM_COMP\n"
+                 "LABEL !intval_null\n"
+                 "MOVE LF@tmp int@0\n"  // null -> 0
+                 "JUMP !intval_end\n"
+                 "LABEL !intval_float\n"
+                 "FLOAT2INT LF@tmp LF@tmp\n"  // float -> int
+                 "LABEL !intval_end\n"
+                 "PUSHS LF@tmp\n"  // Return
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
+void gen_func_strval(gen_t* gen) {
+    str_add_cstr(&gen->header,
+                 "DEFVAR GF@?strval$declared\n"
+                 "MOVE GF@?strval$declared bool@true\n");
+
+    str_add_cstr(&gen->functions,
+                 "LABEL strval\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "DEFVAR LF@tmp\n"
+                 "POPS LF@tmp\n"  // Get term
+                 "TYPE GF@_type1 LF@tmp\n"
+                 "JUMPIFEQ !strval_null string@nil GF@_type1\n"    // null
+                 "JUMPIFEQ !strval_end string@string GF@_type1\n"  // string
+                 "JUMP !ERR_SEM_COMP\n"
+                 "LABEL !strval_null\n"
+                 "MOVE LF@tmp string@\n"  // null -> ""
+                 "LABEL !strval_end\n"
+                 "PUSHS LF@tmp\n"  // Return
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 /**
  * @brief function substring(string $s, int $i, int $j) : ?string
  * Returns substring of $s starting at $i and ending at $j.
@@ -396,6 +473,9 @@ void gen_header(gen_t* gen) {
     gen_func_chr(gen);
     gen_func_ord(gen);
     gen_func_substring(gen);
+    gen_func_floatval(gen);
+    gen_func_intval(gen);
+    gen_func_strval(gen);
     // Generate helper functions
     gen_to_float(gen);
     gen_to_float_div(gen);

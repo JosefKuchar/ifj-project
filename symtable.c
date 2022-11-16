@@ -437,4 +437,38 @@ void htab_define_buildin(htab_t* t) {
                               .params = params,
                               .returns = {.type = TOK_STRING, .required = true}},
              });
+    // floatval
+    params = malloc(sizeof(htab_param_t));
+    params[0].required = true;
+    htab_add(t, "floatval",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_FLOAT, .required = true}},
+             });
+
+    // intval
+    params = malloc(sizeof(htab_param_t));
+    params[0].required = true;
+    htab_add(t, "intval",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_INT, .required = true}},
+             });
+    // strval
+    params = malloc(sizeof(htab_param_t));
+    params[0].required = true;
+    htab_add(t, "strval",
+             (htab_value_t){
+                 .type = HTAB_FUNCTION,
+                 .function = {.param_count = 1,
+                              .defined = true,
+                              .params = params,
+                              .returns = {.type = TOK_STRING, .required = true}},
+             });
 }
