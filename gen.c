@@ -434,6 +434,38 @@ void gen_to_str(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_to_bool(gen_t* gen) {
+    str_add_cstr(&gen->functions,
+                 "LABEL !to_bool\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "TYPE GF@_type1 GF@_tmp1\n"
+                 "JUMPIFEQ !to_bool_string string@string GF@_type1\n"
+                 "JUMPIFEQ !to_bool_int string@int GF@_type1\n"
+                 "JUMPIFEQ !to_bool_float string@float GF@_type1\n"
+                 "JUMPIFEQ !to_bool_false string@nil GF@_type1\n"
+                 "POPFRAME\n"
+                 "RETURN\n"
+                 "LABEL !to_bool_string\n"
+                 "JUMPIFEQ !to_bool_false string@ GF@_tmp1\n"
+                 "JUMPIFEQ !to_bool_false string@0 GF@_tmp1\n"
+                 "JUMP !to_bool_true\n"
+                 "LABEL !to_bool_int\n"
+                 "JUMPIFEQ !to_bool_false int@0 GF@_tmp1\n"
+                 "JUMP !to_bool_true\n"
+                 "LABEL !to_bool_float\n"
+                 "JUMPIFEQ !to_bool_false float@0x0p+0 GF@_tmp1\n"
+                 "JUMP !to_bool_true\n"
+                 "LABEL !to_bool_false\n"
+                 "MOVE GF@_tmp1 bool@false\n"
+                 "POPFRAME\n"
+                 "RETURN\n"
+                 "LABEL !to_bool_true\n"
+                 "MOVE GF@_tmp1 bool@true\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 gen_t gen_new() {
     gen_t gen = {
         .header = str_new(),
@@ -480,6 +512,7 @@ void gen_header(gen_t* gen) {
     gen_to_float(gen);
     gen_to_float_div(gen);
     gen_to_str(gen);
+    gen_to_bool(gen);
     // Set current scope
     gen->current = &gen->global;
     gen->current_header = &gen->header;
@@ -504,7 +537,9 @@ void gen_footer(gen_t* gen) {
 
 void gen_if(gen_t* gen, int construct_count) {
     // Jump to else branch if condition is not met
-    str_add_cstr(gen->current, "JUMPIFEQ !else_");
+    str_add_cstr(gen->current,
+                 "CALL !to_bool\n"
+                 "JUMPIFEQ !else_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
 }
@@ -536,7 +571,9 @@ void gen_while(gen_t* gen, int construct_count) {
 
 void gen_while_exit(gen_t* gen, int construct_count) {
     // Jump to while end if condition is not met
-    str_add_cstr(gen->current, "JUMPIFEQ !whileend_");
+    str_add_cstr(gen->current,
+                 "CALL !to_bool\n"
+                 "JUMPIFEQ !whileend_");
     gen_int(gen, construct_count);
     str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
 }
