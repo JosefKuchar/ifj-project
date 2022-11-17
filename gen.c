@@ -77,7 +77,7 @@ void gen_footer(gen_t* gen) {
     str_add_cstr(&gen->global,
                  "LABEL !ERR_CALL\n"
                  "EXIT int@3\n"
-                 "LABEL !ERR_SEM_FUN\n"
+                 "LABEL !ERR_SEM_CALL\n"
                  "EXIT int@4\n"
                  "LABEL !ERR_SEM_VAR\n"
                  "EXIT int@5\n"
@@ -248,13 +248,30 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
         str_add_char(&gen->function_header, '\n');
     }
 
+    str_add_cstr(&gen->function_header, "DEFVAR LF@?rettype\n");
+    switch (function->returns.type) {
+        case TOK_INT:
+            str_add_cstr(&gen->function_header, "MOVE LF@?rettype string@int\n");
+            break;
+        case TOK_FLOAT:
+            str_add_cstr(&gen->function_header, "MOVE LF@?rettype string@float\n");
+            break;
+        case TOK_STRING:
+            str_add_cstr(&gen->function_header, "MOVE LF@?rettype string@string\n");
+            break;
+        default:
+            str_add_cstr(&gen->function_header, "MOVE LF@?rettype string@nil\n");
+            break;
+    }
+
     // No return where expected
     if (function->returns.type != TOK_VOID && function->returns.required != false) {
-        str_add_cstr(&gen->function, "JUMP !ERR_SEM_FUN\n");
+        str_add_cstr(&gen->function, "JUMP !ERR_SEM_CALL\n");
     }
 
     // Generate default return from function without passing value
     str_add_cstr(&gen->function,
+                 "PUSHS nil@nil\n"
                  "POPFRAME\n"
                  "RETURN\n");
     // Add our complete function to other functions
@@ -276,9 +293,10 @@ void gen_return(gen_t* gen, htab_fun_t* function) {
         }
 
         // Check return value type
-
         // Return value that we got from last expression
         str_add_cstr(gen->current,
+                     "TYPE GF@?type1 GF@?tmp1\n"
+                     "JUMPIFNEQ !ERR_SEM_CALL LF@?rettype GF@?type1\n"
                      "PUSHS GF@?tmp1\n"
                      "POPFRAME\n"
                      "RETURN\n");
@@ -295,8 +313,9 @@ void gen_return_void(gen_t* gen, htab_fun_t* function) {
             str_add_cstr(gen->current, "JUMP !ERR_SEM_RET\n");
         }
 
-        // Just return without returning value
+        // Just return without returning value (return null)
         str_add_cstr(gen->current,
+                     "PUSHS nil@nil\n"
                      "POPFRAME\n"
                      "RETURN\n");
     } else {
