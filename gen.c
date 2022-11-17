@@ -10,484 +10,8 @@
 #include "gen.h"
 #include <stdio.h>
 #include <string.h>
+#include "buildin.h"
 #include "error.h"
-
-/**
- * @brief function write (term1 ,term2 , …, termn) : void
- * Writes all terms to the standard output.
- * Similar to echo in php.
- *
- * @param gen Generator instance
- */
-void gen_func_write(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?write$declared\n"
-                 "MOVE GF@?write$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL write\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@i\n"                          // Loop counter
-                 "DEFVAR LF@current\n"                    // Current term
-                 "POPS LF@i\n"                            // Get number of terms
-                 "LABEL !write_loop\n"                    // Loop
-                 "JUMPIFEQ !write_loop_end int@0 LF@i\n"  // Exit loop if i == 0
-                 "SUB LF@i LF@i int@1\n"                  // i--
-                 "POPS LF@current\n"                      // Get current term
-                 "WRITE LF@current\n"                     // Output current term
-                 "JUMP !write_loop\n"                     // Back to loop
-                 "LABEL !write_loop_end\n"                // End of loop
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function readi() : ?int
- * Reads an integer from the standard input.
- * Returns null if input is invalid.
- *
- * @param gen Generator instance
- */
-void gen_func_readi(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?readi$declared\n"
-                 "MOVE GF@?readi$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL readi\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "READ LF@tmp int\n"  // Read int
-                 "PUSHS LF@tmp\n"     // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function readf() : ?float
- * Reads a float from the standard input.
- * Returns null if input is invalid.
- *
- * @param gen Generator instance
- */
-void gen_func_readf(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?readf$declared\n"
-                 "MOVE GF@?readf$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL readf\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "READ LF@tmp float\n"  // Read float
-                 "PUSHS LF@tmp\n"       // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function reads() : ?string
- * Reads a string from the standard input.
- * Returns null if input is invalid.
- *
- * @param gen Generator instance
- */
-void gen_func_reads(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?reads$declared\n"
-                 "MOVE GF@?reads$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL reads\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "READ LF@tmp string\n"  // Read string
-                 "PUSHS LF@tmp\n"        // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function strlen(string $s) : int
- * Returns length of string.
- *
- * @param gen Generator instance
- */
-void gen_func_strlen(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?strlen$declared\n"
-                 "MOVE GF@?strlen$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL strlen\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"           // Get string
-                 "STRLEN LF@tmp LF@tmp\n"  // Get length
-                 "PUSHS LF@tmp\n"          // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function chr(int $i) : string
- * Returns character with ASCII code $i.
- *
- * @param gen Generator instance
- */
-void gen_func_chr(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?chr$declared\n"
-                 "MOVE GF@?chr$declared bool@true\n");
-
-    // TODO: Check if $i is in range 0-255
-    str_add_cstr(&gen->functions,
-                 "LABEL chr\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"             // Get int
-                 "INT2CHAR LF@tmp LF@tmp\n"  // Convert to char
-                 "PUSHS LF@tmp\n"            // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function ord(string $c) : int
- * Returns ASCII code of first character of $c.
- * Returns 0 if $c is empty.
- *
- * @param gen Generator instance
- */
-void gen_func_ord(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?ord$declared\n"
-                 "MOVE GF@?ord$declared bool@true\n");
-
-    // TODO: Return 0 if $c is empty
-    str_add_cstr(&gen->functions,
-                 "LABEL ord\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"                   // Get string
-                 "STRI2INT LF@tmp LF@tmp int@0\n"  // Get ASCII code of first char
-                 "PUSHS LF@tmp\n"                  // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_func_floatval(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?floatval$declared\n"
-                 "MOVE GF@?floatval$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL floatval\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !floatval_null string@nil GF@_type1\n"   // null
-                 "JUMPIFEQ !floatval_int string@int GF@_type1\n"    // int
-                 "JUMPIFEQ !floatval_end string@float GF@_type1\n"  // float
-                 "JUMP !ERR_SEM_COMP\n"
-                 "LABEL !floatval_null\n"
-                 "MOVE LF@tmp float@0x0p+0\n"  // null -> 0.0
-                 "JUMP !floatval_end\n"
-                 "LABEL !floatval_int\n"
-                 "INT2FLOAT LF@tmp LF@tmp\n"  // int -> float
-                 "LABEL !floatval_end\n"
-                 "PUSHS LF@tmp\n"  // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_func_intval(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?intval$declared\n"
-                 "MOVE GF@?intval$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL intval\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !intval_null string@nil GF@_type1\n"     // null
-                 "JUMPIFEQ !intval_end string@int GF@_type1\n"      // int
-                 "JUMPIFEQ !intval_float string@float GF@_type1\n"  // float
-                 "JUMP !ERR_SEM_COMP\n"
-                 "LABEL !intval_null\n"
-                 "MOVE LF@tmp int@0\n"  // null -> 0
-                 "JUMP !intval_end\n"
-                 "LABEL !intval_float\n"
-                 "FLOAT2INT LF@tmp LF@tmp\n"  // float -> int
-                 "LABEL !intval_end\n"
-                 "PUSHS LF@tmp\n"  // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_func_strval(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?strval$declared\n"
-                 "MOVE GF@?strval$declared bool@true\n");
-
-    str_add_cstr(&gen->functions,
-                 "LABEL strval\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !strval_null string@nil GF@_type1\n"    // null
-                 "JUMPIFEQ !strval_end string@string GF@_type1\n"  // string
-                 "JUMP !ERR_SEM_COMP\n"
-                 "LABEL !strval_null\n"
-                 "MOVE LF@tmp string@\n"  // null -> ""
-                 "LABEL !strval_end\n"
-                 "PUSHS LF@tmp\n"  // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-/**
- * @brief function substring(string $s, int $i, int $j) : ?string
- * Returns substring of $s starting at $i and ending at $j.
- *
- * Returns null when
- * $i < 0
- * $j < 0
- * $i > $j
- * $i >= strlen($s)
- * $j > strlen($s)
- *
- * @param gen
- */
-void gen_func_substring(gen_t* gen) {
-    str_add_cstr(&gen->header,
-                 "DEFVAR GF@?substring$declared\n"
-                 "MOVE GF@?substring$declared bool@true\n");
-
-    // TODO: Return null when conditions in function description are met
-    str_add_cstr(&gen->functions,
-                 "LABEL substring\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "DEFVAR LF@i\n"
-                 "DEFVAR LF@j\n"
-                 "DEFVAR LF@str\n"
-                 "DEFVAR LF@tmp\n"
-                 "DEFVAR LF@res\n"
-                 "POPS LF@str\n"                             // Get string
-                 "POPS LF@i\n"                               // Get start index
-                 "POPS LF@j\n"                               // Get end index
-                 "MOVE LF@res string@\n"                     // res = ""
-                 "LABEL !substring_loop\n"                   // Loop
-                 "JUMPIFEQ !substring_loop_end LF@i LF@j\n"  // If i == j, end
-                 "GETCHAR LF@tmp LF@str LF@i\n"              // Get char at index i
-                 "CONCAT LF@res LF@res LF@tmp\n"             // res += char
-                 "ADD LF@i LF@i int@1\n"                     // i++
-                 "JUMP !substring_loop\n"                    // Jump to loop
-                 "LABEL !substring_loop_end\n"               // Loop end
-                 "PUSHS LF@res\n"                            // Return
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_to_float(gen_t* gen) {
-    str_add_cstr(&gen->functions,
-                 "LABEL !to_float\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
-                 // Check if values are int or float or null
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
-                 // Check if first value is null
-                 "JUMPIFNEQ !to_float_nil GF@_type1 string@nil\n"
-                 // If yes convert to int 0
-                 "MOVE GF@_tmp1 int@0\n"
-                 "MOVE GF@_type1 string@int\n"
-                 "LABEL !to_float_nil\n"
-                 // Check if second value is null
-                 "JUMPIFNEQ !to_float_start GF@_type2 string@nil\n"
-                 // If yes convert to int 0
-                 "MOVE GF@_tmp2 int@0\n"
-                 "MOVE GF@_type2 string@int\n"
-                 // Start converting
-                 "LABEL !to_float_start\n"
-                 // First operand is float
-                 "JUMPIFEQ !to_float_first string@float GF@_type1\n"
-                 // Second operand is float
-                 "JUMPIFEQ !to_float_second string@float GF@_type2\n"
-                 // Both operands are int, that means we are done
-                 "JUMP !to_float_end\n"
-                 // First operant is float, check second operand
-                 "LABEL !to_float_first\n"
-                 // Both operands are float, that means we are done
-                 "JUMPIFEQ !to_float_end string@float GF@_type2\n"
-                 // First operand is float, second is int, convert second to float
-                 "INT2FLOAT GF@_tmp2 GF@_tmp2\n"
-                 "JUMP !to_float_end\n"
-                 // Second operand is float, check first operand
-                 "LABEL !to_float_second\n"
-                 // Both operands are float, that means we are done
-                 "JUMPIFEQ !to_float_end string@float GF@_type1\n"
-                 // Second operand is float, first is int, convert first to float
-                 "INT2FLOAT GF@_tmp1 GF@_tmp1\n"
-                 "LABEL !to_float_end\n"
-                 // Push result to stack
-                 "PUSHS GF@_tmp1\n"
-                 "PUSHS GF@_tmp2\n"
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_to_float_div(gen_t* gen) {
-    str_add_cstr(&gen->functions,
-                 "LABEL !to_float_div\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
-                 // Check if values are int or float or null
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
-                 // Check if first value is null
-                 "JUMPIFNEQ !to_float_div_nil GF@_type1 string@nil\n"
-                 // If yes convert to int 0
-                 "MOVE GF@_tmp1 int@0\n"
-                 "MOVE GF@_type1 string@int\n"
-                 "LABEL !to_float_div_nil\n"
-                 // Check if second value is null
-                 "JUMPIFNEQ !to_float_div_start GF@_type2 string@nil\n"
-                 // If yes convert to int 0
-                 "MOVE GF@_tmp2 int@0\n"
-                 "MOVE GF@_type2 string@int\n"
-                 // Start converting
-                 "LABEL !to_float_div_start\n"
-                 // First operand is float
-                 "JUMPIFEQ !to_float_div_first string@float GF@_type1\n"
-                 // Convert first operand to float
-                 "INT2FLOAT GF@_tmp1 GF@_tmp1\n"
-                 "LABEL !to_float_div_first\n"
-                 // Second operand is float
-                 "JUMPIFEQ !to_float_div_second string@float GF@_type2\n"
-                 // Convert second operand to float
-                 "INT2FLOAT GF@_tmp2 GF@_tmp2\n"
-                 "LABEL !to_float_div_second\n"
-                 // Push result to stack
-                 "PUSHS GF@_tmp1\n"
-                 "PUSHS GF@_tmp2\n"
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_to_str(gen_t* gen) {
-    str_add_cstr(&gen->functions,
-                 "LABEL !to_str\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
-                 // Check if values are string or nil
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
-                 // Check if first value is nil
-                 "JUMPIFNEQ !to_str_nil GF@_type1 string@nil\n"
-                 // If yes convert to string ""
-                 "MOVE GF@_tmp1 string@\n"
-                 "LABEL !to_str_nil\n"
-                 // Check if second value is nil
-                 "JUMPIFNEQ !to_str_end GF@_type2 string@nil\n"
-                 "MOVE GF@_tmp2 string@\n"
-                 "LABEL !to_str_end\n"
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_to_bool(gen_t* gen) {
-    str_add_cstr(&gen->functions,
-                 "LABEL !to_bool\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !to_bool_string string@string GF@_type1\n"
-                 "JUMPIFEQ !to_bool_int string@int GF@_type1\n"
-                 "JUMPIFEQ !to_bool_float string@float GF@_type1\n"
-                 "JUMPIFEQ !to_bool_false string@nil GF@_type1\n"
-                 "POPFRAME\n"
-                 "RETURN\n"
-                 "LABEL !to_bool_string\n"
-                 "JUMPIFEQ !to_bool_false string@ GF@_tmp1\n"
-                 "JUMPIFEQ !to_bool_false string@0 GF@_tmp1\n"
-                 "JUMP !to_bool_true\n"
-                 "LABEL !to_bool_int\n"
-                 "JUMPIFEQ !to_bool_false int@0 GF@_tmp1\n"
-                 "JUMP !to_bool_true\n"
-                 "LABEL !to_bool_float\n"
-                 "JUMPIFEQ !to_bool_false float@0x0p+0 GF@_tmp1\n"
-                 "JUMP !to_bool_true\n"
-                 "LABEL !to_bool_false\n"
-                 "MOVE GF@_tmp1 bool@false\n"
-                 "POPFRAME\n"
-                 "RETURN\n"
-                 "LABEL !to_bool_true\n"
-                 "MOVE GF@_tmp1 bool@true\n"
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
-
-void gen_equals(gen_t* gen) {
-    str_add_cstr(&gen->functions,
-                 "LABEL !equals\n"
-                 "CREATEFRAME\n"
-                 "PUSHFRAME\n"
-                 // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
-                 // Check if types are same
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFNEQ !equals_false GF@_type1 GF@_type2\n"
-                 // If yes check if values are same
-                 "EQ GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                 "PUSHS GF@_tmp3\n"
-                 "JUMP !equals_end\n"
-                 "LABEL !equals_false\n"
-                 "PUSHS bool@false\n"
-                 "LABEL !equals_end\n"
-                 "POPFRAME\n"
-                 "RETURN\n");
-}
 
 gen_t gen_new() {
     gen_t gen = {
@@ -532,11 +56,13 @@ void gen_header(gen_t* gen) {
     gen_func_intval(gen);
     gen_func_strval(gen);
     // Generate helper functions
-    gen_to_float(gen);
-    gen_to_float_div(gen);
-    gen_to_str(gen);
+    gen_num_prepare(gen);
+    gen_num_prepare_div(gen);
+    gen_concat(gen);
     gen_to_bool(gen);
     gen_equals(gen);
+    gen_greater(gen);
+    gen_greater_equals(gen);
     // Set current scope
     gen->current = &gen->global;
     gen->current_header = &gen->header;
@@ -846,32 +372,26 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
         switch (root->value.type) {
             case TOK_PLUS:
                 str_add_cstr(gen->current,
-                             "CALL !to_float\n"
+                             "CALL !num_prepare\n"
                              "ADDS\n");
                 break;
             case TOK_MINUS:
                 str_add_cstr(gen->current,
-                             "CALL !to_float\n"
+                             "CALL !num_prepare\n"
                              "SUBS\n");
                 break;
             case TOK_MULTIPLY:
                 str_add_cstr(gen->current,
-                             "CALL !to_float\n"
+                             "CALL !num_prepare\n"
                              "MULS\n");
                 break;
             case TOK_DIVIDE:
                 str_add_cstr(gen->current,
-                             "CALL !to_float_div\n"
+                             "CALL !num_prepare_div\n"
                              "DIVS\n");
                 break;
             case TOK_DOT:
-                str_add_cstr(gen->current,
-                             // Convert values
-                             "CALL !to_str\n"
-                             // Concatenate
-                             "CONCAT GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                             // Push result back to stack
-                             "PUSHS GF@_tmp3\n");
+                str_add_cstr(gen->current, "CALL !concat\n");
                 break;
             case TOK_EQUALS:
                 str_add_cstr(gen->current, "CALL !equals\n");
@@ -882,20 +402,29 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                              "NOTS\n");
                 break;
             case TOK_LESS:
-                str_add_cstr(gen->current, "LTS\n");
+                str_add_cstr(gen->current,
+                             "POPS GF@_tmp1\n"
+                             "POPS GF@_tmp2\n"
+                             "CALL !greater\n");
                 break;
             case TOK_LESS_E:
-                // Less-than-equals is negated greater-than
-                str_add_cstr(gen->current, "GTS\n");
-                str_add_cstr(gen->current, "NOTS\n");
+                str_add_cstr(gen->current,
+                             "POPS GF@_tmp1\n"
+                             "POPS GF@_tmp2\n"
+                             "CALL !greater_equals\n");
                 break;
             case TOK_GREATER:
-                str_add_cstr(gen->current, "GTS\n");
+                str_add_cstr(gen->current,
+                             "POPS GF@_tmp2\n"
+                             "POPS GF@_tmp1\n"
+                             "CALL !greater\n");
                 break;
             case TOK_GREATER_E:
                 // Greater-than-equals is negated less-than
-                str_add_cstr(gen->current, "LTS\n");
-                str_add_cstr(gen->current, "NOTS\n");
+                str_add_cstr(gen->current,
+                             "POPS GF@_tmp2\n"
+                             "POPS GF@_tmp1\n"
+                             "CALL !greater_equals\n");
                 break;
             default:
                 // This shouldn't happen
