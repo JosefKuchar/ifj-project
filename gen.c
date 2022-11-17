@@ -466,6 +466,29 @@ void gen_to_bool(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_equals(gen_t* gen) {
+    str_add_cstr(&gen->functions,
+                 "LABEL !equals\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 // Get values from stack
+                 "POPS GF@_tmp2\n"
+                 "POPS GF@_tmp1\n"
+                 // Check if types are same
+                 "TYPE GF@_type1 GF@_tmp1\n"
+                 "TYPE GF@_type2 GF@_tmp2\n"
+                 "JUMPIFNEQ !equals_false GF@_type1 GF@_type2\n"
+                 // If yes check if values are same
+                 "EQ GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
+                 "PUSHS GF@_tmp3\n"
+                 "JUMP !equals_end\n"
+                 "LABEL !equals_false\n"
+                 "PUSHS bool@false\n"
+                 "LABEL !equals_end\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 gen_t gen_new() {
     gen_t gen = {
         .header = str_new(),
@@ -513,6 +536,7 @@ void gen_header(gen_t* gen) {
     gen_to_float_div(gen);
     gen_to_str(gen);
     gen_to_bool(gen);
+    gen_equals(gen);
     // Set current scope
     gen->current = &gen->global;
     gen->current_header = &gen->header;
@@ -850,11 +874,12 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                              "PUSHS GF@_tmp3\n");
                 break;
             case TOK_EQUALS:
-                str_add_cstr(gen->current, "EQS\n");
+                str_add_cstr(gen->current, "CALL !equals\n");
                 break;
             case TOK_NEQUALS:
-                str_add_cstr(gen->current, "EQS\n");
-                str_add_cstr(gen->current, "NOTS\n");
+                str_add_cstr(gen->current,
+                             "CALL !equals\n"
+                             "NOTS\n");
                 break;
             case TOK_LESS:
                 str_add_cstr(gen->current, "LTS\n");
