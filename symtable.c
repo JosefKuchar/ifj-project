@@ -267,6 +267,9 @@ htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition) {
 
     // If we have partial definition (from calling), return in
     if (pair != NULL) {
+        if (definition) {
+            pair->value.function.defined = true;
+        }
         return pair;
     }
 
