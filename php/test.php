@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
 
-if ("test" !== null) {
+if (null >= null) {
     write("ahoj\n");
 } else {}

@@ -437,13 +437,44 @@ void gen_greater(gen_t* gen) {
                  // Check if types are same
                  "TYPE GF@?type1 GF@?tmp1\n"
                  "TYPE GF@?type2 GF@?tmp2\n"
-                 "JUMPIFNEQ !greater_false GF@?type1 GF@?type2\n"
+                 "JUMPIFEQ !greater_false string@nil GF@?type1\n"
+                 "JUMPIFNEQ !greater_diff GF@?type1 GF@?type2\n"
                  // If yes check if values are same
                  "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
                  "PUSHS GF@?tmp3\n"
                  "JUMP !greater_end\n"
+                 "LABEL !greater_diff\n"
+                 "JUMPIFEQ !greater_string1 string@string GF@?type1\n"
+                 "JUMPIFEQ !greater_string2 string@string GF@?type2\n"
+                 "JUMPIFEQ !greater_null string@nil GF@?type2\n"
+                 "JUMP !greater_true\n"  // Default is true
+                 // First param is string
+                 "LABEL !greater_string1\n"
+                 "JUMPIFEQ !greater_false string@ GF@?tmp1\n"
+                 "JUMP !greater_true\n"
+                 // Second param is string
+                 "LABEL !greater_string2\n"
+                 "JUMPIFEQ !greater_true string@ GF@?tmp2\n"
+                 "JUMP !greater_false\n"
+                 // Second param is null
+                 "LABEL !greater_null\n"
+                 "JUMPIFEQ !greater_int string@int GF@?type1\n"
+                 "JUMPIFEQ !greater_float string@float GF@?type1\n"
+                 "JUMP !greater_true\n"
+                 // First param is int
+                 "LABEL !greater_int\n"
+                 "JUMPIFEQ !greater_false int@0 GF@?tmp1\n"
+                 "JUMP !greater_true\n"
+                 // First param is float
+                 "LABEL !greater_float\n"
+                 "JUMPIFEQ !greater_false float@0x0p+0 GF@?tmp1\n"
+                 "JUMP !greater_true\n"
+                 // Return true
+                 "LABEL !greater_true\n"
+                 "PUSHS bool@true\n"
+                 "JUMP !greater_end\n"
+                 // Return false
                  "LABEL !greater_false\n"
-                 // TODO
                  "PUSHS bool@false\n"
                  "LABEL !greater_end\n"
                  "POPFRAME\n"
@@ -458,13 +489,46 @@ void gen_greater_equals(gen_t* gen) {
                  // Check if types are same
                  "TYPE GF@?type1 GF@?tmp1\n"
                  "TYPE GF@?type2 GF@?tmp2\n"
-                 "JUMPIFNEQ !greater_equals_false GF@?type1 GF@?type2\n"
-                 // If yes check if values are same
+                 "JUMPIFEQ !greater_equals_true string@nil GF@?type2\n"
+                 "JUMPIFNEQ !greater_equals_diff GF@?type1 GF@?type2\n"
+                 // If yes check if greater or equal
                  "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "EQ GF@?tmp2 GF@?tmp1 GF@?tmp2\n"
+                 "OR GF@?tmp3 GF@?tmp3 GF@?tmp2\n"
                  "PUSHS GF@?tmp3\n"
                  "JUMP !greater_equals_end\n"
+                 "LABEL !greater_equals_diff\n"
+                 "JUMPIFEQ !greater_equals_string1 string@string GF@?type1\n"
+                 "JUMPIFEQ !greater_equals_string2 string@string GF@?type2\n"
+                 "JUMPIFEQ !greater_equals_null string@nil GF@?type1\n"
+                 "JUMP !greater_equals_false\n"  // Default is false
+                 // First param is string
+                 "LABEL !greater_equals_string1\n"
+                 "JUMPIFEQ !greater_equals_false string@ GF@?tmp1\n"
+                 "JUMP !greater_equals_true\n"
+                 // Second param is string
+                 "LABEL !greater_equals_string2\n"
+                 "JUMPIFEQ !greater_equals_true string@ GF@?tmp2\n"
+                 "JUMP !greater_equals_false\n"
+                 // First param is null
+                 "LABEL !greater_equals_null\n"
+                 "JUMPIFEQ !greater_equals_int string@int GF@?type2\n"
+                 "JUMPIFEQ !greater_equals_float string@float GF@?type2\n"
+                 "JUMP !greater_equals_false\n"
+                 // Second param is int
+                 "LABEL !greater_equals_int\n"
+                 "JUMPIFEQ !greater_equals_true int@0 GF@?tmp2\n"
+                 "JUMP !greater_equals_false\n"
+                 // Second param is float
+                 "LABEL !greater_equals_float\n"
+                 "JUMPIFEQ !greater_equals_true float@0x0p+0 GF@?tmp2\n"
+                 "JUMP !greater_equals_false\n"
+                 // Return true
+                 "LABEL !greater_equals_true\n"
+                 "PUSHS bool@true\n"
+                 "JUMP !greater_equals_end\n"
+                 // Return false
                  "LABEL !greater_equals_false\n"
-                 // TODO
                  "PUSHS bool@false\n"
                  "LABEL !greater_equals_end\n"
                  "POPFRAME\n"
