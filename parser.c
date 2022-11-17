@@ -24,7 +24,12 @@ void check_variable_exists(parser_t* parser, parser_state_t state) {
 }
 
 void next_token_keep(parser_t* parser, parser_state_t state) {
-    parser->token = scanner_get_next(parser->scanner);
+    if (parser->buffer_token_valid) {
+        parser->buffer_token_valid = false;
+        parser->token = parser->buffer_token;
+    } else {
+        parser->token = scanner_get_next(parser->scanner);
+    }
     check_variable_exists(parser, state);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
@@ -131,7 +136,8 @@ parser_t parser_new(scanner_t* scanner, gen_t* gen) {
     parser_t parser = {.scanner = scanner,
                        .gen = gen,
                        .local_symtable = htab_new(),
-                       .global_symtable = htab_new()};
+                       .global_symtable = htab_new(),
+                       .buffer_token_valid = false};
 
     // Define buildin functions
     htab_define_buildin(parser.global_symtable);
@@ -222,7 +228,8 @@ void rule_value(parser_t* parser, parser_state_t state) {
 void rule_statement(parser_t* parser, parser_state_t state) {
     (void)state;
     switch (parser->token.type) {
-        case TOK_VAR:                                                              // $var
+        case TOK_VAR: {                                                            // $var
+            token_t tmp = parser->token;                                           //
             str_clear(&parser->gen->variable);                                     //
             str_add_str(&parser->gen->variable, &parser->token.attr.val_s);        //
             if (htab_add_variable(                                                 //
@@ -232,12 +239,24 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                     &parser->token)) {                                             //
                 gen_variable_def(parser->gen, &parser->token, state.in_function);  //
             }                                                                      //
-            next_token_check_type(parser, TOK_ASSIGN);                             // =
-            next_token(parser);                                                    //
-            rule_value(parser, state);                                             // <value>
-            token_check_type(parser, TOK_SEMICOLON);                               // ;
+            next_token_keep(parser, state);                                        // =
+            if (token_is_type(parser, TOK_ASSIGN)) {                               //
+                token_free(&tmp);                                                  //
+                next_token(parser);                                                //
+                rule_value(parser, state);                                         // <value>
+                token_check_type(parser, TOK_SEMICOLON);                           // ;
+            } else {                                                               //
+                parser->buffer_token_valid = true;                                 //
+                parser->buffer_token = parser->token;                              //
+                parser->token = tmp;                                               //
+                rule_exp(parser, state);                                           // <exp>
+                parser->buffer_token_valid = false;                                //
+                token_check_type(parser, TOK_SEMICOLON);                           // ;
+            }
+            // token_free(&parser->old_token);
 
             break;
+        }
         case TOK_IF:                                              // if
             str_clear(&parser->gen->variable);                    //
             increment_construct_count(parser, &state);            //

@@ -25,6 +25,8 @@ typedef struct {
     htab_pair_t* function;       // Current function
     htab_pair_t* function_call;  // Current function call
     int construct_count;         // Counter of if/else/while constructs (for generator)
+    bool buffer_token_valid;     // Is old token valid?
+    token_t buffer_token;        // Old token
 } parser_t;
 
 typedef struct {
