@@ -376,6 +376,7 @@ void htab_define_buildin(htab_t* t) {
         error_exit(ERR_INTERNAL);
     }
     params[0].type = TOK_STRING;
+    params[0].name = str_new();
     params[0].required = true;
     htab_add(t, "strlen",
              (htab_value_t){
@@ -392,6 +393,7 @@ void htab_define_buildin(htab_t* t) {
         error_exit(ERR_INTERNAL);
     }
     params[0].type = TOK_INT;
+    params[0].name = str_new();
     params[0].required = true;
     htab_add(t, "chr",
              (htab_value_t){
@@ -408,6 +410,7 @@ void htab_define_buildin(htab_t* t) {
         error_exit(ERR_INTERNAL);
     }
     params[0].type = TOK_STRING;
+    params[0].name = str_new();
     params[0].required = true;
     htab_add(t, "ord",
              (htab_value_t){
@@ -424,10 +427,13 @@ void htab_define_buildin(htab_t* t) {
         error_exit(ERR_INTERNAL);
     }
     params[0].type = TOK_STRING;
+    params[0].name = str_new();
     params[0].required = true;
     params[1].type = TOK_INT;
+    params[1].name = str_new();
     params[1].required = true;
     params[2].type = TOK_INT;
+    params[2].name = str_new();
     params[2].required = true;
     htab_add(t, "substring",
              (htab_value_t){
@@ -440,6 +446,7 @@ void htab_define_buildin(htab_t* t) {
     // floatval
     params = malloc(sizeof(htab_param_t));
     params[0].required = true;
+    params[0].name = str_new();
     htab_add(t, "floatval",
              (htab_value_t){
                  .type = HTAB_FUNCTION,
@@ -452,6 +459,7 @@ void htab_define_buildin(htab_t* t) {
     // intval
     params = malloc(sizeof(htab_param_t));
     params[0].required = true;
+    params[0].name = str_new();
     htab_add(t, "intval",
              (htab_value_t){
                  .type = HTAB_FUNCTION,
@@ -463,6 +471,7 @@ void htab_define_buildin(htab_t* t) {
     // strval
     params = malloc(sizeof(htab_param_t));
     params[0].required = true;
+    params[0].name = str_new();
     htab_add(t, "strval",
              (htab_value_t){
                  .type = HTAB_FUNCTION,
