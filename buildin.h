@@ -163,7 +163,7 @@ void gen_equals(gen_t* gen);
 
 /**
  * @brief Evaluate > operator
- * Parameters are GF@_tmp1 and GF@_tmp2
+ * Parameters are GF@?tmp1 and GF@?tmp2
  *
  * @param gen Generator instance
  */
@@ -171,7 +171,7 @@ void gen_greater(gen_t* gen);
 
 /**
  * @brief Evaluate >= operator
- * Parameters are GF@_tmp1 and GF@_tmp2
+ * Parameters are GF@?tmp1 and GF@?tmp2
  *
  * @param gen Generator instance
  */

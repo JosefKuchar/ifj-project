@@ -144,10 +144,10 @@ void gen_func_floatval(gen_t* gen) {
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
                  "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !floatval_null string@nil GF@_type1\n"   // null
-                 "JUMPIFEQ !floatval_int string@int GF@_type1\n"    // int
-                 "JUMPIFEQ !floatval_end string@float GF@_type1\n"  // float
+                 "TYPE GF@?type1 LF@tmp\n"
+                 "JUMPIFEQ !floatval_null string@nil GF@?type1\n"   // null
+                 "JUMPIFEQ !floatval_int string@int GF@?type1\n"    // int
+                 "JUMPIFEQ !floatval_end string@float GF@?type1\n"  // float
                  "JUMP !ERR_SEM_COMP\n"
                  "LABEL !floatval_null\n"
                  "MOVE LF@tmp float@0x0p+0\n"  // null -> 0.0
@@ -171,10 +171,10 @@ void gen_func_intval(gen_t* gen) {
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
                  "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !intval_null string@nil GF@_type1\n"     // null
-                 "JUMPIFEQ !intval_end string@int GF@_type1\n"      // int
-                 "JUMPIFEQ !intval_float string@float GF@_type1\n"  // float
+                 "TYPE GF@?type1 LF@tmp\n"
+                 "JUMPIFEQ !intval_null string@nil GF@?type1\n"     // null
+                 "JUMPIFEQ !intval_end string@int GF@?type1\n"      // int
+                 "JUMPIFEQ !intval_float string@float GF@?type1\n"  // float
                  "JUMP !ERR_SEM_COMP\n"
                  "LABEL !intval_null\n"
                  "MOVE LF@tmp int@0\n"  // null -> 0
@@ -198,9 +198,9 @@ void gen_func_strval(gen_t* gen) {
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
                  "POPS LF@tmp\n"  // Get term
-                 "TYPE GF@_type1 LF@tmp\n"
-                 "JUMPIFEQ !strval_null string@nil GF@_type1\n"    // null
-                 "JUMPIFEQ !strval_end string@string GF@_type1\n"  // string
+                 "TYPE GF@?type1 LF@tmp\n"
+                 "JUMPIFEQ !strval_null string@nil GF@?type1\n"    // null
+                 "JUMPIFEQ !strval_end string@string GF@?type1\n"  // string
                  "JUMP !ERR_SEM_COMP\n"
                  "LABEL !strval_null\n"
                  "MOVE LF@tmp string@\n"  // null -> ""
@@ -247,51 +247,51 @@ void gen_num_prepare(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
+                 "POPS GF@?tmp2\n"
+                 "POPS GF@?tmp1\n"
                  // Check if values are int or float or null
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@?type1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@?type2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type2\n"
                  // Check if first value is null
-                 "JUMPIFNEQ !num_prepare_nil GF@_type1 string@nil\n"
+                 "JUMPIFNEQ !num_prepare_nil GF@?type1 string@nil\n"
                  // If yes convert to int 0
-                 "MOVE GF@_tmp1 int@0\n"
-                 "MOVE GF@_type1 string@int\n"
+                 "MOVE GF@?tmp1 int@0\n"
+                 "MOVE GF@?type1 string@int\n"
                  "LABEL !num_prepare_nil\n"
                  // Check if second value is null
-                 "JUMPIFNEQ !num_prepare_start GF@_type2 string@nil\n"
+                 "JUMPIFNEQ !num_prepare_start GF@?type2 string@nil\n"
                  // If yes convert to int 0
-                 "MOVE GF@_tmp2 int@0\n"
-                 "MOVE GF@_type2 string@int\n"
+                 "MOVE GF@?tmp2 int@0\n"
+                 "MOVE GF@?type2 string@int\n"
                  // Start converting
                  "LABEL !num_prepare_start\n"
                  // First operand is float
-                 "JUMPIFEQ !num_prepare_first string@float GF@_type1\n"
+                 "JUMPIFEQ !num_prepare_first string@float GF@?type1\n"
                  // Second operand is float
-                 "JUMPIFEQ !num_prepare_second string@float GF@_type2\n"
+                 "JUMPIFEQ !num_prepare_second string@float GF@?type2\n"
                  // Both operands are int, that means we are done
                  "JUMP !num_prepare_end\n"
                  // First operant is float, check second operand
                  "LABEL !num_prepare_first\n"
                  // Both operands are float, that means we are done
-                 "JUMPIFEQ !num_prepare_end string@float GF@_type2\n"
+                 "JUMPIFEQ !num_prepare_end string@float GF@?type2\n"
                  // First operand is float, second is int, convert second to float
-                 "INT2FLOAT GF@_tmp2 GF@_tmp2\n"
+                 "INT2FLOAT GF@?tmp2 GF@?tmp2\n"
                  "JUMP !num_prepare_end\n"
                  // Second operand is float, check first operand
                  "LABEL !num_prepare_second\n"
                  // Both operands are float, that means we are done
-                 "JUMPIFEQ !num_prepare_end string@float GF@_type1\n"
+                 "JUMPIFEQ !num_prepare_end string@float GF@?type1\n"
                  // Second operand is float, first is int, convert first to float
-                 "INT2FLOAT GF@_tmp1 GF@_tmp1\n"
+                 "INT2FLOAT GF@?tmp1 GF@?tmp1\n"
                  "LABEL !num_prepare_end\n"
                  // Push result to stack
-                 "PUSHS GF@_tmp1\n"
-                 "PUSHS GF@_tmp2\n"
+                 "PUSHS GF@?tmp1\n"
+                 "PUSHS GF@?tmp2\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
@@ -302,41 +302,41 @@ void gen_num_prepare_div(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
+                 "POPS GF@?tmp2\n"
+                 "POPS GF@?tmp1\n"
                  // Check if values are int or float or null
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@?type1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@string GF@?type2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type2\n"
                  // Check if first value is null
-                 "JUMPIFNEQ !num_prepare_div_nil GF@_type1 string@nil\n"
+                 "JUMPIFNEQ !num_prepare_div_nil GF@?type1 string@nil\n"
                  // If yes convert to int 0
-                 "MOVE GF@_tmp1 int@0\n"
-                 "MOVE GF@_type1 string@int\n"
+                 "MOVE GF@?tmp1 int@0\n"
+                 "MOVE GF@?type1 string@int\n"
                  "LABEL !num_prepare_div_nil\n"
                  // Check if second value is null
-                 "JUMPIFNEQ !num_prepare_div_start GF@_type2 string@nil\n"
+                 "JUMPIFNEQ !num_prepare_div_start GF@?type2 string@nil\n"
                  // If yes convert to int 0
-                 "MOVE GF@_tmp2 int@0\n"
-                 "MOVE GF@_type2 string@int\n"
+                 "MOVE GF@?tmp2 int@0\n"
+                 "MOVE GF@?type2 string@int\n"
                  // Start converting
                  "LABEL !num_prepare_div_start\n"
                  // First operand is float
-                 "JUMPIFEQ !num_prepare_div_first string@float GF@_type1\n"
+                 "JUMPIFEQ !num_prepare_div_first string@float GF@?type1\n"
                  // Convert first operand to float
-                 "INT2FLOAT GF@_tmp1 GF@_tmp1\n"
+                 "INT2FLOAT GF@?tmp1 GF@?tmp1\n"
                  "LABEL !num_prepare_div_first\n"
                  // Second operand is float
-                 "JUMPIFEQ !num_prepare_div_second string@float GF@_type2\n"
+                 "JUMPIFEQ !num_prepare_div_second string@float GF@?type2\n"
                  // Convert second operand to float
-                 "INT2FLOAT GF@_tmp2 GF@_tmp2\n"
+                 "INT2FLOAT GF@?tmp2 GF@?tmp2\n"
                  "LABEL !num_prepare_div_second\n"
                  // Push result to stack
-                 "PUSHS GF@_tmp1\n"
-                 "PUSHS GF@_tmp2\n"
+                 "PUSHS GF@?tmp1\n"
+                 "PUSHS GF@?tmp2\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
@@ -347,29 +347,29 @@ void gen_concat(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
+                 "POPS GF@?tmp2\n"
+                 "POPS GF@?tmp1\n"
                  // Check if values are string or nil
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@_type1\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@_type2\n"
-                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@?type1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@?type1\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@int GF@?type2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@float GF@?type2\n"
+                 "JUMPIFEQ !ERR_SEM_COMP string@bool GF@?type2\n"
                  // Check if first value is nil
-                 "JUMPIFNEQ !concat_nil GF@_type1 string@nil\n"
+                 "JUMPIFNEQ !concat_nil GF@?type1 string@nil\n"
                  // If yes convert to string ""
-                 "MOVE GF@_tmp1 string@\n"
+                 "MOVE GF@?tmp1 string@\n"
                  "LABEL !concat_nil\n"
                  // Check if second value is nil
-                 "JUMPIFNEQ !concat_end GF@_type2 string@nil\n"
-                 "MOVE GF@_tmp2 string@\n"
+                 "JUMPIFNEQ !concat_end GF@?type2 string@nil\n"
+                 "MOVE GF@?tmp2 string@\n"
                  "LABEL !concat_end\n"
                  // Concatenate strings
-                 "CONCAT GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                 "PUSHS GF@_tmp3\n"
+                 "CONCAT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "PUSHS GF@?tmp3\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
@@ -379,29 +379,29 @@ void gen_to_bool(gen_t* gen) {
                  "LABEL !to_bool\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "JUMPIFEQ !to_bool_string string@string GF@_type1\n"
-                 "JUMPIFEQ !to_bool_int string@int GF@_type1\n"
-                 "JUMPIFEQ !to_bool_float string@float GF@_type1\n"
-                 "JUMPIFEQ !to_bool_false string@nil GF@_type1\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "JUMPIFEQ !to_bool_string string@string GF@?type1\n"
+                 "JUMPIFEQ !to_bool_int string@int GF@?type1\n"
+                 "JUMPIFEQ !to_bool_float string@float GF@?type1\n"
+                 "JUMPIFEQ !to_bool_false string@nil GF@?type1\n"
                  "POPFRAME\n"
                  "RETURN\n"
                  "LABEL !to_bool_string\n"
-                 "JUMPIFEQ !to_bool_false string@ GF@_tmp1\n"
-                 "JUMPIFEQ !to_bool_false string@0 GF@_tmp1\n"
+                 "JUMPIFEQ !to_bool_false string@ GF@?tmp1\n"
+                 "JUMPIFEQ !to_bool_false string@0 GF@?tmp1\n"
                  "JUMP !to_bool_true\n"
                  "LABEL !to_bool_int\n"
-                 "JUMPIFEQ !to_bool_false int@0 GF@_tmp1\n"
+                 "JUMPIFEQ !to_bool_false int@0 GF@?tmp1\n"
                  "JUMP !to_bool_true\n"
                  "LABEL !to_bool_float\n"
-                 "JUMPIFEQ !to_bool_false float@0x0p+0 GF@_tmp1\n"
+                 "JUMPIFEQ !to_bool_false float@0x0p+0 GF@?tmp1\n"
                  "JUMP !to_bool_true\n"
                  "LABEL !to_bool_false\n"
-                 "MOVE GF@_tmp1 bool@false\n"
+                 "MOVE GF@?tmp1 bool@false\n"
                  "POPFRAME\n"
                  "RETURN\n"
                  "LABEL !to_bool_true\n"
-                 "MOVE GF@_tmp1 bool@true\n"
+                 "MOVE GF@?tmp1 bool@true\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
@@ -412,15 +412,15 @@ void gen_equals(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Get values from stack
-                 "POPS GF@_tmp2\n"
-                 "POPS GF@_tmp1\n"
+                 "POPS GF@?tmp2\n"
+                 "POPS GF@?tmp1\n"
                  // Check if types are same
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFNEQ !equals_false GF@_type1 GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFNEQ !equals_false GF@?type1 GF@?type2\n"
                  // If yes check if values are same
-                 "EQ GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                 "PUSHS GF@_tmp3\n"
+                 "EQ GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "PUSHS GF@?tmp3\n"
                  "JUMP !equals_end\n"
                  "LABEL !equals_false\n"
                  "PUSHS bool@false\n"
@@ -435,12 +435,12 @@ void gen_greater(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Check if types are same
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFNEQ !greater_false GF@_type1 GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFNEQ !greater_false GF@?type1 GF@?type2\n"
                  // If yes check if values are same
-                 "GT GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                 "PUSHS GF@_tmp3\n"
+                 "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "PUSHS GF@?tmp3\n"
                  "JUMP !greater_end\n"
                  "LABEL !greater_false\n"
                  // TODO
@@ -456,12 +456,12 @@ void gen_greater_equals(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  // Check if types are same
-                 "TYPE GF@_type1 GF@_tmp1\n"
-                 "TYPE GF@_type2 GF@_tmp2\n"
-                 "JUMPIFNEQ !greater_equals_false GF@_type1 GF@_type2\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "JUMPIFNEQ !greater_equals_false GF@?type1 GF@?type2\n"
                  // If yes check if values are same
-                 "GT GF@_tmp3 GF@_tmp1 GF@_tmp2\n"
-                 "PUSHS GF@_tmp3\n"
+                 "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "PUSHS GF@?tmp3\n"
                  "JUMP !greater_equals_end\n"
                  "LABEL !greater_equals_false\n"
                  // TODO

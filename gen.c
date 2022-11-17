@@ -38,11 +38,11 @@ void gen_header(gen_t* gen) {
     // Program header
     str_add_cstr(&gen->header, ".IFJcode22\n");
     // Temporary variables for operations
-    str_add_cstr(&gen->header, "DEFVAR GF@_tmp1\n");
-    str_add_cstr(&gen->header, "DEFVAR GF@_tmp2\n");
-    str_add_cstr(&gen->header, "DEFVAR GF@_tmp3\n");
-    str_add_cstr(&gen->header, "DEFVAR GF@_type1\n");
-    str_add_cstr(&gen->header, "DEFVAR GF@_type2\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?tmp1\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?tmp2\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?tmp3\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?type1\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?type2\n");
     // Generate buidin functions
     gen_func_write(gen);
     gen_func_readi(gen);
@@ -91,7 +91,7 @@ void gen_if(gen_t* gen, int construct_count) {
                  "CALL !to_bool\n"
                  "JUMPIFEQ !else_");
     gen_int(gen, construct_count);
-    str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
+    str_add_cstr(gen->current, " GF@?tmp1 bool@false\n");
 }
 
 void gen_else(gen_t* gen, int construct_count) {
@@ -125,7 +125,7 @@ void gen_while_exit(gen_t* gen, int construct_count) {
                  "CALL !to_bool\n"
                  "JUMPIFEQ !whileend_");
     gen_int(gen, construct_count);
-    str_add_cstr(gen->current, " GF@_tmp1 bool@false\n");
+    str_add_cstr(gen->current, " GF@?tmp1 bool@false\n");
 }
 
 void gen_while_end(gen_t* gen, int construct_count) {
@@ -185,14 +185,14 @@ void gen_value(str_t* str, token_t* token, bool in_function) {
             str_add_cstr(str, "nil@nil");
             break;
         case TOK_VAR:
-            str_add_cstr(str, "TYPE GF@_type1 ");
+            str_add_cstr(str, "TYPE GF@?type1 ");
             if (in_function) {
                 str_add_cstr(str, "LF@");
             } else {
                 str_add_cstr(str, "GF@");
             }
             str_add_str(str, &token->attr.val_s);
-            str_add_cstr(str, "\nJUMPIFEQ !ERR_SEM_VAR string@ GF@_type1\n");
+            str_add_cstr(str, "\nJUMPIFEQ !ERR_SEM_VAR string@ GF@?type1\n");
             str_add_cstr(str, "PUSHS ");
             if (in_function) {
                 str_add_cstr(str, "LF@");
@@ -227,7 +227,7 @@ void gen_function(gen_t* gen, token_t* token) {
     str_add_cstr(&gen->function_header,
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
-                 "DEFVAR LF@_tmp1\n");
+                 "DEFVAR LF@?tmp1\n");
     // Set scope to function
     gen->current = &gen->function;
     gen->current_header = &gen->function_header;
@@ -277,7 +277,7 @@ void gen_return(gen_t* gen, htab_fun_t* function) {
 
         // Return value that we got from last expression
         str_add_cstr(gen->current,
-                     "PUSHS GF@_tmp1\n"
+                     "PUSHS GF@?tmp1\n"
                      "POPFRAME\n"
                      "RETURN\n");
     } else {
@@ -403,27 +403,27 @@ void gen_exp_from_tree(gen_t* gen, token_term_t* root, bool in_function) {
                 break;
             case TOK_LESS:
                 str_add_cstr(gen->current,
-                             "POPS GF@_tmp1\n"
-                             "POPS GF@_tmp2\n"
+                             "POPS GF@?tmp1\n"
+                             "POPS GF@?tmp2\n"
                              "CALL !greater\n");
                 break;
             case TOK_LESS_E:
                 str_add_cstr(gen->current,
-                             "POPS GF@_tmp1\n"
-                             "POPS GF@_tmp2\n"
+                             "POPS GF@?tmp1\n"
+                             "POPS GF@?tmp2\n"
                              "CALL !greater_equals\n");
                 break;
             case TOK_GREATER:
                 str_add_cstr(gen->current,
-                             "POPS GF@_tmp2\n"
-                             "POPS GF@_tmp1\n"
+                             "POPS GF@?tmp2\n"
+                             "POPS GF@?tmp1\n"
                              "CALL !greater\n");
                 break;
             case TOK_GREATER_E:
                 // Greater-than-equals is negated less-than
                 str_add_cstr(gen->current,
-                             "POPS GF@_tmp2\n"
-                             "POPS GF@_tmp1\n"
+                             "POPS GF@?tmp2\n"
+                             "POPS GF@?tmp1\n"
                              "CALL !greater_equals\n");
                 break;
             default:
@@ -439,7 +439,7 @@ void gen_exp(gen_t* gen, token_term_t* root, bool in_function) {
 
     // Return expression / expression without assignment
     if (gen->variable.len == 0) {
-        str_add_cstr(gen->current, "POPS GF@_tmp1\n");
+        str_add_cstr(gen->current, "POPS GF@?tmp1\n");
         // Assign (pop from stack) expression result to saved variable name
     } else {
         if (in_function) {
