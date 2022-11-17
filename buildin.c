@@ -341,6 +341,27 @@ void gen_num_prepare_div(gen_t* gen) {
                  "RETURN\n");
 }
 
+void gen_comp_prepare(gen_t* gen) {
+    str_add_cstr(&gen->functions,
+                 "LABEL !comp_prepare\n"
+                 "CREATEFRAME\n"
+                 "PUSHFRAME\n"
+                 "TYPE GF@?type1 GF@?tmp1\n"
+                 "TYPE GF@?type2 GF@?tmp2\n"
+                 "MOVE GF@?tmp3 GF@?tmp1\n"
+                 "MOVE GF@?tmp4 GF@?tmp2\n"
+                 "JUMPIFNEQ !comp_prepare_int1 string@int GF@?type1\n"
+                 "INT2FLOAT GF@?tmp3 GF@?tmp1\n"
+                 "MOVE GF@?type1 string@float\n"
+                 "LABEL !comp_prepare_int1\n"
+                 "JUMPIFNEQ !comp_prepare_int2 string@int GF@?type2\n"
+                 "INT2FLOAT GF@?tmp4 GF@?tmp2\n"
+                 "MOVE GF@?type2 string@float\n"
+                 "LABEL !comp_prepare_int2\n"
+                 "POPFRAME\n"
+                 "RETURN\n");
+}
+
 void gen_concat(gen_t* gen) {
     str_add_cstr(&gen->functions,
                  "LABEL !concat\n"
@@ -434,13 +455,15 @@ void gen_greater(gen_t* gen) {
                  "LABEL !greater\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
-                 // Check if types are same
+                 "CALL !comp_prepare\n"
+                 "JUMPIFEQ !greater_false string@nil GF@?type1\n"
+                 "JUMPIFEQ !greater_same GF@?type1 GF@?type2\n"
                  "TYPE GF@?type1 GF@?tmp1\n"
                  "TYPE GF@?type2 GF@?tmp2\n"
-                 "JUMPIFEQ !greater_false string@nil GF@?type1\n"
-                 "JUMPIFNEQ !greater_diff GF@?type1 GF@?type2\n"
+                 "JUMP !greater_diff\n"
                  // If yes check if values are same
-                 "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
+                 "LABEL !greater_same\n"
+                 "GT GF@?tmp3 GF@?tmp3 GF@?tmp4\n"
                  "PUSHS GF@?tmp3\n"
                  "JUMP !greater_end\n"
                  "LABEL !greater_diff\n"
@@ -486,15 +509,17 @@ void gen_greater_equals(gen_t* gen) {
                  "LABEL !greater_equals\n"
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
-                 // Check if types are same
+                 "CALL !comp_prepare\n"
+                 "JUMPIFEQ !greater_equals_true string@nil GF@?type2\n"
+                 "JUMPIFEQ !greater_equals_same GF@?type1 GF@?type2\n"
                  "TYPE GF@?type1 GF@?tmp1\n"
                  "TYPE GF@?type2 GF@?tmp2\n"
-                 "JUMPIFEQ !greater_equals_true string@nil GF@?type2\n"
-                 "JUMPIFNEQ !greater_equals_diff GF@?type1 GF@?type2\n"
+                 "JUMP !greater_equals_diff\n"
                  // If yes check if greater or equal
-                 "GT GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
-                 "EQ GF@?tmp2 GF@?tmp1 GF@?tmp2\n"
-                 "OR GF@?tmp3 GF@?tmp3 GF@?tmp2\n"
+                 "LABEL !greater_equals_same\n"
+                 "GT GF@?tmp1 GF@?tmp3 GF@?tmp4\n"
+                 "EQ GF@?tmp2 GF@?tmp3 GF@?tmp4\n"
+                 "OR GF@?tmp3 GF@?tmp1 GF@?tmp2\n"
                  "PUSHS GF@?tmp3\n"
                  "JUMP !greater_equals_end\n"
                  "LABEL !greater_equals_diff\n"

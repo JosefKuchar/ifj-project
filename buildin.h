@@ -162,6 +162,13 @@ void gen_to_bool(gen_t* gen);
 void gen_equals(gen_t* gen);
 
 /**
+ * @brief Convert ints to floats
+ *
+ * @param gen Generator instance
+ */
+void gen_comp_prepare(gen_t* gen);
+
+/**
  * @brief Evaluate > operator
  * Parameters are GF@?tmp1 and GF@?tmp2
  *

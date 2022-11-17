@@ -41,6 +41,7 @@ void gen_header(gen_t* gen) {
     str_add_cstr(&gen->header, "DEFVAR GF@?tmp1\n");
     str_add_cstr(&gen->header, "DEFVAR GF@?tmp2\n");
     str_add_cstr(&gen->header, "DEFVAR GF@?tmp3\n");
+    str_add_cstr(&gen->header, "DEFVAR GF@?tmp4\n");
     str_add_cstr(&gen->header, "DEFVAR GF@?type1\n");
     str_add_cstr(&gen->header, "DEFVAR GF@?type2\n");
     // Generate buidin functions
@@ -61,6 +62,7 @@ void gen_header(gen_t* gen) {
     gen_concat(gen);
     gen_to_bool(gen);
     gen_equals(gen);
+    gen_comp_prepare(gen);
     gen_greater(gen);
     gen_greater_equals(gen);
     // Set current scope
