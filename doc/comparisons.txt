@@ -1,0 +1,5 @@
+0 > null    false
+0.0 > null  false
+5 > null    true
+5.0 > null  true
+-5.0 < null true
