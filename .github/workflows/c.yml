@@ -20,5 +20,3 @@ jobs:
         run: make test
       - name: examples
         run: make examples
-      - name: jirka_tests
-        run: make jirka_tests
