@@ -391,6 +391,7 @@ void parser_run(parser_t* parser) {
     check_prolog(parser);
     next_token(parser);
     rule_program(parser, state);
+    htab_function_check_all_defined(parser->global_symtable);
     gen_footer(parser->gen);
 #endif
 #ifdef DEBUG_LEX

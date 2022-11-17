@@ -312,6 +312,22 @@ void htab_function_add_return_type(htab_pair_t* fun, token_t* token) {
     fun->value.function.returns.required = !token->attr.val_b;
 }
 
+void htab_function_check_all_defined(htab_t* t) {
+    for (size_t i = 0; i < t->arr_size; i++) {
+        struct htab_item* item = t->arr_ptr[i];
+        // Item exists
+        while (item != NULL) {
+            if (item->pair.value.type == HTAB_FUNCTION) {
+                // Check if function is defined
+                if (!item->pair.value.function.defined) {
+                    error_exit(ERR_SEM_FUN);
+                }
+            }
+            item = item->next;
+        }
+    }
+}
+
 bool htab_add_variable(htab_t* t, token_t* token) {
     // Check if variable is already defined
     if (htab_find(t, token->attr.val_s.val) != NULL) {
