@@ -235,7 +235,7 @@ void gen_function(gen_t* gen, token_t* token) {
     gen->current_header = &gen->function_header;
 }
 
-void gen_function_end(gen_t* gen, htab_fun_t* function) {
+void gen_function_end(gen_t* gen, htab_fun_t* function, char* function_name) {
     // Get values from stack to local variables
     for (int i = 0; i < function->param_count; i++) {
         // Define local variable
@@ -246,6 +246,46 @@ void gen_function_end(gen_t* gen, htab_fun_t* function) {
         str_add_cstr(&gen->function_header, "POPS LF@");
         str_add_str(&gen->function_header, &function->params[i].name);
         str_add_char(&gen->function_header, '\n');
+        // Check type
+        str_add_cstr(&gen->function_header, "TYPE GF@?type1 LF@");
+        str_add_str(&gen->function_header, &function->params[i].name);
+        str_add_cstr(&gen->function_header, "\nJUMPIFEQ ");
+        str_add_cstr(&gen->function_header, function_name);
+        str_add_char(&gen->function_header, '!');
+        str_add_int(&gen->function_header, i);
+        str_add_cstr(&gen->function_header, " string@");
+        switch (function->params[i].type) {
+            case TOK_INT:
+                str_add_cstr(&gen->function_header, "int");
+                break;
+            case TOK_FLOAT:
+                str_add_cstr(&gen->function_header, "float");
+                break;
+            case TOK_STRING:
+                str_add_cstr(&gen->function_header, "string");
+                break;
+            default:
+                error_exit(ERR_INTERNAL);
+        }
+        str_add_cstr(&gen->function_header, " GF@?type1\n");
+
+        if (!function->params[i].required) {
+            str_add_cstr(&gen->function_header, "JUMPIFEQ ");
+            str_add_cstr(&gen->function_header, function_name);
+            str_add_char(&gen->function_header, '!');
+            str_add_int(&gen->function_header, i);
+            str_add_cstr(&gen->function_header, " string@nil GF@?type1\n");
+        }
+
+        // Jump to error if type is not correct
+        str_add_cstr(&gen->function_header, "JUMP !ERR_SEM_CALL\n");
+
+        // Type is ok
+        str_add_cstr(&gen->function_header, "LABEL ");
+        str_add_cstr(&gen->function_header, function_name);
+        str_add_char(&gen->function_header, '!');
+        str_add_int(&gen->function_header, i);
+        str_add_cstr(&gen->function_header, "\n");
     }
 
     str_add_cstr(&gen->function_header, "DEFVAR LF@?rettype\n");

@@ -1,12 +1,9 @@
 <?php
 declare(strict_types=1);
 
-mrdkodebilni();
 
-function mrdkodebilni():void {
-
+function f(?string $a) : void {
+  write($a);
 }
 
-if (null >= null) {
-    write("ahoj\n");
-} else {}
+f("test");

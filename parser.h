@@ -25,6 +25,7 @@ typedef struct {
     htab_pair_t* function;       // Current function
     htab_pair_t* function_call;  // Current function call
     int construct_count;         // Counter of if/else/while constructs (for generator)
+    int param_count;             // Counter of function call params (for checking)
     bool buffer_token_valid;     // Is old token valid?
     token_t buffer_token;        // Old token
 } parser_t;
@@ -61,6 +62,6 @@ void parser_run(parser_t* state);
  *
  * @param parser Instance of parser
  */
-void next_token_keep(parser_t* parser, parser_state_t state);
+void next_token_keep(parser_t* parser);
 
 #endif  // __PARSER_H__

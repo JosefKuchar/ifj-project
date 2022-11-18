@@ -37,6 +37,7 @@ typedef struct {
 
 typedef struct {
     int param_count;
+    int param_count_guess;
     bool defined;
     htab_param_t* params;
     htab_return_t returns;
@@ -136,6 +137,8 @@ bool htab_add_variable(htab_t* t, token_t* token);
 void htab_function_check_all_defined(htab_t* t);
 
 void htab_for_each(const htab_t* t, void (*f)(htab_pair_t* data));
+
+void htab_function_check_params(htab_pair_t* fun, int param_count, bool definition);
 
 /**
  * @brief Remove all items from hash table

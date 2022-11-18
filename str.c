@@ -95,6 +95,12 @@ void str_add_str(str_t* str, str_t* str2) {
     str_add_cstr(str, str2->val);
 }
 
+void str_add_int(str_t* str, int i) {
+    char buf[32];
+    sprintf(buf, "%d", i);
+    str_add_cstr(str, buf);
+}
+
 void str_clear(str_t* str) {
     str->val[0] = '\0';
     str->len = 0;

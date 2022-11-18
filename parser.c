@@ -12,25 +12,13 @@
 #include "error.h"
 #include "exp.h"
 
-void check_variable_exists(parser_t* parser, parser_state_t state) {
-    if (parser->token.type == TOK_VAR) {
-        htab_pair_t* value =
-            htab_find(state.in_function ? parser->local_symtable : parser->global_symtable,
-                      parser->token.attr.val_s.val);
-        if (value == NULL) {
-            error_exit(ERR_SEM_VAR);
-        }
-    }
-}
-
-void next_token_keep(parser_t* parser, parser_state_t state) {
+void next_token_keep(parser_t* parser) {
     if (parser->buffer_token_valid) {
         parser->buffer_token_valid = false;
         parser->token = parser->buffer_token;
     } else {
         parser->token = scanner_get_next(parser->scanner);
     }
-    check_variable_exists(parser, state);
 #ifdef DEBUG_TOK
     token_print(&parser->token);
 #endif  // DEBUG_TOK
@@ -132,12 +120,20 @@ void increment_construct_count(parser_t* parser, parser_state_t* state) {
     parser->construct_count++;
 }
 
+void parser_var_to_symtable(parser_t* parser, parser_state_t state) {
+    if (htab_add_variable(state.in_function ? parser->local_symtable : parser->global_symtable,
+                          &parser->token)) {
+        gen_variable_def(parser->gen, &parser->token, state.in_function);
+    }
+}
+
 parser_t parser_new(scanner_t* scanner, gen_t* gen) {
     parser_t parser = {.scanner = scanner,
                        .gen = gen,
                        .local_symtable = htab_new(),
                        .global_symtable = htab_new(),
-                       .buffer_token_valid = false};
+                       .buffer_token_valid = false,
+                       .param_count = 0};
 
     // Define buildin functions
     htab_define_buildin(parser.global_symtable);
@@ -157,7 +153,6 @@ void rule_additional_param(parser_t* parser, parser_state_t state) {
         htab_function_add_param(parser->function, &parser->token);       //
         next_token_check_type(parser, TOK_VAR);                          // $var
         htab_function_add_param_name(parser->function, &parser->token);  //
-        /* TODO: Types! */                                               //
         htab_add_variable(parser->local_symtable, &parser->token);       //
         rule_additional_param(parser, state);                            // <additional_param>
     }
@@ -170,7 +165,6 @@ void rule_param(parser_t* parser, parser_state_t state) {
         htab_function_add_param(parser->function, &parser->token);       //
         next_token_check_type(parser, TOK_VAR);                          // $var
         htab_function_add_param_name(parser->function, &parser->token);  //
-        /* TODO: Types! */                                               //
         htab_add_variable(parser->local_symtable, &parser->token);       //
         rule_additional_param(parser, state);                            // <additional_param>
     }
@@ -184,9 +178,12 @@ void rule_additional_call_param(parser_t* parser, parser_state_t state) {
             !token_is_literal(&parser->token)) {                     //
             error_exit(ERR_SYN);                                     //
         }                                                            //
-        check_variable_exists(parser, state);                        //
+        if (token_is_type(parser, TOK_VAR)) {                        //
+            parser_var_to_symtable(parser, state);                   //
+        }                                                            //
         gen_function_call_param(parser->gen,                         //
                                 &parser->token, state.in_function);  //
+        parser->param_count++;                                       //
         rule_additional_call_param(parser, state);                   // <additional_call_param>
     }
 }
@@ -196,9 +193,12 @@ void rule_call_param(parser_t* parser, parser_state_t state) {
     next_token(parser);
     if (token_is_type(parser, TOK_VAR) ||                            // $var | literal
         token_is_literal(&parser->token)) {                          //
-        check_variable_exists(parser, state);                        //
+        if (token_is_type(parser, TOK_VAR)) {                        //
+            parser_var_to_symtable(parser, state);                   //
+        }                                                            //
         gen_function_call_param(parser->gen,                         //
                                 &parser->token, state.in_function);  //
+        parser->param_count++;                                       //
         rule_additional_call_param(parser, state);                   // <additional_call_param>
     }
 }
@@ -207,11 +207,13 @@ void rule_function_call(parser_t* parser, parser_state_t state) {
     (void)state;
     parser->function_call = htab_add_function(parser->global_symtable, &parser->token, false);
     gen_function_call_frame(parser->gen, &parser->token);
-    next_token_check_type(parser, TOK_LPAREN);          // (
-    rule_call_param(parser, state);                     // <call_param>
-    token_check_type(parser, TOK_RPAREN);               // )
-    next_token_check_type(parser, TOK_SEMICOLON);       // ;
-    gen_function_call(parser->gen, state.in_function);  //
+    next_token_check_type(parser, TOK_LPAREN);     // (
+    rule_call_param(parser, state);                // <call_param>
+    token_check_type(parser, TOK_RPAREN);          // )
+    next_token_check_type(parser, TOK_SEMICOLON);  // ;
+    htab_function_check_params(parser->function_call, parser->param_count, false);
+    parser->param_count = 0;
+    gen_function_call(parser->gen, state.in_function);
 }
 
 void rule_value(parser_t* parser, parser_state_t state) {
@@ -228,30 +230,24 @@ void rule_value(parser_t* parser, parser_state_t state) {
 void rule_statement(parser_t* parser, parser_state_t state) {
     (void)state;
     switch (parser->token.type) {
-        case TOK_VAR: {                                                            // $var
-            token_t tmp = parser->token;                                           //
-            str_clear(&parser->gen->variable);                                     //
-            str_add_str(&parser->gen->variable, &parser->token.attr.val_s);        //
-            if (htab_add_variable(                                                 //
-                    state.in_function ?                                            //
-                        parser->local_symtable                                     //
-                                      : parser->global_symtable,                   //
-                    &parser->token)) {                                             //
-                gen_variable_def(parser->gen, &parser->token, state.in_function);  //
-            }                                                                      //
-            next_token_keep(parser, state);                                        // =
-            if (token_is_type(parser, TOK_ASSIGN)) {                               //
-                token_free(&tmp);                                                  //
-                next_token(parser);                                                //
-                rule_value(parser, state);                                         // <value>
-                token_check_type(parser, TOK_SEMICOLON);                           // ;
-            } else {                                                               //
-                parser->buffer_token_valid = true;                                 //
-                parser->buffer_token = parser->token;                              //
-                parser->token = tmp;                                               //
-                rule_exp(parser, state);                                           // <exp>
-                parser->buffer_token_valid = false;                                //
-                token_check_type(parser, TOK_SEMICOLON);                           // ;
+        case TOK_VAR: {                                                      // $var
+            token_t tmp = parser->token;                                     //
+            str_clear(&parser->gen->variable);                               //
+            str_add_str(&parser->gen->variable, &parser->token.attr.val_s);  //
+            parser_var_to_symtable(parser, state);                           //
+            next_token_keep(parser);                                         // =
+            if (token_is_type(parser, TOK_ASSIGN)) {                         //
+                token_free(&tmp);                                            //
+                next_token(parser);                                          //
+                rule_value(parser, state);                                   // <value>
+                token_check_type(parser, TOK_SEMICOLON);                     // ;
+            } else {                                                         //
+                parser->buffer_token_valid = true;                           //
+                parser->buffer_token = parser->token;                        //
+                parser->token = tmp;                                         //
+                rule_exp(parser, state);                                     // <exp>
+                parser->buffer_token_valid = false;                          //
+                token_check_type(parser, TOK_SEMICOLON);                     // ;
             }
             // token_free(&parser->old_token);
 
@@ -327,22 +323,24 @@ void rule_statement(parser_t* parser, parser_state_t state) {
 
 void rule_function(parser_t* parser, parser_state_t state) {
     state.in_function = true;
-    next_token_check_type(parser, TOK_FUN_NAME);                       // function_name
-    parser->function = htab_add_function(parser->global_symtable,      //
-                                         &parser->token, true);        //
-    gen_function(parser->gen, &parser->token);                         //
-    next_token_check_type(parser, TOK_LPAREN);                         // (
-    rule_param(parser, state);                                         // <param>
-    token_check_type(parser, TOK_RPAREN);                              // )
-    next_token_check_type(parser, TOK_COLON);                          // :
-    next_token_check_by_function(parser, token_is_returntype);         // type
-    htab_function_add_return_type(parser->function, &parser->token);   //
-    next_token_check_type(parser, TOK_LBRACE);                         // {
-    next_token(parser);                                                //
-    rule_statement(parser, state);                                     // <statement>
-    token_check_type(parser, TOK_RBRACE);                              // }
-    gen_function_end(parser->gen, &parser->function->value.function);  //
-    htab_clear(parser->local_symtable);                                //
+    next_token_check_type(parser, TOK_FUN_NAME);                      // function_name
+    parser->function = htab_add_function(parser->global_symtable,     //
+                                         &parser->token, true);       //
+    gen_function(parser->gen, &parser->token);                        //
+    next_token_check_type(parser, TOK_LPAREN);                        // (
+    rule_param(parser, state);                                        // <param>
+    token_check_type(parser, TOK_RPAREN);                             // )
+    next_token_check_type(parser, TOK_COLON);                         // :
+    next_token_check_by_function(parser, token_is_returntype);        // type
+    htab_function_add_return_type(parser->function, &parser->token);  //
+    next_token_check_type(parser, TOK_LBRACE);                        // {
+    next_token(parser);                                               //
+    rule_statement(parser, state);                                    // <statement>
+    token_check_type(parser, TOK_RBRACE);                             // }
+    gen_function_end(parser->gen, &parser->function->value.function,  //
+                     (char*)parser->function->key);                   //
+    htab_function_check_params(parser->function, 0, true);            //
+    htab_clear(parser->local_symtable);                               //
 }
 
 void rule_program(parser_t* parser, parser_state_t state) {

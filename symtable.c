@@ -261,11 +261,12 @@ htab_pair_t* htab_add(htab_t* t, htab_key_t key, htab_value_t value) {
 htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition) {
     // Check if function is already defined
     htab_pair_t* pair = htab_find(t, token->attr.val_s.val);
+    // When we are defining new function and it already exists
     if (definition && pair != NULL && pair->value.function.defined) {
         error_exit(ERR_SEM_FUN);
     }
 
-    // If we have partial definition (from calling), return in
+    // If we have partial definition (from calling), return it
     if (pair != NULL) {
         if (definition) {
             pair->value.function.defined = true;
@@ -274,9 +275,11 @@ htab_pair_t* htab_add_function(htab_t* t, token_t* token, bool definition) {
     }
 
     // Add function to symbol table
-    return htab_add(t, token->attr.val_s.val,
-                    (htab_value_t){.type = HTAB_FUNCTION,
-                                   .function = {.param_count = 0, .defined = definition}});
+    return htab_add(
+        t, token->attr.val_s.val,
+        (htab_value_t){
+            .type = HTAB_FUNCTION,
+            .function = {.param_count = 0, .param_count_guess = -1, .defined = definition}});
 }
 
 void htab_function_add_param(htab_pair_t* fun, token_t* token) {
@@ -293,7 +296,7 @@ void htab_function_add_param(htab_pair_t* fun, token_t* token) {
     // Copy attributes from token
     fun->value.function.params = params;
     fun->value.function.params[fun->value.function.param_count - 1].type = token->type;
-    fun->value.function.params[fun->value.function.param_count - 1].required = token->attr.val_b;
+    fun->value.function.params[fun->value.function.param_count - 1].required = !token->attr.val_b;
 }
 
 void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
@@ -331,6 +334,35 @@ void htab_function_check_all_defined(htab_t* t) {
     }
 }
 
+void htab_function_check_params(htab_pair_t* fun, int param_count, bool definition) {
+    // Function has variable number of parameters
+    if (fun->value.function.param_count == -1) {
+        return;
+    }
+
+    if (definition) {
+        // Check if guessed parameter count is correct
+        if (fun->value.function.param_count_guess != -1 &&
+            fun->value.function.param_count_guess != fun->value.function.param_count) {
+            error_exit(ERR_SEM_CALL);
+        }
+    } else {
+        // If function is already defined check the actual count
+        if (fun->value.function.defined) {
+            if (fun->value.function.param_count != param_count) {
+                error_exit(ERR_SEM_CALL);
+            }
+        } else {
+            // If function is not defined, guess the parameter count
+            if (fun->value.function.param_count_guess == -1) {
+                fun->value.function.param_count_guess = param_count;
+            } else if (fun->value.function.param_count_guess != param_count) {
+                error_exit(ERR_SEM_CALL);
+            }
+        }
+    }
+}
+
 bool htab_add_variable(htab_t* t, token_t* token) {
     // Check if variable is already defined
     if (htab_find(t, token->attr.val_s.val) != NULL) {
@@ -360,7 +392,7 @@ void htab_define_buildin(htab_t* t) {
     htab_add(t, "write",
              (htab_value_t){
                  .type = HTAB_FUNCTION,
-                 .function = {.param_count = 0, .defined = true, .returns = {.type = TOK_VOID}}});
+                 .function = {.param_count = -1, .defined = true, .returns = {.type = TOK_VOID}}});
 
     // readi
     htab_add(t, "readi",

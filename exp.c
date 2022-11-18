@@ -250,7 +250,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
             case L:
                 stack_push_after_terminal(&stack);
                 stack_push(&stack, token_term_new(parser->token, true));
-                next_token_keep(parser, state);
+                next_token_keep(parser);
                 break;
             case R:
                 while ((token = stack_pop(&stack))->value.type != TOK_HANDLE_START) {
@@ -265,7 +265,7 @@ void rule_exp(parser_t* parser, parser_state_t state) {
                 break;
             case E:
                 stack_push(&stack, token_term_new(parser->token, true));
-                next_token_keep(parser, state);
+                next_token_keep(parser);
                 break;
             case X:
                 error_exit(ERR_SYN);

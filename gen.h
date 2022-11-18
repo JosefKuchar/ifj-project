@@ -120,7 +120,7 @@ void gen_function(gen_t* gen, token_t* token);
  * @param gen Generator instance
  * @param function Pointer to function data in table
  */
-void gen_function_end(gen_t* gen, htab_fun_t* function);
+void gen_function_end(gen_t* gen, htab_fun_t* function, char* function_name);
 
 /**
  * @brief Generate function call
