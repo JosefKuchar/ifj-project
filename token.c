@@ -247,7 +247,8 @@ bool type_is_datatype(token_type_t type) {
 }
 
 bool type_is_literal(token_type_t type) {
-    return type == TOK_INT_LIT || type == TOK_FLOAT_LIT || type == TOK_STR_LIT || type == TOK_NULL;
+    return type == TOK_INT_LIT || type == TOK_FLOAT_LIT || type == TOK_STR_LIT ||
+           type == TOK_NULL || type == TOK_BOOL_LIT;
 }
 
 bool type_is_expression(token_type_t type) {
