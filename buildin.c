@@ -90,7 +90,9 @@ void gen_func_strlen(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"           // Get string
+                 "POPS LF@tmp\n"            // Get string
+                 "TYPE GF@?type1 LF@tmp\n"  // Get type
+                 "JUMPIFNEQ !ERR_SEM_CALL string@string GF@?type1\n"
                  "STRLEN LF@tmp LF@tmp\n"  // Get length
                  "PUSHS LF@tmp\n"          // Return
                  "POPFRAME\n"
@@ -108,7 +110,9 @@ void gen_func_chr(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"             // Get int
+                 "POPS LF@tmp\n"            // Get int
+                 "TYPE GF@?type1 LF@tmp\n"  // Get type
+                 "JUMPIFNEQ !ERR_SEM_CALL string@int GF@?type1\n"
                  "INT2CHAR LF@tmp LF@tmp\n"  // Convert to char
                  "PUSHS LF@tmp\n"            // Return
                  "POPFRAME\n"
@@ -126,9 +130,16 @@ void gen_func_ord(gen_t* gen) {
                  "CREATEFRAME\n"
                  "PUSHFRAME\n"
                  "DEFVAR LF@tmp\n"
-                 "POPS LF@tmp\n"                   // Get string
+                 "POPS LF@tmp\n"                                      // Get string
+                 "TYPE GF@?type1 LF@tmp\n"                            // Get type
+                 "JUMPIFNEQ !ERR_SEM_CALL string@string GF@?type1\n"  // Check type
+                 "JUMPIFEQ !ord_0 string@ LF@tmp\n"                   // Check if empty
                  "STRI2INT LF@tmp LF@tmp int@0\n"  // Get ASCII code of first char
                  "PUSHS LF@tmp\n"                  // Return
+                 "POPFRAME\n"
+                 "RETURN\n"
+                 "LABEL !ord_0\n"
+                 "PUSHS int@0\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
@@ -225,18 +236,41 @@ void gen_func_substring(gen_t* gen) {
                  "DEFVAR LF@str\n"
                  "DEFVAR LF@tmp\n"
                  "DEFVAR LF@res\n"
-                 "POPS LF@str\n"                             // Get string
-                 "POPS LF@i\n"                               // Get start index
-                 "POPS LF@j\n"                               // Get end index
-                 "MOVE LF@res string@\n"                     // res = ""
-                 "LABEL !substring_loop\n"                   // Loop
-                 "JUMPIFEQ !substring_loop_end LF@i LF@j\n"  // If i == j, end
-                 "GETCHAR LF@tmp LF@str LF@i\n"              // Get char at index i
-                 "CONCAT LF@res LF@res LF@tmp\n"             // res += char
-                 "ADD LF@i LF@i int@1\n"                     // i++
-                 "JUMP !substring_loop\n"                    // Jump to loop
-                 "LABEL !substring_loop_end\n"               // Loop end
-                 "PUSHS LF@res\n"                            // Return
+                 "DEFVAR LF@len\n"
+                 "POPS LF@str\n"                                      // Get string
+                 "TYPE GF@?type1 LF@str\n"                            // Get type
+                 "JUMPIFNEQ !ERR_SEM_CALL string@string GF@?type1\n"  // Check type
+                 "STRLEN LF@len LF@str\n"                             // Get length
+                 "POPS LF@i\n"                                        // Get start index
+                 "TYPE GF@?type1 LF@i\n"                              // Get type
+                 "JUMPIFNEQ !ERR_SEM_CALL string@int GF@?type1\n"     // Check type
+                 "POPS LF@j\n"                                        // Get end index
+                 "TYPE GF@?type1 LF@j\n"                              // Get type
+                 "LT GF@?tmp1 LF@i int@0\n"                           // Check start index
+                 "JUMPIFEQ !substring_null GF@?tmp1 bool@true\n"      //
+                 "LT GF@?tmp1 LF@j int@0\n"                           // Check end index
+                 "JUMPIFEQ !substring_null GF@?tmp1 bool@true\n"      //
+                 "GT GF@?tmp1 LF@i LF@j\n"                            // Check start index
+                 "JUMPIFEQ !substring_null GF@?tmp1 bool@true\n"      //
+                 "GT GF@?tmp1 LF@i LF@len\n"                          // Check start index
+                 "JUMPIFEQ !substring_null GF@?tmp1 bool@true\n"      //
+                 "JUMPIFEQ !substring_null LF@i LF@len\n"             //
+                 "GT GF@?tmp1 LF@j LF@len\n"                          // Check end index
+                 "JUMPIFEQ !substring_null GF@?tmp1 bool@true\n"      //
+                 "JUMPIFNEQ !ERR_SEM_CALL string@int GF@?type1\n"     // Check type
+                 "MOVE LF@res string@\n"                              // res = ""
+                 "LABEL !substring_loop\n"                            // Loop
+                 "JUMPIFEQ !substring_loop_end LF@i LF@j\n"           // If i == j, end
+                 "GETCHAR LF@tmp LF@str LF@i\n"                       // Get char at index i
+                 "CONCAT LF@res LF@res LF@tmp\n"                      // res += char
+                 "ADD LF@i LF@i int@1\n"                              // i++
+                 "JUMP !substring_loop\n"                             // Jump to loop
+                 "LABEL !substring_loop_end\n"                        // Loop end
+                 "PUSHS LF@res\n"                                     // Return
+                 "POPFRAME\n"
+                 "RETURN\n"
+                 "LABEL !substring_null\n"
+                 "PUSHS nil@nil\n"
                  "POPFRAME\n"
                  "RETURN\n");
 }
