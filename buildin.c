@@ -28,6 +28,7 @@ void gen_func_write(gen_t* gen) {
                  "WRITE LF@current\n"                     // Output current term
                  "JUMP !write_loop\n"                     // Back to loop
                  "LABEL !write_loop_end\n"                // End of loop
+                 "PUSHS nil@nil\n"                        // Return null
                  "POPFRAME\n"
                  "RETURN\n");
 }
