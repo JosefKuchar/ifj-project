@@ -242,6 +242,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 rule_value(parser, state);                                   // <value>
                 token_check_type(parser, TOK_SEMICOLON);                     // ;
             } else {                                                         //
+                str_clear(&parser->gen->variable);                           //
                 parser->buffer_token_valid = true;                           //
                 parser->buffer_token = parser->token;                        //
                 parser->token = tmp;                                         //
