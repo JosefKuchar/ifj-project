@@ -30,12 +30,6 @@ gen_t gen_new() {
     return gen;
 }
 
-void gen_int(gen_t* gen, int val) {
-    char buf[16];
-    sprintf(buf, "%d", val);
-    str_add_cstr(gen->current, buf);
-}
-
 void gen_header(gen_t* gen) {
     // Program header
     str_add_cstr(&gen->header, ".IFJcode22\n");
@@ -94,32 +88,32 @@ void gen_if(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current,
                  "CALL !to_bool\n"
                  "JUMPIFEQ !else_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, " GF@?tmp1 bool@false\n");
 }
 
 void gen_else(gen_t* gen, int construct_count) {
     // Jump to if-else end in if branch
     str_add_cstr(gen->current, "JUMP !elseifend_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_char(gen->current, '\n');
     // Else branch label
     str_add_cstr(gen->current, "LABEL !else_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_char(gen->current, '\n');
 }
 
 void gen_if_else_end(gen_t* gen, int construct_count) {
     // If-else end label
     str_add_cstr(gen->current, "LABEL !elseifend_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
 void gen_while(gen_t* gen, int construct_count) {
     // While label
     str_add_cstr(gen->current, "LABEL !while_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
@@ -128,18 +122,18 @@ void gen_while_exit(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current,
                  "CALL !to_bool\n"
                  "JUMPIFEQ !whileend_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, " GF@?tmp1 bool@false\n");
 }
 
 void gen_while_end(gen_t* gen, int construct_count) {
     // Jump back to while label
     str_add_cstr(gen->current, "JUMP !while_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
     // Define while end label
     str_add_cstr(gen->current, "LABEL !whileend_");
-    gen_int(gen, construct_count);
+    str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
@@ -375,7 +369,7 @@ void gen_function_call(gen_t* gen, bool in_function) {
     // We push number of terms to stack so the function knows how many there are
     if (strcmp(gen->function_name.val, "write") == 0) {
         str_add_cstr(gen->current, "PUSHS int@");
-        gen_int(gen, gen->param_count);
+        str_add_int(gen->current, gen->param_count);
         str_add_char(gen->current, '\n');
     }
 
