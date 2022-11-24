@@ -16,10 +16,11 @@
  * @brief All token types
  */
 typedef enum {
-    TOK_PLUS,          // +
-    TOK_MINUS,         // -
     TOK_MULTIPLY,      // *
     TOK_DIVIDE,        // /
+    TOK_PLUS,          // +
+    TOK_MINUS,         // -
+    TOK_DOT,           // .
     TOK_LESS,          // <
     TOK_LESS_E,        // <=
     TOK_GREATER,       // >
@@ -32,7 +33,6 @@ typedef enum {
     TOK_INT_LIT,       // Integer literal (eg. 0)
     TOK_FLOAT_LIT,     // Float literal (eg. 0.0)
     TOK_STR_LIT,       // String literal (eg. "foo")
-    TOK_DOT,           // .
     TOK_NULL,          // Null
     TOK_DOLLAR,        // BOTTOM OF THE STACK (INTERNAL TO EXPR PARSING)
     TOK_HANDLE_START,  // HANDLE_START (INTERNAL TO EXPR PARSING)
