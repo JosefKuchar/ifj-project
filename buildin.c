@@ -107,7 +107,6 @@ void gen_func_chr(gen_t* gen) {
                  "DEFVAR GF@?chr$declared\n"
                  "MOVE GF@?chr$declared bool@true\n");
 
-    // TODO: Check if $i is in range 0-255
     str_add_cstr(&gen->functions,
                  "LABEL chr\n"
                  "CREATEFRAME\n"
@@ -127,7 +126,6 @@ void gen_func_ord(gen_t* gen) {
                  "DEFVAR GF@?ord$declared\n"
                  "MOVE GF@?ord$declared bool@true\n");
 
-    // TODO: Return 0 if $c is empty
     str_add_cstr(&gen->functions,
                  "LABEL ord\n"
                  "CREATEFRAME\n"
@@ -229,7 +227,6 @@ void gen_func_substring(gen_t* gen) {
                  "DEFVAR GF@?substring$declared\n"
                  "MOVE GF@?substring$declared bool@true\n");
 
-    // TODO: Return null when conditions in function description are met
     str_add_cstr(&gen->functions,
                  "LABEL substring\n"
                  "CREATEFRAME\n"

@@ -362,7 +362,6 @@ void rule_program(parser_t* parser, parser_state_t state) {
 }
 
 void check_prolog(parser_t* parser) {
-    // TODO Check error codes
     next_token_check_type(parser, TOK_FUN_NAME);                      // declare
     if (strcmp(parser->token.attr.val_s.val, "declare") != 0) {       //
         error_exit(ERR_SYN);                                          //

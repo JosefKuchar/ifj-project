@@ -62,7 +62,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 str_add_char(&scanner->buffer, c);
                 if (scanner->buffer.len == 5) {  // <?php
                     if (strcmp(scanner->buffer.val, "<?php") != 0) {
-                        error_exit(ERR_LEX);  // TODO: Check if this error is right
+                        error_exit(ERR_LEX);
                     } else {
                         str_clear(&scanner->buffer);
                         scanner->state = SC_START;
@@ -374,7 +374,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 } else if (c == 'e' || c == 'E') {
                     str_add_char(&scanner->buffer, c);
                     scanner->state = SC_EXPONENT_SIGN;
-                } else if (isalpha(c)) {  // TODO: other cases
+                } else if (isalpha(c)) {
                     error_exit(ERR_LEX);
                 } else {
                     scanner->col_nr--;

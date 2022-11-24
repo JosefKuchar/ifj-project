@@ -518,7 +518,6 @@ void gen_exp(gen_t* gen, token_term_t* root, bool in_function) {
 void gen_function_call_param(gen_t* gen, token_t* token, bool in_function) {
     // Add instruction parameters to stack
     // We have to push them in reverse order
-    // TODO: Rewrite this, this is ugly
     str_t str = str_new();
     gen_value(&str, token, in_function);
     str_add_cstr(&str, "\n");

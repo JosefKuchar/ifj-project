@@ -116,7 +116,7 @@ token_t token_new_with_string_literal(token_type_t type,
                     is_valid_hex(str->val[i + 3])) {
                     // Convert the hex to a character
                     char hex[3] = {str->val[i + 2], str->val[i + 3], '\0'};
-                    int number = (char)strtol(hex, NULL, 16);  // TODO: This conversion is wrong
+                    int number = (int)strtol(hex, NULL, 16);
                     // Check if the number is in the valid range
                     if (number >= 1 && number <= 255) {
                         char c = (char)number;
@@ -197,16 +197,22 @@ token_t token_new_with_string_literal(token_type_t type,
 }
 
 token_t token_new_with_int(token_type_t type, str_t* str, size_t line_nr, size_t col_nr) {
-    // TODO: error checks
-    long num = strtoul(str->val, NULL, 10);
+    char* err;
+    long num = strtoul(str->val, &err, 10);
+    if (err == str->val || *err != '\0') {
+        error_exit(ERR_LEX);
+    }
 
     str_clear(str);
     return (token_t){.type = type, .attr.val_i = (int)num, .line_nr = line_nr, .col_nr = col_nr};
 }
 
 token_t token_new_with_float(token_type_t type, str_t* str, size_t line_nr, size_t col_nr) {
-    // TODO: error checks
-    double num = strtod(str->val, NULL);
+    char* err;
+    double num = strtod(str->val, &err);
+    if (err == str->val || *err != '\0') {
+        error_exit(ERR_LEX);
+    }
 
     str_clear(str);
     return (token_t){.type = type, .attr.val_f = num, .line_nr = line_nr, .col_nr = col_nr};
