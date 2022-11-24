@@ -128,18 +128,42 @@ void htab_function_add_param(htab_pair_t* fun, token_t* token);
  * @brief Add parameter name to existing function parameter
  *
  * @param fun Pointer to function inside hash table
- * @param token Curren token (variable name)
+ * @param token Current token (variable name)
  */
 void htab_function_add_param_name(htab_pair_t* fun, token_t* token);
 
+/**
+ * @brief Add return type to existing function
+ *
+ * @param fun Pointer to function inside hash table
+ * @param token Current token (return type)
+ */
 void htab_function_add_return_type(htab_pair_t* fun, token_t* token);
 
+/**
+ * @brief Add variable to hash table
+ *
+ * @param t Hash table
+ * @param token Current token (variable name)
+ */
 bool htab_add_variable(htab_t* t, token_t* token);
 
+/**
+ * @brief Check if all functions are properly defined
+ * Throws error if not
+ *
+ * @param t Hash table
+ */
 void htab_function_check_all_defined(htab_t* t);
 
-void htab_for_each(const htab_t* t, void (*f)(htab_pair_t* data));
-
+/**
+ * @brief Check if function is call compatible with definition
+ * Throws error if not
+ *
+ * @param fun Pointer to function inside hash table
+ * @param param_count Expected number of parameters
+ * @param definition Wheter function is definition or call
+ */
 void htab_function_check_params(htab_pair_t* fun, int param_count, bool definition);
 
 /**
@@ -156,6 +180,11 @@ void htab_clear(htab_t* t);
  */
 void htab_free(htab_t* t);
 
+/**
+ * @brief Define all buildin functions
+ *
+ * @param t Hash table
+ */
 void htab_define_buildin(htab_t* t);
 
 #endif  // __SYMTABLE_H__

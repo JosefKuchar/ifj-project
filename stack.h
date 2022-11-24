@@ -34,6 +34,11 @@ stack_t stack_new();
  */
 void stack_free(stack_t* stack);
 
+/**
+ * @brief Removes all elements from stack (does not free stack)
+ *
+ * @param stack Stack
+ */
 void stack_empty(stack_t* stack);
 
 /**

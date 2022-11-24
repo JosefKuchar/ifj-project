@@ -32,21 +32,21 @@ void token_term_pprint(token_term_t token) {
     printf("%s[%d]\n", token_to_string(token.result), token.terminal);
 }
 
-void token_graph_print(token_term_t* token, int depth, int foo) {
+void token_graph_print(token_term_t* token, int depth, int side) {
     if (token == NULL) {
         return;
     }
 
     if (token->left != NULL) {
-        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth, foo,
-               token_to_string(token->left->value.type), depth + 1, foo * 2);
+        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth,
+               side, token_to_string(token->left->value.type), depth + 1, side * 2);
     }
     if (token->right != NULL) {
-        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth, foo,
-               token_to_string(token->right->value.type), depth + 1, foo * 2 + 1);
+        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth,
+               side, token_to_string(token->right->value.type), depth + 1, side * 2 + 1);
     }
-    token_graph_print(token->left, depth + 1, foo * 2);
-    token_graph_print(token->right, depth + 1, foo * 2 + 1);
+    token_graph_print(token->left, depth + 1, side * 2);
+    token_graph_print(token->right, depth + 1, side * 2 + 1);
 }
 
 void token_term_free(token_term_t* root) {

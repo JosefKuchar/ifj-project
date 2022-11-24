@@ -207,16 +207,52 @@ bool token_is_ar_operator(token_t* token);
  */
 bool token_is_comparator(token_t* token);
 
+/**
+ * @brief Checks if type is data type (eg. int, float, string etc.)
+ *
+ * @param type Token type
+ * @return true if token type is a data type
+ */
 bool type_is_datatype(token_type_t type);
 
+/**
+ * @brief Checks if type is literal (eg. "abc", 123)
+ *
+ * @param type Token type
+ * @return true if toke type n is a literal
+ */
 bool type_is_literal(token_type_t type);
 
+/**
+ * @brief Checks if type is a valid expression start
+ *
+ * @param type Token type
+ * @return true if token can be an expression start
+ */
 bool type_is_expression(token_type_t type);
 
+/**
+ * @brief Checks if type is operator (eg. +, -)
+ *
+ * @param type Token type
+ * @return true if token type is an operator
+ */
 bool type_is_ar_operator(token_type_t type);
 
+/**
+ * @brief Checks if type is comparator (eg. ===, >=)
+ *
+ * @param type Token type
+ * @return true if token type is a comparator
+ */
 bool type_is_comparator(token_type_t type);
 
+/**
+ * @brief Checks if type is return type (eg. int, float, string etc.)
+ *
+ * @param type Token type
+ * @return true if token type is a return type
+ */
 bool token_is_returntype(token_t* token);
 
 #endif  // __TOKEN_H__

@@ -59,8 +59,20 @@ void str_add_char(str_t* str, char c);
  */
 void str_add_cstr(str_t* str, char* cstr);
 
+/**
+ * @brief Add string to existing string
+ *
+ * @param str Destination string
+ * @param str2 Source string
+ */
 void str_add_str(str_t* str, str_t* str2);
 
+/**
+ * @brief Add int to existing string
+ *
+ * @param str Destination string
+ * @param i Source int
+ */
 void str_add_int(str_t* str, int i);
 
 /**

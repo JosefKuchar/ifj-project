@@ -39,7 +39,20 @@ token_term_t* token_term_new(token_t value, bool terminal);
  */
 void token_term_pprint(token_term_t token);
 
-void token_graph_print(token_term_t* token, int depth, int foo);
+/**
+ * @brief Generates graphviz code from expression tree
+ *
+ * @param token Root token
+ * @param depth Current depth (starts at 0)
+ * @param side Current side (starts at 0)
+ */
+void token_graph_print(token_term_t* token, int depth, int side);
 
+/**
+ * @brief Frees token_term_t and all its children
+ *
+ * @param root Root token
+ */
 void token_term_free(token_term_t* root);
+
 #endif

@@ -126,7 +126,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                         continue;
                     case '$':
                         scanner->state = SC_VARIABLE_START;
-
                         str_add_char(&scanner->buffer, c);
                         continue;
                     case '"':

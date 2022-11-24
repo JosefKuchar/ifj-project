@@ -158,11 +158,11 @@ void stack_push_after_terminal(stack_t* stack) {
 
 void stack_pprint(stack_t* stack) {
     if (stack->len == 0) {
-        printf("empty stackerino\n");
+        fprintf(stderr, "empty stack\n");
         return;
     }
     for (int i = 0; i < stack->len; i++) {
-        printf("%d[%d]: %s\n", i, stack->tokens[i]->terminal,
-               token_to_string(stack->tokens[i]->value.type));
+        fprintf(stderr, "%d[%d]: %s\n", i, stack->tokens[i]->terminal,
+                token_to_string(stack->tokens[i]->value.type));
     }
 }
