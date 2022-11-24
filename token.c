@@ -222,34 +222,6 @@ token_t token_new_with_bool(token_type_t type, bool val, size_t line_nr, size_t 
     return (token_t){.type = type, .attr.val_b = val, .line_nr = line_nr, .col_nr = col_nr};
 }
 
-bool token_is_datatype(token_t* token) {
-    return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING;
-}
-
-bool token_is_returntype(token_t* token) {
-    return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING ||
-           token->type == TOK_VOID;
-}
-
-bool token_is_literal(token_t* token) {
-    return token->type == TOK_INT_LIT || token->type == TOK_FLOAT_LIT ||
-           token->type == TOK_STR_LIT || token->type == TOK_NULL;
-}
-
-bool token_is_expression(token_t* token) {
-    return token->type == TOK_LPAREN || token_is_literal(token) || token->type == TOK_VAR;
-}
-
-bool token_is_ar_operator(token_t* token) {
-    return token->type == TOK_PLUS || token->type == TOK_MINUS || token->type == TOK_DIVIDE ||
-           token->type == TOK_MULTIPLY || token->type == TOK_DOT;
-}
-
-bool token_is_comparator(token_t* token) {
-    return token->type == TOK_LESS || token->type == TOK_LESS_E || token->type == TOK_GREATER ||
-           token->type == TOK_GREATER_E || token->type == TOK_EQUALS || token->type == TOK_NEQUALS;
-}
-
 bool type_is_datatype(token_type_t type) {
     return type == TOK_INT || type == TOK_FLOAT || type == TOK_STRING;
 }
@@ -286,4 +258,29 @@ char* token_to_string(token_type_t type) {
 
 bool type_is_number(token_type_t type) {
     return type == TOK_FLOAT_LIT || type == TOK_INT_LIT;
+}
+
+bool token_is_datatype(token_t* token) {
+    return type_is_datatype(token->type);
+}
+
+bool token_is_returntype(token_t* token) {
+    return token->type == TOK_INT || token->type == TOK_FLOAT || token->type == TOK_STRING ||
+           token->type == TOK_VOID;
+}
+
+bool token_is_literal(token_t* token) {
+    return type_is_literal(token->type);
+}
+
+bool token_is_expression(token_t* token) {
+    return type_is_expression(token->type);
+}
+
+bool token_is_ar_operator(token_t* token) {
+    return type_is_ar_operator(token->type);
+}
+
+bool token_is_comparator(token_t* token) {
+    return type_is_comparator(token->type);
 }
