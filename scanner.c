@@ -351,11 +351,11 @@ token_t scanner_get_next(scanner_t* scanner) {
                     return token_new(TOK_EOF, scanner->line_nr, scanner->col_nr);
                 }
 
-                if (isspace(c)) {
+                if (c == '\n' || (c == '\r' && getc(scanner->input) == '\n')) {
                     break;
                 } else {
-                    // There can't be anything after ?>
-                    error_exit(ERR_LEX);
+                    // There can't be anything after ?> except \n and \r\n
+                    error_exit(ERR_SYN);
                 }
                 break;
             }
