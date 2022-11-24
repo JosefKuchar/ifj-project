@@ -1,7 +1,0 @@
-variables
-type
-value
-
-functions
-arguments + types
-declared?
