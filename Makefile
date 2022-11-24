@@ -1,3 +1,10 @@
+# Implementace překladače imperativního jazyka IFJ22
+#
+# Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
+# Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
+# Tomáš Běhal (xbehal02@stud.fit.vutbr.cz)
+# Šimon Benčík (xbenci01@stud.fit.vutbr.cz)
+
 # Compiler settings
 CC = gcc
 CFLAGS = -std=c11 -g -O2 -Wall -Wextra -Werror -pedantic

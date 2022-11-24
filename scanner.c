@@ -1,4 +1,6 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ22
+ *
  * @file scanner.c
  * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
  * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
@@ -57,7 +59,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                     error_exit(ERR_LEX);
                 }
 
-                
                 str_add_char(&scanner->buffer, c);
                 if (scanner->buffer.len == 5) {  // <?php
                     if (strcmp(scanner->buffer.val, "<?php") != 0) {
@@ -77,7 +78,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                         scanner->col_nr = 0;
                         scanner->line_nr++;
                     } else {
-                        
                     }
                     break;
                 }
@@ -126,7 +126,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                         continue;
                     case '$':
                         scanner->state = SC_VARIABLE_START;
-                        
+
                         str_add_char(&scanner->buffer, c);
                         continue;
                     case '"':
@@ -143,7 +143,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 // Function names and keywords
                 if (isalpha(c) || c == '_') {
                     scanner->state = SC_FUNCTION;
-                    
+
                     str_add_char(&scanner->buffer, c);
                     break;
                 }
@@ -151,7 +151,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                 // Numbers
                 if (isdigit(c)) {
                     scanner->state = SC_NUMBER;
-                    
+
                     str_add_char(&scanner->buffer, c);
                     break;
                 }
@@ -223,7 +223,6 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_VARIABLE_START: {
                 if (isalpha(c) || c == '_') {
-                    
                     str_add_char(&scanner->buffer, c);
                     scanner->state = SC_VARIABLE;
                 } else {
@@ -234,8 +233,6 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_VARIABLE: {
                 if (isalnum(c) || c == '_') {
-                    
-
                     str_add_char(&scanner->buffer, c);
                 } else {
                     scanner->col_nr--;
@@ -248,7 +245,6 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_FUNCTION: {
                 if (isalnum(c) || c == '_') {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else {
                     scanner->col_nr--;
@@ -277,11 +273,9 @@ token_t scanner_get_next(scanner_t* scanner) {
                 if (c == '\\') {
                     const int c2 = getc(scanner->input);
                     if (c2 == '"') {
-                        
                         str_add_char(&scanner->buffer, '"');
                         break;
                     } else if (c2 == '\\') {
-                        
                         str_add_char(&scanner->buffer, '\\');
                     } else {
                         ungetc(c2, scanner->input);
@@ -293,7 +287,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                     return token_new_with_string_literal(TOK_STR_LIT, &scanner->buffer,
                                                          scanner->line_nr, scanner->col_nr);
                 } else if (c >= 32) {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else {
                     error_exit(ERR_LEX);
@@ -369,10 +362,8 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_NUMBER: {
                 if (isdigit(c)) {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else if (c == '.') {
-                    
                     str_add_char(&scanner->buffer, c);
                     const int c2 = fgetc(scanner->input);
                     if (isdigit(c2)) {
@@ -382,7 +373,6 @@ token_t scanner_get_next(scanner_t* scanner) {
                         error_exit(ERR_LEX);
                     }
                 } else if (c == 'e' || c == 'E') {
-                    
                     str_add_char(&scanner->buffer, c);
                     scanner->state = SC_EXPONENT_SIGN;
                 } else if (isalpha(c)) {  // TODO: other cases
@@ -398,10 +388,8 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_FLOAT: {
                 if (isdigit(c)) {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else if (c == 'e' || c == 'E') {
-                    
                     str_add_char(&scanner->buffer, 'e');
                     scanner->state = SC_EXPONENT_SIGN;
                 } else if (isalpha(c)) {
@@ -421,7 +409,7 @@ token_t scanner_get_next(scanner_t* scanner) {
                     const int c2 = getc(scanner->input);
                     if (isdigit(c2)) {
                         ungetc(c2, scanner->input);
-                        
+
                         str_add_char(&scanner->buffer, c);
                         scanner->state = SC_EXPONENT;
                     } else {
@@ -438,7 +426,6 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_EXPONENT: {
                 if (isdigit(c)) {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else if (isalpha(c)) {
                     error_exit(ERR_LEX);
@@ -453,7 +440,6 @@ token_t scanner_get_next(scanner_t* scanner) {
             }
             case SC_TYPE_OPTIONAL: {
                 if (isalpha(c)) {
-                    
                     str_add_char(&scanner->buffer, c);
                 } else {
                     scanner->col_nr--;

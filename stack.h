@@ -1,4 +1,6 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ22
+ *
  * @file stack.h
  * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
  * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
@@ -45,7 +47,7 @@ void stack_push(stack_t* stack, token_term_t* token);
  * @brief Removes and returns the top of the stack
  *
  * @param stack to be popped from
- * 
+ *
  * @return token_term_t from top of the stack
  */
 token_term_t* stack_pop(stack_t* stack);
@@ -54,7 +56,7 @@ token_term_t* stack_pop(stack_t* stack);
  * @brief Returns top of the stack
  *
  * @param stack to be popped from
- * 
+ *
  * @return token_term_t from top of the stack
  */
 token_term_t* stack_top(stack_t* stack);
@@ -70,7 +72,7 @@ void stack_pprint(stack_t* stack);
  * @brief Returns terminal closest to the top of the stack and removes it
  *
  * @param stack to be popped from
- * 
+ *
  * @return token_term_t from top of the stack
  */
 token_term_t* stack_pop_terminal(stack_t* stack);
@@ -79,7 +81,7 @@ token_term_t* stack_pop_terminal(stack_t* stack);
  * @brief Returns terminal closest to the top of the stack
  *
  * @param stack to be popped from
- * 
+ *
  * @return token_term_t from top of the stack
  */
 token_term_t* stack_top_terminal(stack_t* stack);

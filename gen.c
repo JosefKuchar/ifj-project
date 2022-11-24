@@ -1,4 +1,6 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ22
+ *
  * @file gen.c
  * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
  * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)

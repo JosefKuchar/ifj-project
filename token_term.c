@@ -1,4 +1,6 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ22
+ *
  * @file token_term.c
  * @author Josef Kuchař (xkucha28@stud.fit.vutbr.cz)
  * @author Matej Sirovatka (xsirov00@stud.fit.vutbr.cz)
@@ -36,12 +38,12 @@ void token_graph_print(token_term_t* token, int depth, int foo) {
     }
 
     if (token->left != NULL) {
-        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth,
-               foo, token_to_string(token->left->value.type), depth + 1, foo * 2);
+        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth, foo,
+               token_to_string(token->left->value.type), depth + 1, foo * 2);
     }
     if (token->right != NULL) {
-        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth,
-               foo, token_to_string(token->right->value.type), depth + 1, foo * 2 + 1);
+        printf("\"%s (%d_%d)\" -> \"%s (%d_%d)\"\n", token_to_string(token->value.type), depth, foo,
+               token_to_string(token->right->value.type), depth + 1, foo * 2 + 1);
     }
     token_graph_print(token->left, depth + 1, foo * 2);
     token_graph_print(token->right, depth + 1, foo * 2 + 1);
