@@ -148,26 +148,26 @@ token_term_t* parse_comparison(stack_t* stack) {
 
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     // =/!= only for formatting reasons
-    /*+ -  *  /  <  <= >  >= == != (  )  ID IN FL ST .  NI $ */
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // +
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // -
-    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // *
-    {R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, R, L, R},  // /
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // <
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // <=
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // >
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // >=
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // ==
-    {L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, L, R},  // !=
-    {L, L, L, L, L, L, L, L, L, L, L, E, L, L, L, L, L, L, R},  // (
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // )
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // ID
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // IN
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // FL
-    {X, X, X, X, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // ST
-    {R, R, L, L, R, R, R, R, R, R, L, R, L, L, L, L, R, L, R},  // .
-    {R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, R, X, R},  // NI
-    {L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, L, R},  // $
+    /** /  +  -  .  <  <= > >= == !=  (  )  ID IN FL ST NI $ */
+    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // *
+    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // /
+    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // +
+    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // -
+    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // .
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <=
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // >
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // >=
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // ==
+    {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // !=
+    {L, L, L, L, L, L, L, L, L, L, L, L, E, L, L, L, L, L, R},  // (
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // )
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // ID
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // IN
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // FL
+    {X, X, X, X, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // ST
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // NI
+    {L, L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, R},  // $
 };
 
 int get_precedence(token_t stack_top, token_t input) {
