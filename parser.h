@@ -30,6 +30,7 @@ typedef struct {
     int param_count;             // Counter of function call params (for checking)
     bool buffer_token_valid;     // Is old token valid?
     token_t buffer_token;        // Old token
+    bool last_default;           // Was last case default?
 } parser_t;
 
 typedef struct {

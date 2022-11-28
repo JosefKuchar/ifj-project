@@ -15,6 +15,7 @@
 #include "exp.h"
 
 void next_token_keep(parser_t* parser) {
+    parser->last_default = false;
     if (parser->buffer_token_valid) {
         parser->buffer_token_valid = false;
         parser->token = parser->buffer_token;
@@ -34,6 +35,7 @@ void next_token_keep(parser_t* parser) {
  */
 void next_token(parser_t* parser) {
     token_free(&parser->token);
+    parser->last_default = false;
     parser->token = scanner_get_next(parser->scanner);
 }
 
@@ -135,6 +137,7 @@ parser_t parser_new(scanner_t* scanner, gen_t* gen) {
                        .local_symtable = htab_new(),
                        .global_symtable = htab_new(),
                        .buffer_token_valid = false,
+                       .last_default = false,
                        .param_count = 0};
 
     // Define buildin functions
@@ -316,11 +319,12 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 rule_exp(parser, state);                  // <exp>
                 token_check_type(parser, TOK_SEMICOLON);  // ;
             } else {
-                if (token_is_type(parser, TOK_EOF) || token_is_type(parser, TOK_FUNCTION) ||
-                    token_is_type(parser, TOK_RBRACE)) {
-                    return;
+                // We are stuck in a loop
+                if (parser->last_default) {
+                    error_exit(ERR_SYN);
                 }
-                error_exit(ERR_SYN);
+                parser->last_default = true;
+                return;
             }
             break;
     }
