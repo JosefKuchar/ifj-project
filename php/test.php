@@ -1,8 +1,11 @@
 <?php
 declare(strict_types=1);
 
-$a = 1;
-$a + 1;
+$a = 10;
 
-$b = write($a);
-write($b);
+function g(): ?int {
+    return 110;
+}
+
+$a = g();
+write($a);
