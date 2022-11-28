@@ -316,7 +316,11 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 rule_exp(parser, state);                  // <exp>
                 token_check_type(parser, TOK_SEMICOLON);  // ;
             } else {
-                return;
+                if (token_is_type(parser, TOK_EOF) || token_is_type(parser, TOK_FUNCTION) ||
+                    token_is_type(parser, TOK_RBRACE)) {
+                    return;
+                }
+                error_exit(ERR_SYN);
             }
             break;
     }
