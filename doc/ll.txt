@@ -1,27 +1,34 @@
-<program> ->  function fun_id ( <params> ) : data_type { <statement>} <program>
-<program> -> <statement> <program>
-<program> -> eof
+<Program> -> function <FunId> ( <Param> ): <ReturnType> { <StatementList> } <Program> .
+<Program> -> <Statement> <Program> .
+<Program> -> .
 
-<params> -> data_type $id <additional_params>
-<params> -> epsilon
+<StatementList> -> <Statement> <StatementList> .
+<StatementList> -> .
 
-<additional_params> -> , data_type $id <additional_params>
-<additional_params> -> epsilon
+<Statement> -> if ( <Exp> ) { <StatementList> } else { <StatementList> } .
+<Statement> -> while ( <Exp> ) { <StatementList> } .
+<Statement> -> return <OptionalExp> ; .
+<Statement> -> <FunId> ( <CallParam> ) ; .
+<Statement> -> <Exp> ; .
+<Statement> -> <VarId> = <Value> ; .
 
-<call_params> -> <term> <additional_call_params>
-<call_params> -> epsilon
+<Value> -> <Exp> .
+<Value> -> <FunId> ( <CallParam> ) .
 
-<additional_call_params> -> , <term> <additional_call_params>
-<additional_call_params> -> epsilon
+<Param> -> <DataType> <VarId> <AdditionalParams> .
+<Param> -> .
 
-<term> -> $id
-<term> -> <literal>
+<AdditionalParams> -> , <DataType> <VarId> <AdditionalParams> .
+<AdditionalParams> -> .
 
-<statement> -> $id = <expression>; <statement>
-<statement> -> $id = fun_id ( <call_params> ); <statement>
-<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
-<statement> -> while (<expression> ) { <statement> } <statement>
-<statement> -> return <expression>; <statement>
-<statement> -> fun_id ( <call_params> ); <statement>
-<statement> -> <expression>; <statement>
-<statement> -> epsilon
+<CallParam> -> <Term> <AdditionalCallParam> .
+<CallParam> -> .
+
+<AdditionalCallParam> -> , <Term> <AdditionalCallParam> .
+<AdditionalCallParam> -> .
+
+<Term> -> <VarId> .
+<Term> -> <Literal> .
+
+<OptionalExp> -> <Exp> .
+<OptionalExp> -> .
