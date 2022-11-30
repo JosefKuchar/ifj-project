@@ -7,6 +7,7 @@
 
 <Statement> -> if ( <Exp> ) { <StatementList> } else { <StatementList> } .
 <Statement> -> while ( <Exp> ) { <StatementList> } .
+<Statement> -> for ( <Exp> ; <Exp> ; <Exp> ) { <StatementList> } .
 <Statement> -> return <OptionalExp> ; .
 <Statement> -> <FunId> ( <CallParam> ) ; .
 <Statement> -> <Exp> ; .
