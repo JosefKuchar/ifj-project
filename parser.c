@@ -294,6 +294,31 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             token_check_type(parser, TOK_RBRACE);                // }
             gen_while_end(parser->gen, state.construct_count);   //
             break;
+        case TOK_FOR:                                           // for       
+            str_clear(&parser->gen->variable);                  //
+            increment_construct_count(parser, &state);          //
+            gen_for(parser->gen, state.construct_count);        //
+            next_token_check_type(parser, TOK_LPAREN);          // (
+            next_token(parser);                                 //
+            rule_exp(parser, state);                            // <exp>
+            token_check_type(parser, TOK_SEMICOLON);            // ;
+            next_token(parser);                                 //
+            rule_exp(parser, state);                            // <exp>
+            token_check_type(parser, TOK_SEMICOLON);            // ;
+            gen_for_exit(parser->gen, state.construct_count);   //
+            next_token(parser);                                 //
+            rule_exp(parser, state);                            // <exp>
+            token_check_type(parser, TOK_RPAREN);               // )
+            next_token_check_type(parser, TOK_LBRACE);          // {
+            next_token(parser);                                 //
+            rule_statement(parser, state);                      // <statement>
+            token_check_type(parser, TOK_RBRACE);               // }
+            gen_for_end(parser->gen, state.construct_count);    //
+            break;
+        case TOK_BREAK:                                         // break
+            // ???
+        case TOK_CONTINUE:                                      // continue
+            // ???
         case TOK_FUN_NAME:                                             // function_name
             str_clear(&parser->gen->variable);                         //
             rule_function_call(parser, state);                         // <function_call>
