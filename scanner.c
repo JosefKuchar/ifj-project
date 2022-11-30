@@ -43,7 +43,13 @@ int get_keyword_token_type(str_t* str) {
         return TOK_VOID;
     if (strcmp("while", str->val) == 0)
         return TOK_WHILE;
-
+    if (strcmp("for", str->val) == 0)
+        return TOK_FOR;
+    if (strcmp("break", str->val) == 0)
+        return TOK_BREAK;
+    if (strcmp("continue", str->val) == 0)
+        return TOK_CONTINUE;
+                
     return -1;
 }
 
