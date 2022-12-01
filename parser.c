@@ -297,7 +297,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
         case TOK_FOR:                                           // for       
             str_clear(&parser->gen->variable);                  //
             increment_construct_count(parser, &state);          //
-            gen_for(parser->gen, state.construct_count);        //
+            gen_for(parser->gen, state.construct_count);        //          this one
             next_token_check_type(parser, TOK_LPAREN);          // (
             next_token(parser);                                 //
             rule_exp(parser, state);                            // <exp>
@@ -305,7 +305,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             next_token(parser);                                 //
             rule_exp(parser, state);                            // <exp>
             token_check_type(parser, TOK_SEMICOLON);            // ;
-            gen_for_exit(parser->gen, state.construct_count);   //
+            gen_for_exit(parser->gen, state.construct_count);   //          this one
             next_token(parser);                                 //
             rule_exp(parser, state);                            // <exp>
             token_check_type(parser, TOK_RPAREN);               // )
@@ -313,12 +313,16 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             next_token(parser);                                 //
             rule_statement(parser, state);                      // <statement>
             token_check_type(parser, TOK_RBRACE);               // }
-            gen_for_end(parser->gen, state.construct_count);    //
+            gen_for_end(parser->gen, state.construct_count);    //          this one
             break;
         case TOK_BREAK:                                         // break
-            // ???
+            str_clear(&parser->gen->variable);
+            next_token_check_type(parser, TOK_SEMICOLON);       // ;
+            break;
         case TOK_CONTINUE:                                      // continue
-            // ???
+            str_clear(&parser->gen->variable);
+            next_token_check_type(parser, TOK_SEMICOLON);       // ;
+            break;
         case TOK_FUN_NAME:                                             // function_name
             str_clear(&parser->gen->variable);                         //
             rule_function_call(parser, state);                         // <function_call>
