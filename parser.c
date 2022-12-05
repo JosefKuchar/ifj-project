@@ -361,7 +361,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 break;                                                 //
             }                                                          //
             rule_value(parser, state);                                 // <value>
-            increment_construct_count(parser, &state);                 //
+            increment_construct_count(parser, &state, false);          //
             gen_return(parser->gen,                                    //
                        state.in_function ?                             //
                            &parser->function->value.function           //
