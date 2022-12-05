@@ -352,11 +352,20 @@ token_t scanner_get_next(scanner_t* scanner) {
                 }
 
                 if (c == '\n' || (c == '\r' && getc(scanner->input) == '\n')) {
+                    scanner->state = SC_HARDEND;
                     break;
                 } else {
                     // There can't be anything after ?> except \n and \r\n
                     error_exit(ERR_SYN);
                 }
+                break;
+            }
+            case SC_HARDEND: {
+                // Only EOF is allowed after hard end
+                if (c == EOF) {
+                    return token_new(TOK_EOF, scanner->line_nr, scanner->col_nr);
+                }
+                error_exit(ERR_SYN);
                 break;
             }
             case SC_NUMBER: {

@@ -32,6 +32,7 @@ enum scanner_state {
     SC_LCOMMENT,        // Oneline comments
     SC_QUESTION_MARK,   // Tokens that start with ?
     SC_END,             // Everything after ?>
+    SC_HARDEND,         // End of file
     SC_START,           // Initial state
     SC_NUMBER,          // Everything that begins with digit
     SC_FLOAT,           // Everything after decimal point
