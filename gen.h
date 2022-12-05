@@ -91,7 +91,7 @@ void gen_if_else_end(gen_t* gen, int construct_count);
  *
  * @param gen Generator instance
  */
-void gen_while(gen_t* gen, int construct_count);
+void gen_loop(gen_t* gen, int construct_count);
 
 /**
  * @brief Generate while condition jump
@@ -99,14 +99,14 @@ void gen_while(gen_t* gen, int construct_count);
  * @param gen Generator instance
  * @param construct_count
  */
-void gen_while_exit(gen_t* gen, int construct_count);
+void gen_loop_exit(gen_t* gen, int construct_count);
 
 /**
  * @brief Generate end of while statement
  *
  * @param gen Generator instance
  */
-void gen_while_end(gen_t* gen, int construct_count);
+void gen_loop_end(gen_t* gen, int construct_count);
 
 /**
  * @brief Generate function declaration
@@ -180,5 +180,15 @@ void gen_return(gen_t* gen, htab_fun_t* function);
  * @param gen Generator instance
  */
 void gen_return_void(gen_t* gen, htab_fun_t* function);
+
+void gen_for_modify_start(gen_t* gen, int construct_count);
+
+void gen_for_modify_end(gen_t* gen, int construct_count);
+
+void gen_for_end(gen_t* gen, int construct_count);
+
+void gen_break(gen_t* gen, int construct_count);
+
+void gen_continue(gen_t* gen, int construct_count);
 
 #endif  // __GEN_H__
