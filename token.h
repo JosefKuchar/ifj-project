@@ -61,7 +61,10 @@ typedef enum {
     TOK_STRING,    // string
     TOK_VOID,      // void
     TOK_WHILE,     // while
-
+    TOK_FOR,       // for
+    TOK_BREAK,     // break
+    TOK_CONTINUE   // continue
+    
 } token_type_t;
 
 /**

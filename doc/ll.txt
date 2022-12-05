@@ -7,6 +7,9 @@
 
 <Statement> -> if ( <Exp> ) { <StatementList> } else { <StatementList> } .
 <Statement> -> while ( <Exp> ) { <StatementList> } .
+<Statement> -> for ( <ExpFor> ; <OptionalExp> ; <ExpFor> ) { <StatementList> } .
+<Statement> -> break ; .
+<Statement> -> continue ; .
 <Statement> -> return <OptionalExp> ; .
 <Statement> -> <FunId> ( <CallParam> ) ; .
 <Statement> -> <Exp> ; .
@@ -32,3 +35,7 @@
 
 <OptionalExp> -> <Exp> .
 <OptionalExp> -> .
+
+<ExpFor> -> <VarId> = <Value> ; .
+<ExpFor> -> .
+

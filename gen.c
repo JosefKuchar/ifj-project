@@ -110,29 +110,76 @@ void gen_if_else_end(gen_t* gen, int construct_count) {
     str_add_cstr(gen->current, "\n");
 }
 
-void gen_while(gen_t* gen, int construct_count) {
+void gen_loop(gen_t* gen, int construct_count) {
     // While label
-    str_add_cstr(gen->current, "LABEL !while_");
+    str_add_cstr(gen->current, "LABEL !loop_");
     str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
 }
 
-void gen_while_exit(gen_t* gen, int construct_count) {
+void gen_loop_exit(gen_t* gen, int construct_count) {
     // Jump to while end if condition is not met
     str_add_cstr(gen->current,
                  "CALL !to_bool\n"
-                 "JUMPIFEQ !whileend_");
+                 "JUMPIFEQ !loopend_");
     str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, " GF@?tmp1 bool@false\n");
 }
 
-void gen_while_end(gen_t* gen, int construct_count) {
-    // Jump back to while label
-    str_add_cstr(gen->current, "JUMP !while_");
+void gen_loop_end(gen_t* gen, int construct_count) {
+    // Define modify label (for continue)
+    str_add_cstr(gen->current, "LABEL !loopmodify_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+    // Jump back to loop label
+    str_add_cstr(gen->current, "JUMP !loop_");
     str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
     // Define while end label
-    str_add_cstr(gen->current, "LABEL !whileend_");
+    str_add_cstr(gen->current, "LABEL !loopend_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");   
+}
+
+void gen_for_end(gen_t* gen, int construct_count) {
+    // Jump back to modify label
+    str_add_cstr(gen->current, "JUMP !loopmodify_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+    // Define while end label
+    str_add_cstr(gen->current, "LABEL !loopend_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+}
+
+void gen_for_modify_start(gen_t* gen, int construct_count) {
+    str_add_cstr(gen->current, "JUMP !loopmodifyend_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current,
+                 "\n"
+                 "LABEL !loopmodify_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+}
+
+void gen_for_modify_end(gen_t* gen, int construct_count) {
+    str_add_cstr(gen->current, "JUMP !loop_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current,
+                 "\n"
+                 "LABEL !loopmodifyend_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+}
+
+void gen_break(gen_t* gen, int construct_count) {
+    str_add_cstr(gen->current, "JUMP !loopend_");
+    str_add_int(gen->current, construct_count);
+    str_add_cstr(gen->current, "\n");
+}
+
+void gen_continue(gen_t* gen, int construct_count) {
+    str_add_cstr(gen->current, "JUMP !loopmodify_");
     str_add_int(gen->current, construct_count);
     str_add_cstr(gen->current, "\n");
 }
