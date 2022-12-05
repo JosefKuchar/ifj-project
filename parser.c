@@ -119,12 +119,9 @@ void next_token_check_by_function(parser_t* parser, bool (*check_function)(token
  * @param parser Parser instance
  * @param state Recursive state
  */
-void increment_construct_count(parser_t* parser, parser_state_t* state, bool loop) {
+void increment_construct_count(parser_t* parser, parser_state_t* state) {
     state->construct_count = parser->construct_count;
     parser->construct_count++;
-    if (loop) {
-        state->loop_count = parser->construct_count;
-    }
 }
 
 void parser_var_to_symtable(parser_t* parser, parser_state_t state) {
@@ -278,7 +275,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
         }
         case TOK_IF:                                              // if
             str_clear(&parser->gen->variable);                    //
-            increment_construct_count(parser, &state, false);     //
+            increment_construct_count(parser, &state);            //
             next_token_check_type(parser, TOK_LPAREN);            // (
             next_token(parser);                                   //
             rule_exp(parser, state);                              // <exp>
@@ -296,9 +293,9 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             token_check_type(parser, TOK_RBRACE);                 // }
             gen_if_else_end(parser->gen, state.construct_count);  //
             break;
-        case TOK_WHILE:                                         // while
+        case TOK_WHILE: {                                       // while
             str_clear(&parser->gen->variable);                  //
-            increment_construct_count(parser, &state, true);    //
+            increment_construct_count(parser, &state);          //
             gen_loop(parser->gen, state.construct_count);       //
             next_token_check_type(parser, TOK_LPAREN);          // (
             next_token(parser);                                 //
@@ -307,19 +304,22 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             token_check_type(parser, TOK_RPAREN);               // )
             next_token_check_type(parser, TOK_LBRACE);          // {
             next_token(parser);                                 //
-            rule_statement(parser, state);                      // <statement>
-            token_check_type(parser, TOK_RBRACE);               // }
-            gen_loop_end(parser->gen, state.construct_count);   //
+            parser_state_t child = state;
+            child.loop_parent = state.construct_count;
+            rule_statement(parser, child);                     // <statement>
+            token_check_type(parser, TOK_RBRACE);              // }
+            gen_loop_end(parser->gen, state.construct_count);  //
             break;
-        case TOK_FOR:                                         // for
-            str_clear(&parser->gen->variable);                //
-            increment_construct_count(parser, &state, true);  //
-            next_token_check_type(parser, TOK_LPAREN);        // (
-            next_token(parser);                               //
-            rule_exp_for(parser, state);                      // <ExpFor>
-            gen_loop(parser->gen, state.construct_count);     // Initialize for
-            token_check_type(parser, TOK_SEMICOLON);          // ;
-            next_token(parser);                               //
+        }
+        case TOK_FOR: {                                    // for
+            str_clear(&parser->gen->variable);             //
+            increment_construct_count(parser, &state);     //
+            next_token_check_type(parser, TOK_LPAREN);     // (
+            next_token(parser);                            //
+            rule_exp_for(parser, state);                   // <ExpFor>
+            gen_loop(parser->gen, state.construct_count);  // Initialize for
+            token_check_type(parser, TOK_SEMICOLON);       // ;
+            next_token(parser);                            //
             if (!token_is_type(parser, TOK_SEMICOLON)) {
                 str_clear(&parser->gen->variable);
                 rule_exp(parser, state);  // <exp>
@@ -327,23 +327,27 @@ void rule_statement(parser_t* parser, parser_state_t state) {
             }
             token_check_type(parser, TOK_SEMICOLON);  // ;
             next_token(parser);                       //
+            gen_for_modify_start(parser->gen, state.construct_count);
             if (!token_is_type(parser, TOK_RPAREN)) {
-                gen_for_modify_start(parser->gen, state.construct_count);
                 rule_exp_for(parser, state);  // <ExpFor>
-                gen_for_modify_end(parser->gen, state.construct_count);
             }
+            gen_for_modify_end(parser->gen, state.construct_count);
             token_check_type(parser, TOK_RPAREN);       // )
             next_token_check_type(parser, TOK_LBRACE);  // {
             next_token(parser);                         //
-            rule_statement(parser, state);              // <statement>
-            token_check_type(parser, TOK_RBRACE);       // }
+            parser_state_t child = state;
+            child.loop_parent = state.construct_count;
+            rule_statement(parser, child);         // <statement>
+            token_check_type(parser, TOK_RBRACE);  // }
             gen_for_end(parser->gen, state.construct_count);
             break;
-        case TOK_BREAK:  // break
-            gen_break(parser->gen, state.loop_count);
+        }
+        case TOK_BREAK:                                    // break
+            gen_break(parser->gen, state.loop_parent);     //
             next_token_check_type(parser, TOK_SEMICOLON);  // ;
             break;
         case TOK_CONTINUE:                                 // continue
+            gen_continue(parser->gen, state.loop_parent);  //
             next_token_check_type(parser, TOK_SEMICOLON);  // ;
             break;
         case TOK_FUN_NAME:                                             // function_name
@@ -361,7 +365,7 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 break;                                                 //
             }                                                          //
             rule_value(parser, state);                                 // <value>
-            increment_construct_count(parser, &state, false);          //
+            increment_construct_count(parser, &state);                 //
             gen_return(parser->gen,                                    //
                        state.in_function ?                             //
                            &parser->function->value.function           //

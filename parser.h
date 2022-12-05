@@ -37,7 +37,7 @@ typedef struct {
     bool in_loop;      // Whether we're in a loop (e.g. while)
     bool in_function;  // Whether we're in a function
     int construct_count;
-    int loop_count;
+    int loop_parent;
 } parser_state_t;
 
 /**
