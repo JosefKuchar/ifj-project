@@ -321,7 +321,7 @@ void gen_function_end(gen_t* gen, htab_fun_t* function, char* function_name) {
     gen->current_header = &gen->header;
 }
 
-void gen_return(gen_t* gen, htab_fun_t* function) {
+void gen_return(gen_t* gen, htab_fun_t* function, int construct_count) {
     if (function != NULL) {
         // Check if function returns value
         if (function->returns.type == TOK_VOID) {
@@ -330,9 +330,18 @@ void gen_return(gen_t* gen, htab_fun_t* function) {
 
         // Check return value type
         // Return value that we got from last expression
+        str_add_cstr(gen->current, "TYPE GF@?type1 GF@?tmp1\n");
+        if (!function->returns.required) {
+            str_add_cstr(gen->current, "JUMPIFEQ !return");
+            str_add_int(gen->current, construct_count);
+            str_add_cstr(gen->current, " string@nil GF@?type1\n");
+        }
         str_add_cstr(gen->current,
-                     "TYPE GF@?type1 GF@?tmp1\n"
                      "JUMPIFNEQ !ERR_SEM_CALL LF@?rettype GF@?type1\n"
+                     "LABEL !return");
+        str_add_int(gen->current, construct_count);
+        str_add_cstr(gen->current,
+                     "\n"
                      "PUSHS GF@?tmp1\n"
                      "POPFRAME\n"
                      "RETURN\n");

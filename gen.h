@@ -172,7 +172,7 @@ void gen_exp(gen_t* gen, token_term_t* root, bool in_function);
  *
  * @param gen Generator instance
  */
-void gen_return(gen_t* gen, htab_fun_t* function);
+void gen_return(gen_t* gen, htab_fun_t* function, int construct_count);
 
 /**
  * @brief Generator return (without value)

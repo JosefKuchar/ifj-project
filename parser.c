@@ -309,10 +309,12 @@ void rule_statement(parser_t* parser, parser_state_t state) {
                 break;                                                 //
             }                                                          //
             rule_value(parser, state);                                 // <value>
+            increment_construct_count(parser, &state);                 //
             gen_return(parser->gen,                                    //
                        state.in_function ?                             //
                            &parser->function->value.function           //
-                                         : NULL);                      //
+                                         : NULL,                       //
+                       state.construct_count);                         //
             break;
         default:
             if (token_is_expression(&parser->token)) {    //
