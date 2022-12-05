@@ -286,7 +286,7 @@ void htab_function_add_param_name(htab_pair_t* fun, token_t* token) {
     // Check if we are not redefining parameter
     for (int i = 0; i < fun->value.function.param_count - 1; i++) {
         if (strcmp(fun->value.function.params[i].name.val, token->attr.val_s.val) == 0) {
-            error_exit(ERR_SEM_FUN);
+            error_exit(ERR_SEM_CALL);
         }
     }
 
