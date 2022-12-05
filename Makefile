@@ -44,7 +44,7 @@ pdf:
 
 # Pack for submission
 zip: pdf
-	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni
+	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni rozsireni
 
 # Submission test
 submission_test: pdf zip
@@ -84,4 +84,5 @@ examples: main
 	cd examples && ./examples.sh
 
 jirka_tests: main
+	echo "CYCLES" > IFJ22_Tester/extensions
 	cd IFJ22_Tester && python3 test.py ../main ../ic22int
