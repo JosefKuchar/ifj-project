@@ -61,6 +61,7 @@ token_term_t* parse_arithmetic(stack_t* stack) {
     new->terminal = false;
     new->right = stack->tokens[0];
     new->left = stack->tokens[2];
+    new->result = TOK_VAR;
 
     if (!(type_is_literal(stack->tokens[0]->result) || stack->tokens[0]->result == TOK_VAR)) {
         error_exit(ERR_SYN);
@@ -72,34 +73,6 @@ token_term_t* parse_arithmetic(stack_t* stack) {
         error_exit(ERR_SYN);
     }
 
-    token_type_t a = stack->tokens[0]->result;
-    token_type_t b = stack->tokens[2]->result;
-
-    if (a == TOK_NULL) {
-        a = TOK_INT_LIT;
-    }
-    if (b == TOK_NULL) {
-        b = TOK_INT_LIT;
-    }
-
-    if (a == TOK_VAR || b == TOK_VAR) {
-        new->result = TOK_VAR;
-        return new;
-    }
-
-    if (a == TOK_FLOAT_LIT || b == TOK_FLOAT_LIT) {
-        if (!type_is_number(a) || !type_is_number(b)) {
-            error_exit(ERR_SYN);
-        }
-        new->result = TOK_FLOAT_LIT;
-        return new;
-    }
-
-    if (a == TOK_INT_LIT && b == TOK_INT_LIT) {
-        new->result = TOK_INT_LIT;
-        return new;
-    }
-    error_exit(ERR_SYN);
     return new;
 }
 
@@ -151,10 +124,10 @@ token_term_t* parse_comparison(stack_t* stack) {
 const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     // =/!= only for formatting reasons
     /** /  +  -  .  <  <= > >= == !=  (  )  ID IN FL ST NI $ */
-    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // *
-    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // /
-    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // +
-    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, X, L, R},  // -
+    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // *
+    {R, R, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // /
+    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // +
+    {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // -
     {L, L, R, R, R, R, R, R, R, R, R, L, R, L, L, L, L, L, R},  // .
     {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <
     {L, L, L, L, L, X, X, X, X, X, X, L, R, L, L, L, L, L, R},  // <=
@@ -167,7 +140,7 @@ const int precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // ID
     {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // IN
     {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // FL
-    {X, X, X, X, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // ST
+    {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // ST
     {R, R, R, R, R, R, R, R, R, R, R, X, R, X, X, X, X, X, R},  // NI
     {L, L, L, L, L, L, L, L, L, L, L, L, X, L, L, L, L, L, R},  // $
 };
