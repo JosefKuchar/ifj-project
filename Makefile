@@ -43,11 +43,11 @@ pdf:
 	pdflatex -interaction nonstopmode doc/dokumentace.tex
 
 # Pack for submission
-zip: pdf
+zip:
 	zip xkucha28.zip *.c *.h dokumentace.pdf Makefile rozdeleni rozsireni
 
 # Submission test
-submission_test: pdf zip
+submission_test: zip
 	./is_it_ok.sh xkucha28.zip send_test
 
 # Tests
