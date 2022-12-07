@@ -60,7 +60,6 @@ main
 send_test
 
 # PDF files
-dokumentace.pdf
 *.aux
 *.log
 
